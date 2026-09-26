@@ -10,9 +10,9 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 /**
- * 字典数据
+ * Dictionary data
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Mapper

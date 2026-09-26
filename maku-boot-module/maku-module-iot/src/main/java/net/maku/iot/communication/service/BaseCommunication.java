@@ -6,25 +6,25 @@ import net.maku.iot.communication.dto.DeviceCommandResponseDTO;
 
 
 /**
- * 通信协议具备功能
+ * Capabilities of the communication protocol
  *
  * @author LSF maku_lsf@163.com
  */
 public interface BaseCommunication {
 
-    // 异步发送指令,不等待设备响应
+    // Send command asynchronously,Do not wait for device response
     String asyncSendCommand(IotDeviceEntity device, DeviceCommandEnum command, String payload);
 
-    //同步发送指定，等待设备响应
+    //Send synchronously, wait for device response
     DeviceCommandResponseDTO syncSendCommand(IotDeviceEntity device, DeviceCommandEnum command, String payload);
 
-    //同步发送指定，等待设备响应，调试实现
+    //Send synchronously, wait for device response, debug implementation
     DeviceCommandResponseDTO syncSendCommandDebug(IotDeviceEntity device, DeviceCommandEnum command, String payload);
 
-    //模拟设备属性上报
+    //Simulate device property report
     void simulateDeviceReportAttributeData(IotDeviceEntity device, String payload);
 
-    //模拟设备服务指令响应数据
+    //Simulate device service command response data
     void simulateDeviceCommandResponseAttributeData(IotDeviceEntity device, String payload);
 
 

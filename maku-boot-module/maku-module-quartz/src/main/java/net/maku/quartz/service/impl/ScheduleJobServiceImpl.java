@@ -24,9 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 定时任务
+ * Scheduled task
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -35,7 +35,7 @@ public class ScheduleJobServiceImpl extends BaseServiceImpl<ScheduleJobDao, Sche
     private final Scheduler scheduler;
 
     /**
-     * 启动项目时，初始化定时器
+     * When the project starts, initialize the scheduler
      */
     @PostConstruct
     public void init() throws SchedulerException {
@@ -76,7 +76,7 @@ public class ScheduleJobServiceImpl extends BaseServiceImpl<ScheduleJobDao, Sche
     public void update(ScheduleJobVO vo) {
         ScheduleJobEntity entity = BeanUtil.copyProperties(vo, ScheduleJobEntity.class);
 
-        // 更新定时任务
+        // Update scheduled task
         if (updateById(entity)) {
             ScheduleJobEntity scheduleJob = getById(entity.getId());
             ScheduleUtils.updateSchedulerJob(scheduler, scheduleJob);
@@ -89,7 +89,7 @@ public class ScheduleJobServiceImpl extends BaseServiceImpl<ScheduleJobDao, Sche
         for (Long id : idList) {
             ScheduleJobEntity scheduleJob = getById(id);
 
-            // 删除定时任务
+            // Delete scheduled task
             if (removeById(id)) {
                 ScheduleUtils.deleteScheduleJob(scheduler, scheduleJob);
             }
@@ -113,7 +113,7 @@ public class ScheduleJobServiceImpl extends BaseServiceImpl<ScheduleJobDao, Sche
             return;
         }
 
-        // 更新数据
+        // Update data
         scheduleJob.setStatus(vo.getStatus());
         updateById(scheduleJob);
 

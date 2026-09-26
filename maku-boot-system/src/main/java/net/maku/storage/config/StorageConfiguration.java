@@ -9,9 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * 存储配置文件
+ * Storage configuration file
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Configuration

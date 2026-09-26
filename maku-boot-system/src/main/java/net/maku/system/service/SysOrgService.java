@@ -7,9 +7,9 @@ import net.maku.system.vo.SysOrgVO;
 import java.util.List;
 
 /**
- * 机构管理
+ * Organization management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysOrgService extends BaseService<SysOrgEntity> {
@@ -25,16 +25,16 @@ public interface SysOrgService extends BaseService<SysOrgEntity> {
     void delete(Long id);
 
     /**
-     * 根据机构ID，获取子机构ID列表(包含本机构ID)
+     * Get the child organization ID list by organization ID(Includes this organization ID)
      *
-     * @param id 机构ID
+     * @param id Organization ID
      */
     List<Long> getSubOrgIdList(Long id);
 
     /**
-     * 根据机构ID列表，获取机构名称列表
+     * Get the organization name list by organization ID list
      *
-     * @param idList 机构ID列表
+     * @param idList Organization ID list
      */
     List<String> getNameList(List<Long> idList);
 }

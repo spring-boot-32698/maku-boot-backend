@@ -21,20 +21,20 @@ import java.util.List;
 
 
 /**
- * 岗位管理
+ * Post management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/post")
-@Tag(name = "岗位管理")
+@Tag(name = "Post management")
 @AllArgsConstructor
 public class SysPostController {
     private final SysPostService sysPostService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     public Result<PageResult<SysPostVO>> page(@ParameterObject @Valid SysPostQuery query) {
         PageResult<SysPostVO> page = sysPostService.page(query);
 
@@ -42,7 +42,7 @@ public class SysPostController {
     }
 
     @GetMapping("list")
-    @Operation(summary = "列表")
+    @Operation(summary = "List")
     public Result<List<SysPostVO>> list() {
         List<SysPostVO> list = sysPostService.getList();
 
@@ -50,7 +50,7 @@ public class SysPostController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('sys:post:info')")
     public Result<SysPostVO> get(@PathVariable("id") Long id) {
         SysPostEntity entity = sysPostService.getById(id);
@@ -59,7 +59,7 @@ public class SysPostController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @OperateLog(type = OperateTypeEnum.INSERT)
     @PreAuthorize("hasAuthority('sys:post:save')")
     public Result<String> save(@RequestBody SysPostVO vo) {
@@ -69,7 +69,7 @@ public class SysPostController {
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('sys:post:update')")
     public Result<String> update(@RequestBody @Valid SysPostVO vo) {
@@ -79,7 +79,7 @@ public class SysPostController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @OperateLog(type = OperateTypeEnum.DELETE)
     @PreAuthorize("hasAuthority('sys:post:delete')")
     public Result<String> delete(@RequestBody List<Long> idList) {
@@ -89,7 +89,7 @@ public class SysPostController {
     }
 
     @PostMapping("nameList")
-    @Operation(summary = "名称列表")
+    @Operation(summary = "Name list")
     public Result<List<String>> nameList(@RequestBody List<Long> idList) {
         List<String> list = sysPostService.getNameList(idList);
 

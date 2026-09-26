@@ -1,13 +1,13 @@
 package net.maku.iot.communication.mqtt.handler;
 
 /**
- * MQTT订阅消息处理接口
+ * MQTTSubscribed message handling interface
  *
  * @author LSF maku_lsf@163.com
  */
 public interface MqttMessageHandler {
     /**
-     * 是否支持处理指定的topic
+     * Whether handling the specified topic is supported
      *
      * @param topic
      * @return
@@ -15,7 +15,7 @@ public interface MqttMessageHandler {
     boolean supports(String topic);
 
     /**
-     * mqtt消息处理接口
+     * mqttMessage handling interface
      *
      * @param topic
      * @param message

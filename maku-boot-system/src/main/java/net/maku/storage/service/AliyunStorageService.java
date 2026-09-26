@@ -9,9 +9,9 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 /**
- * 阿里云存储
+ * Alibaba Cloud storage
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class AliyunStorageService extends StorageService {
@@ -32,7 +32,7 @@ public class AliyunStorageService extends StorageService {
         try {
             client.putObject(properties.getAliyun().getBucketName(), path, inputStream);
         } catch (Exception e) {
-            throw new ServerException("上传文件失败：", e);
+            throw new ServerException("File upload failed:", e);
         } finally {
             if (client != null) {
                 client.shutdown();

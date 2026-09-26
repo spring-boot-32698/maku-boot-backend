@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Arrays;
 
 /**
- * 设备类型枚举,新增的设备类型枚举命名不允许使用"_"
+ * Device type enum,Newly added device type enum names are not allowed to use"_"
  *
  * @author LSF maku_lsf@163.com
  */
@@ -15,27 +15,27 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public enum DeviceTypeEnum {
     /**
-     * 手持设备
+     * Handheld device
      */
     HANDSET(1),
 
     /**
-     * 柜体
+     * Cabinet
      */
     CABINET(2),
 
     /**
-     * 传感设备
+     * Sensor device
      */
     SENSOR(3);
 
     /**
-     * 类型值
+     * Type value
      */
     private final Integer value;
 
     /**
-     * 解析指定的valueName
+     * Parse the specified valueName
      *
      * @param valueName
      * @return DeviceTypeEnum
@@ -46,7 +46,7 @@ public enum DeviceTypeEnum {
                 .filter(d -> d.getValue().toString().equals(valueName)
                         || d.name().equalsIgnoreCase(valueName)).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
-                        StrUtil.format("无效的DeviceTypeEnum值：{}", valueName)));
+                        StrUtil.format("Invalid DeviceTypeEnum value:{}", valueName)));
     }
 
 }

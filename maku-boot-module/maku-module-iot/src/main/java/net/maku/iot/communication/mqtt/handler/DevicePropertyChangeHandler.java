@@ -4,13 +4,13 @@ package net.maku.iot.communication.mqtt.handler;
 import net.maku.iot.communication.dto.DevicePropertyDTO;
 
 /**
- * 设备属性变化处理器
+ * Device property change handler
  *
  * @author LSF maku_lsf@163.com
  */
 public interface DevicePropertyChangeHandler {
     /**
-     * 设备属性状态变化处理
+     * Device property status change handling
      *
      * @param topic
      * @param deviceStatus

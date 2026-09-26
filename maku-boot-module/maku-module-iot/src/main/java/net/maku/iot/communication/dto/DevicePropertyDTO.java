@@ -5,22 +5,22 @@ import lombok.Data;
 import net.maku.iot.enums.DevicePropertyEnum;
 
 /**
- * 设备属性对象
+ * Device property object
  *
  * @author LSF maku_lsf@163.com
  */
 @Data
-@Schema(description = "设备属性对象")
+@Schema(description = "Device property object")
 public class DevicePropertyDTO extends BaseDeviceID {
     /**
-     * 设备属性类型
+     * Device property type
      */
-    @Schema(description = "设备属性类型")
+    @Schema(description = "Device property type")
     private DevicePropertyEnum propertyType;
 
     /**
-     * 属性数据
+     * Property data
      */
-    @Schema(description = "状态数据，不同状态类型需传入相应的状态数据", required = true)
+    @Schema(description = "Status data; different status types need to pass in the corresponding status data", required = true)
     private String payload;
 }

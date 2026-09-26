@@ -22,9 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 第三方登录配置
+ * Third-party login settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -64,7 +64,7 @@ public class SysThirdLoginConfigServiceImpl extends BaseServiceImpl<SysThirdLogi
                 .eq(SysThirdLoginConfigEntity::getOpenType, openType));
 
         if (config == null) {
-            throw new ServerException("未配置第三方登录，请配置后再尝试");
+            throw new ServerException("Third-party login is not configured, please configure it and try again");
         }
 
         AuthRequest authRequest = switch (ThirdLoginEnum.toEnum(openType)) {

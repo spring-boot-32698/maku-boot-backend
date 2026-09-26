@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 字典翻译服务
+ * Dictionary translation service
  * <p>
- * 维护字典翻译缓存，提供正向翻译（value -> label）和反向翻译（label -> value）
+ * Maintain the dictionary translation cache, providing forward translation (value -> label) and reverse translation (label -> value)
  *
  * @author maku
  */
@@ -17,50 +17,50 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class DictionaryTransService {
     /**
-     * 字典翻译缓存
-     * key 格式: dictType_dictValue -> dictLabel (正向)
-     * key 格式: un_trans:dictType_dictLabel -> dictValue (反向)
+     * Dictionary translation cache
+     * key Format: dictType_dictValue -> dictLabel (Forward)
+     * key Format: un_trans:dictType_dictLabel -> dictValue (Reverse)
      */
     private final Map<String, String> dictionaryTransMap = new ConcurrentHashMap<>();
 
     /**
-     * 获取字典翻译Map
+     * Get dictionary translation Map
      *
-     * @return 翻译缓存
+     * @return Translation cache
      */
     public Map<String, String> getDictionaryTransMap() {
         return dictionaryTransMap;
     }
 
     /**
-     * 刷新字典缓存
+     * Refresh dictionary cache
      *
-     * @param dictType 字典类型
-     * @param dataMap  字典数据 key: dictValue, value: dictLabel
+     * @param dictType Dictionary type
+     * @param dataMap  Dictionary data key: dictValue, value: dictLabel
      */
     public void refreshCache(String dictType, Map<String, String> dataMap) {
         if (dictType == null || dataMap == null) {
             return;
         }
-        // 先清除该字典类型的旧缓存
+        // Clear the old cache of this dictionary type first
         dictionaryTransMap.entrySet().removeIf(entry ->
                 entry.getKey().startsWith(dictType + "_") ||
                         entry.getKey().startsWith("un_trans:" + dictType + "_"));
-        // 添加新缓存
+        // Add new cache
         dataMap.forEach((value, label) -> {
-            // 正向翻译: dictType_value -> label
+            // Forward translation: dictType_value -> label
             dictionaryTransMap.put(dictType + "_" + value, label);
-            // 反向翻译: un_trans:dictType_label -> value
+            // Reverse translation: un_trans:dictType_label -> value
             dictionaryTransMap.put("un_trans:" + dictType + "_" + label, value);
         });
     }
 
     /**
-     * 正向翻译：根据字典类型和字典值获取字典标签
+     * Forward translation: get the dictionary label by dictionary type and dictionary value
      *
-     * @param dictType  字典类型
-     * @param dictValue 字典值
-     * @return 字典标签
+     * @param dictType  Dictionary type
+     * @param dictValue Dictionary value
+     * @return Dictionary label
      */
     public String translate(String dictType, Object dictValue) {
         if (dictType == null || dictValue == null) {
@@ -70,11 +70,11 @@ public class DictionaryTransService {
     }
 
     /**
-     * 反向翻译：根据字典类型和字典标签获取字典值
+     * Reverse translation: get the dictionary value by dictionary type and dictionary label
      *
-     * @param dictType  字典类型
-     * @param dictLabel 字典标签
-     * @return 字典值
+     * @param dictType  Dictionary type
+     * @param dictLabel Dictionary label
+     * @return Dictionary value
      */
     public String reverseTranslate(String dictType, String dictLabel) {
         if (dictType == null || dictLabel == null) {

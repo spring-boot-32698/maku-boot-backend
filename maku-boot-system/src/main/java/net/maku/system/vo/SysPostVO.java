@@ -12,36 +12,36 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 岗位管理
+ * Post management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "岗位管理")
+@Schema(description = "Post management")
 public class SysPostVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
     private Long id;
 
-    @Schema(description = "岗位编码", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "岗位编码不能为空")
+    @Schema(description = "Post code", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Post code cannot be empty")
     private String postCode;
 
-    @Schema(description = "岗位名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "岗位名称不能为空")
+    @Schema(description = "Post name", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Post name cannot be empty")
     private String postName;
 
-    @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Min(value = 0, message = "排序值不能小于0")
+    @Schema(description = "Sort", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Min(value = 0, message = "Sort value cannot be less than 0")
     private Integer sort;
 
-    @Schema(description = "状态  0：停用   1：正常", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Range(min = 0, max = 1, message = "状态不正确")
+    @Schema(description = "Status  0: disabled   1: normal", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Range(min = 0, max = 1, message = "Status is incorrect")
     private Integer status;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Creation time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime createTime;
 

@@ -6,9 +6,9 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.mybatis.entity.BaseEntity;
 
 /**
- * 参数管理
+ * Parameter management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -17,32 +17,32 @@ import net.maku.framework.mybatis.entity.BaseEntity;
 public class SysParamsEntity extends BaseEntity {
 
     /**
-     * 参数名称
+     * Parameter name
      */
     private String paramName;
 
     /**
-     * 系统参数
+     * System parameters
      */
     private Integer paramType;
 
     /**
-     * 参数键
+     * Parameter key
      */
     private String paramKey;
 
     /**
-     * 参数值
+     * Parameter value
      */
     private String paramValue;
 
     /**
-     * 备注
+     * Remarks
      */
     private String remark;
 
     /**
-     * 租户ID
+     * Tenant ID
      */
     private Long tenantId;
 }

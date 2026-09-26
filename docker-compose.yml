@@ -1,0 +1,63 @@
+# Backend stack: MySQL + Redis + maku-boot API (http://localhost:8080)
+# Start with: docker compose up -d --build
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: maku-mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: maku_boot
+      MYSQL_USER: maku
+      MYSQL_PASSWORD: "123456"
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # Scripts run in file-name order on first start (English version of the schema)
+      - ./db/mysql-ver-english/maku.sql:/docker-entrypoint-initdb.d/01-maku.sql:ro
+      - ./db/mysql-ver-english/module/maku-module-generator.sql:/docker-entrypoint-initdb.d/02-generator.sql:ro
+      - ./db/mysql-ver-english/module/maku-module-member.sql:/docker-entrypoint-initdb.d/03-member.sql:ro
+      - ./db/mysql-ver-english/module/maku-module-monitor.sql:/docker-entrypoint-initdb.d/04-monitor.sql:ro
+      - ./db/mysql-ver-english/module/maku-module-quartz.sql:/docker-entrypoint-initdb.d/05-quartz.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    container_name: maku-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  maku-boot:
+    build: .
+    container_name: maku-boot
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_URL: jdbc:mysql://mysql:3306/maku_boot?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&nullCatalogMeansCurrent=true
+      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_USERNAME: maku
+      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_PASSWORD: "123456"
+      STORAGE_LOCAL_PATH: /app/upload
+    volumes:
+      - upload-data:/app/upload
+
+volumes:
+  mysql-data:
+  upload-data:

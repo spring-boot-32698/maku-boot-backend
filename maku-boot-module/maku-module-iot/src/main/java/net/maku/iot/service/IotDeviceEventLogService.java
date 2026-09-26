@@ -10,7 +10,7 @@ import net.maku.iot.vo.IotDeviceEventLogVO;
 import java.util.List;
 
 /**
- * 设备事件日志
+ * Device event log
  *
  * @author LSF maku_lsf@163.com
  */
@@ -25,27 +25,27 @@ public interface IotDeviceEventLogService extends BaseService<IotDeviceEventLogE
     void delete(List<Long> idList);
 
     /**
-     * 创建设备事件
+     * Create device event
      *
-     * @param deviceId  设备ID
-     * @param tenantId  租户ID
-     * @param eventType 事件类型
-     * @param eventUid  事件UID
-     * @param payload   事件数据
-     * @return 设备事件
+     * @param deviceId  Device ID
+     * @param tenantId  Tenant ID
+     * @param eventType Event type
+     * @param eventUid  Event UID
+     * @param payload   Event data
+     * @return Device event
      */
     IotDeviceEventLogEntity createDeviceEvent(Long deviceId, Long tenantId, DeviceEventTypeEnum eventType,
                                               String eventUid, Object payload);
 
     /**
-     * 创建设备事件并保存
+     * Create and save device event
      *
-     * @param deviceId  设备ID
-     * @param tenantId  租户ID
-     * @param eventType 事件类型
-     * @param eventUid  事件UID
-     * @param payload   事件数据
-     * @return 设备事件
+     * @param deviceId  Device ID
+     * @param tenantId  Tenant ID
+     * @param eventType Event type
+     * @param eventUid  Event UID
+     * @param payload   Event data
+     * @return Device event
      */
     void createAndSaveDeviceEvent(Long deviceId, Long tenantId, DeviceEventTypeEnum eventType,
                                   String eventUid, Object payload);

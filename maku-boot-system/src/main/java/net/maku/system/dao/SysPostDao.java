@@ -5,9 +5,9 @@ import net.maku.system.entity.SysPostEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
-* 岗位管理
+* Post management
 *
-* @author 阿沐 babamu@126.com
+* @author Amu babamu@126.com
 */
 @Mapper
 public interface SysPostDao extends BaseDao<SysPostEntity> {

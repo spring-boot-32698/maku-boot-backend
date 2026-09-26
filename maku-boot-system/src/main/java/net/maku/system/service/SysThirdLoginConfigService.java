@@ -10,9 +10,9 @@ import net.maku.system.vo.SysThirdLoginConfigVO;
 import java.util.List;
 
 /**
- * 第三方登录配置
+ * Third-party login settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysThirdLoginConfigService extends BaseService<SysThirdLoginConfigEntity> {
@@ -26,9 +26,9 @@ public interface SysThirdLoginConfigService extends BaseService<SysThirdLoginCon
     void delete(List<Long> idList);
 
     /**
-     * 根据类型，获取授权请求
+     * Get the authorization request by type
      *
-     * @param openType 第三方登录类型
+     * @param openType Third-party login type
      */
     AuthRequest getAuthRequest(String openType);
 }

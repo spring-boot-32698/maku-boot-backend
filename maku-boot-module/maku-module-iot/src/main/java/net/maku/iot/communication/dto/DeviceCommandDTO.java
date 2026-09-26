@@ -5,28 +5,28 @@ import lombok.Data;
 import net.maku.iot.enums.DeviceCommandEnum;
 
 /**
- * 设备命令对象
+ * Device command object
  *
  * @author LSF maku_lsf@163.com
  */
 @Data
-@Schema(description = "设备命令对象")
+@Schema(description = "Device command object")
 public class DeviceCommandDTO extends BaseDeviceID {
     /**
-     * 命令类型
+     * Command type
      */
-    @Schema(description = "命令类型", required = true)
+    @Schema(description = "Command type", required = true)
     private DeviceCommandEnum command;
 
     /**
-     * 命令id
+     * Command id
      */
-    @Schema(description = "命令id", required = true)
+    @Schema(description = "Command id", required = true)
     private String id;
 
     /**
-     * 命令内容
+     * Command content
      */
-    @Schema(description = "命令内容")
+    @Schema(description = "Command content")
     private String payload;
 }

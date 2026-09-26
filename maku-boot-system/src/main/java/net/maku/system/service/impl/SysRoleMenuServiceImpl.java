@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 
 
 /**
- * 角色与菜单对应关系
+ * Role-menu mapping
  * 
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -26,10 +26,10 @@ public class SysRoleMenuServiceImpl extends BaseServiceImpl<SysRoleMenuDao, SysR
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void saveOrUpdate(Long roleId, List<Long> menuIdList) {
-		// 数据库菜单ID列表
+		// Menu ID list in the database
 		List<Long> dbMenuIdList = getMenuIdList(roleId);
 
-		// 需要新增的菜单ID
+		// Menu IDs to add
 		Collection<Long> insertMenuIdList = CollUtil.subtract(menuIdList, dbMenuIdList);
 		if (CollUtil.isNotEmpty(insertMenuIdList)){
 			List<SysRoleMenuEntity> menuList = insertMenuIdList.stream().map(menuId -> {
@@ -39,11 +39,11 @@ public class SysRoleMenuServiceImpl extends BaseServiceImpl<SysRoleMenuDao, SysR
 				return entity;
 			}).collect(Collectors.toList());
 
-			// 批量新增
+			// Batch add
 			saveBatch(menuList);
 		}
 
-		// 需要删除的菜单ID
+		// Menu IDs to delete
 		Collection<Long> deleteMenuIdList = CollUtil.subtract(dbMenuIdList, menuIdList);
 		if (CollUtil.isNotEmpty(deleteMenuIdList)){
 			LambdaQueryWrapper<SysRoleMenuEntity> queryWrapper = new LambdaQueryWrapper<>();

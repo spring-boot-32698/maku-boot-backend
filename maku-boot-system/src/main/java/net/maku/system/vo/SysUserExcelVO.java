@@ -13,9 +13,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * excel用户表
+ * excelUser table
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -24,48 +24,48 @@ public class SysUserExcelVO implements Serializable, TransPojo {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 本属性对于导出无用，只是用于翻译
+     * This property is useless for export and is only used for translation
      */
     @ExcelIgnore
     private Long id;
 
-    @ExcelProperty("用户名")
+    @ExcelProperty("Username")
     private String username;
 
-    @ExcelProperty("姓名")
+    @ExcelProperty("Name")
     private String realName;
 
     @ExcelIgnore
     @Trans(type = TransType.DICTIONARY, key = "user_gender", ref = "genderLabel")
     private Integer gender;
 
-    @ExcelProperty(value = "性别")
+    @ExcelProperty(value = "Gender")
     private String genderLabel;
 
-    @ExcelProperty("邮箱")
+    @ExcelProperty("Email")
     private String email;
 
-    @ExcelProperty("手机号")
+    @ExcelProperty("Mobile number")
     private String mobile;
 
-    @ExcelProperty("机构ID")
+    @ExcelProperty("Organization ID")
     private Long orgId;
 
     @ExcelIgnore
     @Trans(type = TransType.DICTIONARY, key = "user_status", ref = "statusLabel")
     private Integer status;
 
-    @ExcelProperty(value = "状态")
+    @ExcelProperty(value = "Status")
     private String statusLabel;
 
     @ExcelIgnore
     @Trans(type = TransType.DICTIONARY, key = "user_super_admin", ref = "superAdminLabel")
     private Integer superAdmin;
 
-    @ExcelProperty(value = "超级管理员")
+    @ExcelProperty(value = "Super administrator")
     private String superAdminLabel;
 
-    @ExcelProperty(value = "创建时间", converter = LocalDateTimeConverter.class)
+    @ExcelProperty(value = "Creation time", converter = LocalDateTimeConverter.class)
     private LocalDateTime createTime;
 
 }

@@ -5,9 +5,9 @@ import net.maku.system.entity.SysAttachmentEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 附件管理
+ * Attachment management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Mapper

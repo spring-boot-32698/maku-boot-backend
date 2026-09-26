@@ -6,46 +6,46 @@ import net.maku.system.vo.SysUserTokenVO;
 
 
 /**
- * 用户Token
+ * User Token
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 public interface SysUserTokenService extends BaseService<SysUserTokenEntity> {
 
     /**
-     * 根据用户ID，生成用户Token
+     * Generate the user Token by user ID
      *
-     * @param userId 用户ID
-     * @return 用户Token
+     * @param userId User ID
+     * @return User Token
      */
     SysUserTokenVO createToken(Long userId);
 
     /**
-     * 根据refreshToken，生成新Token
+     * Generate a new Token by refreshToken
      *
      * @param refreshToken refreshToken
-     * @return 用户Token
+     * @return User Token
      */
     SysUserTokenVO refreshToken(String refreshToken);
 
     /**
-     * Token过期
+     * TokenExpired
      *
-     * @param userId 用户ID
+     * @param userId User ID
      */
     void expireToken(Long userId);
 
     /**
-     * 根据角色ID，更新用户缓存权限
+     * Update the user cached permissions by role ID
      *
-     * @param roleId 角色ID
+     * @param roleId Role ID
      */
     void updateCacheAuthByRoleId(Long roleId);
 
     /**
-     * 根据用户ID，更新用户缓存权限
+     * Update the user cached permissions by user ID
      *
-     * @param userId 用户ID
+     * @param userId User ID
      */
     void updateCacheAuthByUserId(Long userId);
 }

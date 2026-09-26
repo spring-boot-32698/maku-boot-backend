@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * 邮件配置 Cache
+ * Mail settings Cache
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -19,25 +19,25 @@ public class EmailConfigCache {
     private final RedisCache redisCache;
 
     /**
-     * 邮件平台轮询KEY
+     * Mail platform rotation KEY
      */
     private final String SMS_ROUND_KEY = "sys:mail:round";
     private final String SMS_ROUND_CODE_KEY = "sys:mail:round:code";
 
     /**
-     * 邮件平台列表KEY
+     * Mail platform list KEY
      */
     private final String SMS_PLATFORM_KEY = "sys:mail:platform";
 
     /**
-     * 获取邮件轮询值
+     * Get the mail rotation value
      */
     public Long getRoundValue() {
         return redisCache.increment(SMS_ROUND_KEY);
     }
 
     /**
-     * 获取邮件编码轮询值
+     * Get the mail code rotation value
      */
     public Long getRoundCodeValue() {
         return redisCache.increment(SMS_ROUND_CODE_KEY);

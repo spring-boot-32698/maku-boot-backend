@@ -9,40 +9,40 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 邮件配置
+ * Mail settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Data
-@Schema(description = "邮件配置")
+@Schema(description = "Mail settings")
 public class SysMailConfigVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
     private Long id;
 
-    @Schema(description = "平台类型")
+    @Schema(description = "Platform type")
     private Integer platform;
 
-    @Schema(description = "分组名称，发送邮件时，可指定分组")
+    @Schema(description = "Group name; a group can be specified when sending mail")
     private String groupName;
 
-    @Schema(description = "SMTP服务器")
+    @Schema(description = "SMTPServer")
     private String mailHost;
 
-    @Schema(description = "SMTP端口")
+    @Schema(description = "SMTPPort")
     private Integer mailPort;
 
-    @Schema(description = "发件人邮箱")
+    @Schema(description = "Sender email")
     private String mailFrom;
 
-    @Schema(description = "发件人密码")
+    @Schema(description = "Sender password")
     private String mailPass;
 
     @Schema(description = "regionId")
     private String regionId;
 
-    @Schema(description = "阿里云 endpoint")
+    @Schema(description = "Alibaba Cloud endpoint")
     private String endpoint;
 
     @Schema(description = "AccessKey")
@@ -51,26 +51,26 @@ public class SysMailConfigVO implements Serializable {
     @Schema(description = "SecretKey")
     private String secretKey;
 
-    @Schema(description = "状态  0：禁用   1：启用")
+    @Schema(description = "Status  0: disabled   1: enabled")
     private Integer status;
 
-    @Schema(description = "版本号")
+    @Schema(description = "Version number")
     private Integer version;
 
-    @Schema(description = "删除标识")
+    @Schema(description = "Delete flag")
     private Integer deleted;
 
-    @Schema(description = "创建者")
+    @Schema(description = "Creator")
     private Long creator;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Creation time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private Date createTime;
 
-    @Schema(description = "更新者")
+    @Schema(description = "Updater")
     private Long updater;
 
-    @Schema(description = "更新时间")
+    @Schema(description = "Update time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private Date updateTime;
 

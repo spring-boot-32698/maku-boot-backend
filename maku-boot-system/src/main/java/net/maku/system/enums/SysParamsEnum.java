@@ -1,14 +1,14 @@
 package net.maku.system.enums;
 
 /**
- * 系统参数 枚举
+ * System parameters enum
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public enum SysParamsEnum {
     /**
-     * 登录验证码
+     * Login captcha
      */
     LOGIN_CAPTCHA
 }

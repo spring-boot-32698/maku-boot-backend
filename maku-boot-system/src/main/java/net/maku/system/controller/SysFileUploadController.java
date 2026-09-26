@@ -16,29 +16,29 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * 文件上传
+ * File upload
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/file")
-@Tag(name = "文件上传")
+@Tag(name = "File upload")
 @AllArgsConstructor
 public class SysFileUploadController {
     private final StorageService storageService;
 
     @PostMapping("upload")
-    @Operation(summary = "上传")
+    @Operation(summary = "Upload")
     @OperateLog(type = OperateTypeEnum.INSERT)
     public Result<SysFileUploadVO> upload(@RequestParam("file") MultipartFile file) throws Exception {
         if (file.isEmpty()) {
-            return Result.error("请选择需要上传的文件");
+            return Result.error("Please select the file to upload");
         }
 
-        // 上传路径
+        // Upload path
         String path = storageService.getPath(file.getOriginalFilename());
-        // 上传文件
+        // Upload file
         String url = storageService.upload(file.getBytes(), path);
 
         SysFileUploadVO vo = new SysFileUploadVO();
@@ -51,16 +51,16 @@ public class SysFileUploadController {
     }
 
     @PostMapping("uploads")
-    @Operation(summary = "上传")
+    @Operation(summary = "Upload")
     @OperateLog(type = OperateTypeEnum.INSERT)
     public SysFileUploadVO uploads(@RequestParam("file") MultipartFile file) throws Exception {
         if (file.isEmpty()) {
-            throw new ServerException("请选择需要上传的文件");
+            throw new ServerException("Please select the file to upload");
         }
 
-        // 上传路径
+        // Upload path
         String path = storageService.getPath(file.getOriginalFilename());
-        // 上传文件
+        // Upload file
         String url = storageService.upload(file.getBytes(), path);
 
         SysFileUploadVO vo = new SysFileUploadVO();

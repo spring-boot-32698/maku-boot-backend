@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 设备运行状态变化处理器工厂，自动获取所有实现的handler实例
+ * Device running status change handler factory that automatically gets all implemented handler instances
  *
  * @author LSF maku_lsf@163.com
  */
@@ -20,12 +20,12 @@ public class DevicePropertyChangeHandlerFactory {
     private final ApplicationContext applicationContext;
 
     /**
-     * 所有设备运行属性变化handlers
+     * All device running property change handlers
      */
     private List<DevicePropertyChangeHandler> handlers;
 
     /**
-     * 获取设备运行状态变化handlers
+     * Get device running status change handlers
      *
      * @return
      */

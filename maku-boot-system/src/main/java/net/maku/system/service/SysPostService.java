@@ -9,9 +9,9 @@ import net.maku.system.vo.SysPostVO;
 import java.util.List;
 
 /**
- * 岗位管理
+ * Post management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysPostService extends BaseService<SysPostEntity> {

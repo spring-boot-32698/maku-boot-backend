@@ -25,9 +25,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 操作日志
+ * Operation log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -53,17 +53,17 @@ public class SysLogOperateServiceImpl extends BaseServiceImpl<SysLogOperateDao, 
     }
 
     /**
-     * 启动项目时，从Redis队列获取操作日志并保存
+     * When the project starts, get operation logs from the Redis queue and save them
      */
     @PostConstruct
     public void saveLog() {
         ScheduledExecutorService scheduledService = ThreadUtil.createScheduledExecutor(1);
 
-        // 每隔10秒钟，执行一次
+        // Run once every 10 seconds
         scheduledService.scheduleWithFixedDelay(() -> {
             try {
                 String key = RedisKeys.getLogKey();
-                // 每次插入10条
+                // Insert 10 at a time
                 int count = 10;
                 for (int i = 0; i < count; i++) {
                     OperateLogDTO log = (OperateLogDTO) redisCache.rightPop(key);
@@ -75,7 +75,7 @@ public class SysLogOperateServiceImpl extends BaseServiceImpl<SysLogOperateDao, 
                     baseMapper.insert(entity);
                 }
             } catch (Exception e) {
-                log.error("SysLogOperateServiceImpl.saveLog Error：" + ExceptionUtils.getExceptionMessage(e));
+                log.error("SysLogOperateServiceImpl.saveLog Error:" + ExceptionUtils.getExceptionMessage(e));
             }
         }, 1, 10, TimeUnit.SECONDS);
     }

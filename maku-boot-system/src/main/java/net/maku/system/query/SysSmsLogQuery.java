@@ -6,18 +6,18 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
- * 短信日志查询
+ * SMS log query
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "短信日志查询")
+@Schema(description = "SMS log query")
 public class SysSmsLogQuery extends Query {
-    @Schema(description = "手机号")
+    @Schema(description = "Mobile number")
     private String mobile;
 
-    @Schema(description = "平台类型")
+    @Schema(description = "Platform type")
     private Integer platform;
 
 }

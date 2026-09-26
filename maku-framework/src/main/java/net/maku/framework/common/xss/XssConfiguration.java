@@ -10,9 +10,9 @@ import org.springframework.util.PathMatcher;
 import tools.jackson.databind.module.SimpleModule;
 
 /**
- * XSS 配置文件
+ * XSS Configuration file
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Configuration
@@ -32,8 +32,8 @@ public class XssConfiguration {
     }
 
     /**
-     * xss过滤模块，处理json类型的请求
-     * Spring Boot 4 会自动将 Module Bean 注册到 JsonMapper，无需手动创建 ObjectMapper
+     * xssFilter module, handles json requests
+     * Spring Boot 4 Module Beans are registered to JsonMapper automatically, no need to create an ObjectMapper manually
      */
     @Bean
     public SimpleModule xssFilterModule(XssProperties properties) {

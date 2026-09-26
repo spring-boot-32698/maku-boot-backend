@@ -5,7 +5,7 @@ import net.maku.framework.common.exception.ServerException;
 import org.springframework.stereotype.Service;
 
 /**
- * 设备协议服务工厂
+ * Device protocol service factory
  *
  * @author LSF maku_lsf@163.com
  */
@@ -18,7 +18,7 @@ public class CommunicationServiceFactory {
 
     public BaseCommunication getProtocol(String protocolType) {
         if (protocolType == null) {
-            new ServerException("协议不存在！");
+            new ServerException("Protocol does not exist!");
         }
         switch (protocolType) {
             case "MQTT":

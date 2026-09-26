@@ -6,22 +6,22 @@ import lombok.Getter;
 import java.util.Objects;
 
 /**
- * 超级管理员枚举
+ * Super administrator enum
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum SuperAdminEnum {
     /**
-     * 是
+     * Yes
      */
-    YES(1, "是"),
+    YES(1, "Yes"),
     /**
-     * 否
+     * No
      */
-    NO(0, "否");
+    NO(0, "No");
 
     private final Integer value;
     private final String name;

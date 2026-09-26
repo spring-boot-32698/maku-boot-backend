@@ -6,21 +6,21 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 设备指令
+ * Device command
  *
  * @author LSF maku_lsf@163.com
  */
 @Data
-@Schema(description = "设备指令VO")
+@Schema(description = "Device command VO")
 public class DeviceCommandVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "设备ID")
+    @Schema(description = "Device ID")
     private Long deviceId;
 
-    @Schema(description = "指令")
+    @Schema(description = "Command")
     private String command;
 
-    @Schema(description = "指令内容")
+    @Schema(description = "Command content")
     private String payload;
 }

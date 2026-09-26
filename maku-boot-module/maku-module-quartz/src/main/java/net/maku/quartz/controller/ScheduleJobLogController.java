@@ -19,20 +19,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 定时任务日志
+ * Scheduled task log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("schedule/log")
-@Tag(name = "定时任务日志")
+@Tag(name = "Scheduled task log")
 @AllArgsConstructor
 public class ScheduleJobLogController {
     private final ScheduleJobLogService scheduleJobLogService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('schedule:log')")
     public Result<PageResult<ScheduleJobLogVO>> page(@ParameterObject @Valid ScheduleJobLogQuery query) {
         PageResult<ScheduleJobLogVO> page = scheduleJobLogService.page(query);
@@ -41,7 +41,7 @@ public class ScheduleJobLogController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('schedule:log')")
     public Result<ScheduleJobLogVO> get(@PathVariable("id") Long id) {
         ScheduleJobLogEntity entity = scheduleJobLogService.getById(id);

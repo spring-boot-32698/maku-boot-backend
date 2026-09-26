@@ -6,13 +6,13 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 图片验证码
+ * Image captcha
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "图片验证码")
+@Schema(description = "Image captcha")
 public class SysCaptchaVO implements Serializable {
     private static final long serialVersionUID = 1L;
 

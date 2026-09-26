@@ -3,7 +3,7 @@ package net.maku.framework.common.excel;
 import java.util.List;
 
 /**
- * excel读取数据完成
+ * excelFinished reading data
  *
  * @param <T> the type parameter
  * @author eden

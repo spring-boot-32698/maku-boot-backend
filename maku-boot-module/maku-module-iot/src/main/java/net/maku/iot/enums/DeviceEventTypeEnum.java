@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Arrays;
 
 /**
- * 设备事件类型枚举
+ * Device event type enum
  *
  * @author LSF maku_lsf@163.com
  */
@@ -15,67 +15,67 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public enum DeviceEventTypeEnum {
     /**
-     * 下线
+     * Go offline
      */
-    OFFLINE(0, "下线事件"),
+    OFFLINE(0, "Offline event"),
 
     /**
-     * 上线
+     * Go online
      */
-    ONLINE(1, "上线事件"),
+    ONLINE(1, "Online event"),
 
     /**
-     * 登录
+     * Login
      */
-    SIGN_ON(2, "登录事件"),
+    SIGN_ON(2, "Login event"),
 
     /**
-     * 退出登录
+     * Log out
      */
-    SIGN_OFF(3, "退出登录事件"),
+    SIGN_OFF(3, "Logout event"),
     /**
-     * OTA升级
+     * OTAUpgrade
      */
-    OTA_UPGRADE(4, "OTA升级事件"),
+    OTA_UPGRADE(4, "OTAUpgrade event"),
 
     /**
-     * 设备远程锁定
+     * Device remote lock
      */
-    LOCK(5, "设备远程锁定"),
+    LOCK(5, "Device remote lock"),
 
     /**
-     * 设备远程解锁
+     * Device remote unlock
      */
-    UNLOCK(6, "设备远程解锁"),
+    UNLOCK(6, "Device remote unlock"),
 
     /**
-     * APP版本信息上报
+     * APPVersion info report
      */
-    APP_VERSION_REPORT(7, "APP版本信息上报"),
+    APP_VERSION_REPORT(7, "APPVersion info report"),
 
     /**
-     * 电池电量上报
+     * Battery level report
      */
-    BATTERY_PERCENT_REPORT(8, "电池电量上报"),
+    BATTERY_PERCENT_REPORT(8, "Battery level report"),
 
     /**
-     * 温度上报
+     * Temperature report
      */
-    TEMPERATURE_REPORT(9, "温度上报");
+    TEMPERATURE_REPORT(9, "Temperature report");
 
     /**
-     * 类型值
+     * Type value
      */
     private final Integer value;
 
     /**
-     * 类型名称
+     * Type name
      */
     private final String title;
 
 
     /**
-     * 解析指定的valueName
+     * Parse the specified valueName
      *
      * @param valueName
      * @return DeviceEventTypeEnum
@@ -85,11 +85,11 @@ public enum DeviceEventTypeEnum {
         return Arrays.stream(DeviceEventTypeEnum.values())
                 .filter(d -> d.name().equalsIgnoreCase(valueName)).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
-                        StrUtil.format("无效的DeviceEventTypeEnum值：{}", valueName)));
+                        StrUtil.format("Invalid DeviceEventTypeEnum value:{}", valueName)));
     }
 
     /**
-     * 根据 value值 获取对应枚举
+     * Get the corresponding enum by value
      *
      * @param value
      * @return DeviceCommandEnum

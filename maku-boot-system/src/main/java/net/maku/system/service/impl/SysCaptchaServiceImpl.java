@@ -14,9 +14,9 @@ import net.maku.system.vo.SysCaptchaVO;
 import org.springframework.stereotype.Service;
 
 /**
- * 验证码
+ * Captcha
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -27,20 +27,20 @@ public class SysCaptchaServiceImpl implements SysCaptchaService {
 
     @Override
     public SysCaptchaVO generate() {
-        // 生成验证码key
+        // Generate verification code key
         String key = UUID.randomUUID().toString();
 
-        // 生成验证码
+        // Generate verification code
         SpecCaptcha captcha = new SpecCaptcha(150, 40);
         captcha.setLen(5);
         captcha.setCharType(Captcha.TYPE_DEFAULT);
         String image = captcha.toBase64();
 
-        // 保存到缓存
+        // Save to cache
         String redisKey = RedisKeys.getCaptchaKey(key);
         redisCache.set(redisKey, captcha.text(), 300);
 
-        // 封装返回数据
+        // Wrap returned data
         SysCaptchaVO captchaVO = new SysCaptchaVO();
         captchaVO.setKey(key);
         captchaVO.setImage(image);
@@ -50,7 +50,7 @@ public class SysCaptchaServiceImpl implements SysCaptchaService {
 
     @Override
     public boolean validate(String key, String code) {
-        // 如果关闭了验证码，则直接效验通过
+        // If the captcha is turned off, pass validation directly
         if (!isCaptchaEnabled()) {
             return true;
         }
@@ -59,10 +59,10 @@ public class SysCaptchaServiceImpl implements SysCaptchaService {
             return false;
         }
 
-        // 获取验证码
+        // Get verification code
         String captcha = getCache(key);
 
-        // 效验成功
+        // Validation succeeded
         return code.equalsIgnoreCase(captcha);
     }
 
@@ -74,7 +74,7 @@ public class SysCaptchaServiceImpl implements SysCaptchaService {
     private String getCache(String key) {
         key = RedisKeys.getCaptchaKey(key);
         String captcha = (String) redisCache.get(key);
-        // 删除验证码
+        // Delete verification code
         if (captcha != null) {
             redisCache.delete(key);
         }

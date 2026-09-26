@@ -7,17 +7,17 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
- * 字典数据
+ * Dictionary data
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "字典数据查询")
+@Schema(description = "Dictionary data query")
 public class SysDictDataQuery extends Query {
-    @Schema(description = "字典类型ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "字典类型ID不能为空")
+    @Schema(description = "Dictionary type ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "Dictionary type ID cannot be empty")
     private Long dictTypeId;
 
 }

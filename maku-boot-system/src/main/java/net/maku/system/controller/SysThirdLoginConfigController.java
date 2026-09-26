@@ -18,20 +18,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 第三方登录配置
+ * Third-party login settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/third/config")
-@Tag(name = "第三方登录配置")
+@Tag(name = "Third-party login settings")
 @AllArgsConstructor
 public class SysThirdLoginConfigController {
     private final SysThirdLoginConfigService sysThirdLoginConfigService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('sys:third:config')")
     public Result<PageResult<SysThirdLoginConfigVO>> page(@ParameterObject @Valid Query query) {
         PageResult<SysThirdLoginConfigVO> page = sysThirdLoginConfigService.page(query);
@@ -40,7 +40,7 @@ public class SysThirdLoginConfigController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('sys:third:config')")
     public Result<SysThirdLoginConfigVO> get(@PathVariable("id") Long id) {
         SysThirdLoginConfigEntity entity = sysThirdLoginConfigService.getById(id);
@@ -49,7 +49,7 @@ public class SysThirdLoginConfigController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @PreAuthorize("hasAuthority('sys:third:config')")
     public Result<String> save(@RequestBody SysThirdLoginConfigVO vo) {
         sysThirdLoginConfigService.save(vo);
@@ -58,7 +58,7 @@ public class SysThirdLoginConfigController {
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @PreAuthorize("hasAuthority('sys:third:config')")
     public Result<String> update(@RequestBody @Valid SysThirdLoginConfigVO vo) {
         sysThirdLoginConfigService.update(vo);
@@ -67,7 +67,7 @@ public class SysThirdLoginConfigController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @PreAuthorize("hasAuthority('sys:third:config')")
     public Result<String> delete(@RequestBody List<Long> idList) {
         sysThirdLoginConfigService.delete(idList);

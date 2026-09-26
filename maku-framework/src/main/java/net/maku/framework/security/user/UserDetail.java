@@ -13,9 +13,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 登录用户信息
+ * Logged-in user info
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -37,29 +37,29 @@ public class UserDetail implements UserDetails {
     private LocalDateTime createTime;
 
     /**
-     * 数据权限范围
+     * Data permission scope
      * <p>
-     * null：表示全部数据权限
+     * null: means all data permissions
      */
     private List<Long> dataScopeList;
     /**
-     * 帐户是否过期
+     * Whether the account has expired
      */
     private boolean isAccountNonExpired = true;
     /**
-     * 帐户是否被锁定
+     * Whether the account is locked
      */
     private boolean isAccountNonLocked = true;
     /**
-     * 密码是否过期
+     * Whether the password has expired
      */
     private boolean isCredentialsNonExpired = true;
     /**
-     * 帐户是否可用
+     * Whether the account is available
      */
     private boolean isEnabled = true;
     /**
-     * 拥有权限集合
+     * Set of granted permissions
      */
     private Set<String> authoritySet;
 

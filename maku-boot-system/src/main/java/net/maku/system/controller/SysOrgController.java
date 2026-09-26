@@ -17,20 +17,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 机构管理
+ * Organization management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/org")
-@Tag(name = "机构管理")
+@Tag(name = "Organization management")
 @AllArgsConstructor
 public class SysOrgController {
     private final SysOrgService sysOrgService;
 
     @GetMapping("list")
-    @Operation(summary = "列表")
+    @Operation(summary = "List")
     public Result<List<SysOrgVO>> list() {
         List<SysOrgVO> list = sysOrgService.getList();
 
@@ -38,7 +38,7 @@ public class SysOrgController {
     }
 
     @GetMapping("listByPid")
-    @Operation(summary = "列表")
+    @Operation(summary = "List")
     public Result<List<SysOrgVO>> listByPid(Long pid) {
         List<SysOrgVO> list = sysOrgService.listByPid(pid);
 
@@ -46,13 +46,13 @@ public class SysOrgController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('sys:org:info')")
     public Result<SysOrgVO> get(@PathVariable("id") Long id) {
         SysOrgEntity entity = sysOrgService.getById(id);
         SysOrgVO vo = BeanUtil.copyProperties(entity, SysOrgVO.class);
 
-        // 获取上级机构名称
+        // Get the parent organization name
         if (entity.getPid() != null) {
             SysOrgEntity parentEntity = sysOrgService.getById(entity.getPid());
             vo.setParentName(parentEntity.getName());
@@ -62,7 +62,7 @@ public class SysOrgController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @OperateLog(type = OperateTypeEnum.INSERT)
     @PreAuthorize("hasAuthority('sys:org:save')")
     public Result<String> save(@RequestBody @Valid SysOrgVO vo) {
@@ -72,7 +72,7 @@ public class SysOrgController {
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('sys:org:update')")
     public Result<String> update(@RequestBody @Valid SysOrgVO vo) {
@@ -82,7 +82,7 @@ public class SysOrgController {
     }
 
     @DeleteMapping("{id}")
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @OperateLog(type = OperateTypeEnum.DELETE)
     @PreAuthorize("hasAuthority('sys:org:delete')")
     public Result<String> delete(@PathVariable("id") Long id) {
@@ -92,7 +92,7 @@ public class SysOrgController {
     }
 
     @PostMapping("nameList")
-    @Operation(summary = "名称列表")
+    @Operation(summary = "Name list")
     public Result<List<String>> nameList(@RequestBody List<Long> idList) {
         List<String> list = sysOrgService.getNameList(idList);
 

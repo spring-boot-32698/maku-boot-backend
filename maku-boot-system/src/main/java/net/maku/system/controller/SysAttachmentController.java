@@ -18,20 +18,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 附件管理
+ * Attachment management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/attachment")
-@Tag(name = "附件管理")
+@Tag(name = "Attachment management")
 @AllArgsConstructor
 public class SysAttachmentController {
     private final SysAttachmentService sysAttachmentService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('sys:attachment:page')")
     public Result<PageResult<SysAttachmentVO>> page(@ParameterObject @Valid SysAttachmentQuery query) {
         PageResult<SysAttachmentVO> page = sysAttachmentService.page(query);
@@ -40,7 +40,7 @@ public class SysAttachmentController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @OperateLog(type = OperateTypeEnum.INSERT)
     @PreAuthorize("hasAuthority('sys:attachment:save')")
     public Result<String> save(@RequestBody SysAttachmentVO vo) {
@@ -50,7 +50,7 @@ public class SysAttachmentController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @OperateLog(type = OperateTypeEnum.DELETE)
     @PreAuthorize("hasAuthority('sys:attachment:delete')")
     public Result<String> delete(@RequestBody List<Long> idList) {

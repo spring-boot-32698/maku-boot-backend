@@ -1,0 +1,10 @@
+<settings>
+  <mirrors>
+    <!-- The POM declares the Alibaba Cloud repository (slow outside China) with id "public"; route it to Maven Central -->
+    <mirror>
+      <id>central-mirror</id>
+      <mirrorOf>public</mirrorOf>
+      <url>https://repo.maven.apache.org/maven2</url>
+    </mirror>
+  </mirrors>
+</settings>

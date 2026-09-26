@@ -7,35 +7,35 @@ import lombok.EqualsAndHashCode;
 import net.maku.iot.enums.DeviceCommandEnum;
 
 /**
- * 设备命令响应DTO
+ * Device command response DTO
  *
  * @author LSF maku_lsf@163.com
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Schema(description = "设备命令响应DTO")
+@Schema(description = "Device command response DTO")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceCommandResponseDTO extends BaseCommandResponseDTO {
     /**
-     * 命令类型
+     * Command type
      */
-    @Schema(description = "命令类型", required = true)
+    @Schema(description = "Command type", required = true)
     private DeviceCommandEnum command;
 
     /**
-     * 命令是否完成（默认true：命令已完成；false：命令未完成，后续命令完成将再次发送响应消息，服务端将继续等待该命令完成的响应）
+     * Whether the command is complete (default true: command completed; false: command not completed, a response message is sent again when the command completes, and the server keeps waiting for that response)
      */
-    @Schema(description = "命令是否完成（默认true：命令已完成；false：命令未完成，后续命令完成将再次发送响应消息，服务端将继续等待该命令完成的响应）")
+    @Schema(description = "Whether the command is complete (default true: command completed; false: command not completed, a response message is sent again when the command completes, and the server keeps waiting for that response)")
     private boolean isCompleted = true;
 
     /**
-     * 响应状态码，0成功，其它数值异常，根据业务需要自定义
+     * Response status code, 0 means success, other values are errors, customizable per business needs
      */
-    @Schema(description = "响应状态码，0成功，其它数值异常，根据业务需要自定义")
+    @Schema(description = "Response status code, 0 means success, other values are errors, customizable per business needs")
     private Integer statusCode = 0;
     /**
-     * 命令响应结果
+     * Command response result
      */
-    @Schema(description = "命令响应结果")
+    @Schema(description = "Command response result")
     private String responsePayload;
 }

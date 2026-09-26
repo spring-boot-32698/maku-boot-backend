@@ -7,37 +7,37 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
- * 日期处理
+ * Date handling
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class DateUtils {
     /**
-     * 时间格式(yyyy-MM-dd)
+     * Time format(yyyy-MM-dd)
      */
     public final static String DATE_PATTERN = "yyyy-MM-dd";
     /**
-     * 时间格式(yyyy-MM-dd HH:mm:ss)
+     * Time format(yyyy-MM-dd HH:mm:ss)
      */
     public final static String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     /**
-     * 日期格式化 日期格式为：yyyy-MM-dd
+     * Date formatting, date format: yyyy-MM-dd
      *
-     * @param date 日期
-     * @return 返回yyyy-MM-dd格式日期
+     * @param date Date
+     * @return Return the date in yyyy-MM-dd format
      */
     public static String format(Date date) {
         return format(date, DATE_PATTERN);
     }
 
     /**
-     * 日期格式化 日期格式为：yyyy-MM-dd
+     * Date formatting, date format: yyyy-MM-dd
      *
-     * @param date    日期
-     * @param pattern 格式，如：DateUtils.DATE_TIME_PATTERN
-     * @return 返回yyyy-MM-dd格式日期
+     * @param date    Date
+     * @param pattern Format, e.g.: DateUtils.DATE_TIME_PATTERN
+     * @return Return the date in yyyy-MM-dd format
      */
     public static String format(Date date, String pattern) {
         if (date != null) {
@@ -48,11 +48,11 @@ public class DateUtils {
     }
 
     /**
-     * 日期解析
+     * Date parsing
      *
-     * @param date    日期
-     * @param pattern 格式，如：DateUtils.DATE_TIME_PATTERN
-     * @return 返回Date
+     * @param date    Date
+     * @param pattern Format, e.g.: DateUtils.DATE_TIME_PATTERN
+     * @return Return Date
      */
     public static Date parse(String date, String pattern) {
         try {
@@ -64,7 +64,7 @@ public class DateUtils {
     }
 
     /**
-     * 日期是否过期
+     * Whether the date has expired
      */
     public static boolean isExpired(LocalDateTime time) {
         LocalDateTime now = LocalDateTime.now();

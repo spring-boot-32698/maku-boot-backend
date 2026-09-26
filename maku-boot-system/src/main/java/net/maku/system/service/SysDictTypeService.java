@@ -10,9 +10,9 @@ import net.maku.system.vo.SysDictVO;
 import java.util.List;
 
 /**
- * 数据字典
+ * Data dictionary
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysDictTypeService extends BaseService<SysDictTypeEntity> {
@@ -28,17 +28,17 @@ public interface SysDictTypeService extends BaseService<SysDictTypeEntity> {
     void delete(List<Long> idList);
 
     /**
-     * 获取动态SQL数据
+     * Get dynamic SQL data
      */
     List<SysDictVO.DictData> getDictSql(Long id);
 
     /**
-     * 获取全部字典列表
+     * Get all dictionary list
      */
     List<SysDictVO> getDictList();
 
     /**
-     * 刷新字典缓存
+     * Refresh dictionary cache
      */
     void refreshTransCache();
 

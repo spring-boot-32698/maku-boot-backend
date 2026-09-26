@@ -8,7 +8,7 @@ import net.maku.framework.mybatis.entity.BaseEntity;
 import java.time.LocalDateTime;
 
 /**
- * 设备表
+ * Device table
  *
  * @author LSF maku_lsf@163.com
  */
@@ -18,72 +18,72 @@ import java.time.LocalDateTime;
 public class IotDeviceEntity extends BaseEntity {
 
     /**
-     * 编码
+     * Code
      */
     private String code;
 
     /**
-     * 名称
+     * Name
      */
     private String name;
 
     /**
-     * 设备类型，1.手持设备，2.柜体，3传感设备
+     * Device type, 1. handheld device, 2. cabinet, 3. sensor device
      */
     private Integer type;
 
     /**
-     * 设备和服务器通信协议类型
+     * Communication protocol type between device and server
      */
     private String protocolType;
 
     /**
-     * 唯一标识码
+     * Unique identifier
      */
     private String uid;
 
     /**
-     * 设备密钥
+     * Device key
      */
     private String secret;
 
     /**
-     * App版本号
+     * AppVersion number
      */
     private String appVersion;
 
     /**
-     * 电池电量百分比
+     * Battery level percentage
      */
     private String batteryPercent;
 
     /**
-     * 温度
+     * Temperature
      */
     private String temperature;
 
     /**
-     * 状态，0禁用，1正常
+     * Status, 0 disabled, 1 normal
      */
     private Integer status;
 
     /**
-     * 运行状态，0.离线状态 1.在线状态 2.正常待机 3.用户使用中 4.OTA升级中
+     * Running status, 0. offline 1. online 2. normal standby 3. in use 4. OTA upgrading
      */
     private Integer runningStatus;
 
     /**
-     * 上线时间
+     * Online time
      */
     private LocalDateTime upTime;
 
     /**
-     * 下线时间
+     * Offline time
      */
     private LocalDateTime downTime;
 
     /**
-     * 租户ID
+     * Tenant ID
      */
     private Long tenantId;
 

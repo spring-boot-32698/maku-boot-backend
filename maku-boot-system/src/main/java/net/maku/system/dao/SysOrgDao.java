@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 机构管理
+ * Organization management
  * 
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Mapper
@@ -19,7 +19,7 @@ public interface SysOrgDao extends BaseDao<SysOrgEntity> {
     List<SysOrgEntity> getList(Map<String, Object> params);
 
     /**
-     * 获取所有机构的id、pid列表
+     * Get the id and pid list of all organizations
      */
     List<SysOrgEntity> getIdAndPidList();
 

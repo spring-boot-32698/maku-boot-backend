@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 用户岗位关系
+ * User-post relationship
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -23,10 +23,10 @@ public class SysUserPostServiceImpl extends BaseServiceImpl<SysUserPostDao, SysU
 
     @Override
     public void saveOrUpdate(Long userId, List<Long> postIdList) {
-        // 数据库岗位ID列表
+        // Post ID list in the database
         List<Long> dbPostIdList = getPostIdList(userId);
 
-        // 需要新增的岗位ID
+        // Post IDs to add
         Collection<Long> insertPostIdList = CollUtil.subtract(postIdList, dbPostIdList);
         if (CollUtil.isNotEmpty(insertPostIdList)){
             List<SysUserPostEntity> postList = insertPostIdList.stream().map(postId -> {
@@ -36,11 +36,11 @@ public class SysUserPostServiceImpl extends BaseServiceImpl<SysUserPostDao, SysU
                 return entity;
             }).collect(Collectors.toList());
 
-            // 批量新增
+            // Batch add
             saveBatch(postList);
         }
 
-        // 需要删除的岗位ID
+        // Post IDs to delete
         Collection<Long> deletePostIdList = CollUtil.subtract(dbPostIdList, postIdList);
         if (CollUtil.isNotEmpty(deletePostIdList)){
             LambdaQueryWrapper<SysUserPostEntity> queryWrapper = new LambdaQueryWrapper<>();

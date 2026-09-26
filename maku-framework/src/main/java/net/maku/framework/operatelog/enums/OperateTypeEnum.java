@@ -4,40 +4,40 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 操作类型
+ * Operation type
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum OperateTypeEnum {
     /**
-     * 查询
+     * Query
      */
     GET(1),
     /**
-     * 新增
+     * Add
      */
     INSERT(2),
     /**
-     * 修改
+     * Edit
      */
     UPDATE(3),
     /**
-     * 删除
+     * Delete
      */
     DELETE(4),
     /**
-     * 导出
+     * Export
      */
     EXPORT(5),
     /**
-     * 导入
+     * Import
      */
     IMPORT(6),
     /**
-     * 其它
+     * Other
      */
     OTHER(0);
 

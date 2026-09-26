@@ -18,9 +18,9 @@ import org.apache.ibatis.session.RowBounds;
 import java.util.Map;
 
 /**
- * 数据权限
+ * Data permission
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class DataScopeInnerInterceptor implements InnerInterceptor {
@@ -28,15 +28,15 @@ public class DataScopeInnerInterceptor implements InnerInterceptor {
     @Override
     public void beforeQuery(Executor executor, MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
         DataScope scope = getDataScope(parameter);
-        // 不进行数据过滤
+        // Do not filter data
         if (scope == null || StrUtil.isBlank(scope.getSqlFilter())) {
             return;
         }
 
-        // 拼接新SQL
+        // Concatenate the new SQL
         String buildSql = getSelect(boundSql.getSql(), scope);
 
-        // 重写SQL
+        // Rewrite SQL
         PluginUtils.mpBoundSql(boundSql).sql(buildSql);
     }
 
@@ -45,7 +45,7 @@ public class DataScopeInnerInterceptor implements InnerInterceptor {
             return null;
         }
 
-        // 判断参数里是否有DataScope对象
+        // Check whether the parameters contain a DataScope object
         if (parameter instanceof Map<?, ?> parameterMap) {
             for (Map.Entry<?, ?> entry : parameterMap.entrySet()) {
                 if (entry.getValue() != null && entry.getValue() instanceof DataScope) {

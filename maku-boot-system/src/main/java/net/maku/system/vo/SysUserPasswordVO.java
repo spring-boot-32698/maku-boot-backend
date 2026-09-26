@@ -8,22 +8,22 @@ import org.hibernate.validator.constraints.Length;
 import java.io.Serializable;
 
 /**
- * 用户修改密码
+ * User changes password
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "用户修改密码")
+@Schema(description = "User changes password")
 public class SysUserPasswordVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "原密码", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "原密码不能为空")
+    @Schema(description = "Old password", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Old password cannot be empty")
     private String password;
 
-    @Schema(description = "新密码，密码长度为 4-20 位", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Length(min = 4, max = 20, message = "新密码长度为 4-20 位")
+    @Schema(description = "New password, length must be 4-20 characters", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Length(min = 4, max = 20, message = "New password length must be 4-20 characters")
     private String newPassword;
 
 }

@@ -7,9 +7,9 @@ import net.maku.system.enums.SmsPlatformEnum;
 import java.util.Map;
 
 /**
- * 短信 Context
+ * SMS Context
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class SmsContext {
@@ -25,7 +25,7 @@ public class SmsContext {
         } else if (config.getPlatform() == SmsPlatformEnum.HUAWEI.getValue()) {
             this.smsStrategy = new HuaweiSmsStrategy(config);
         } else {
-            throw new ServerException("未知的短信平台");
+            throw new ServerException("Unknown SMS platform");
         }
     }
 

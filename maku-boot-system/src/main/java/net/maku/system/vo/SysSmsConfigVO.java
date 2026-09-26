@@ -9,38 +9,38 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 短信配置
+ * SMS settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "短信配置")
+@Schema(description = "SMS settings")
 public class SysSmsConfigVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
     private Long id;
 
-    @Schema(description = "平台类型")
+    @Schema(description = "Platform type")
     private Integer platform;
 
-    @Schema(description = "分组名称，发送短信时，可指定分组")
+    @Schema(description = "Group name; a group can be specified when sending SMS")
     private String groupName;
 
-    @Schema(description = "短信签名")
+    @Schema(description = "SMS signature")
     private String signName;
 
-    @Schema(description = "短信模板")
+    @Schema(description = "SMS template")
     private String templateId;
 
-    @Schema(description = "短信应用的ID，如：腾讯云等")
+    @Schema(description = "ID of the SMS application, e.g.: Tencent Cloud")
     private String appId;
 
-    @Schema(description = "腾讯云国际短信、华为云等需要")
+    @Schema(description = "Required for Tencent Cloud international SMS, Huawei Cloud, etc.")
     private String senderId;
 
-    @Schema(description = "接入地址，如：华为云")
+    @Schema(description = "Access address, e.g.: Huawei Cloud")
     private String url;
 
     @Schema(description = "AccessKey")
@@ -49,10 +49,10 @@ public class SysSmsConfigVO implements Serializable {
     @Schema(description = "SecretKey")
     private String secretKey;
 
-    @Schema(description = "状态  0：禁用   1：启用")
+    @Schema(description = "Status  0: disabled   1: enabled")
     private Integer status;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Creation time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime createTime;
 

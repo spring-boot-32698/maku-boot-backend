@@ -14,15 +14,15 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * 允许访问的资源
+ * Resources allowed to access
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Component
 public class PermitResource {
     /**
-     * 指定被 spring security 忽略的URL
+     * Specify URLs ignored by spring security
      */
     @SneakyThrows
     public List<String> getPermitList() {
@@ -36,7 +36,7 @@ public class PermitResource {
     private List<String> getPropertiesList(String key, Resource... resources) {
         List<String> list = new ArrayList<>();
 
-        // 解析资源文件
+        // Parse resource file
         for (Resource resource : resources) {
             Properties properties = loadYamlProperties(resource);
 

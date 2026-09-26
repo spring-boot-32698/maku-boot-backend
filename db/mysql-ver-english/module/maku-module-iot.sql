@@ -77,7 +77,7 @@ INSERT INTO sys_menu (pid, name, url, authority, type, open_style, icon, sort, v
 INSERT INTO sys_menu (pid, name, url, authority, type, open_style, icon, sort, version, deleted, creator, create_time, updater, update_time) VALUES (@menuId, 'Device event log', '', 'iot:device_event_log:page', 1, 0, '', 5, 0, 0, 10000, now(), 10000, now());
 INSERT INTO sys_menu (pid, name, url, authority, type, open_style, icon, sort, version, deleted, creator, create_time, updater, update_time) VALUES (@menuId, 'Device service log', '', 'iot:device_service_log:page', 1, 0, '', 5, 0, 0, 10000, now(), 10000, now());
 
--- 字典数据
+-- Dictionary data
 INSERT INTO sys_dict_type (dict_type,dict_name,remark,sort,tenant_id,version,deleted,creator,create_time,updater,update_time )VALUE('device_type', 'Equipment type', 'Equipment type', 0, 10000, 0, 0, 10000, now(), 10000, now() );
 SET @typeId = @@identity;
 INSERT INTO sys_dict_data (dict_type_id, dict_label, dict_value, label_class, remark, sort, tenant_id, version, deleted, creator, create_time, updater, update_time) VALUES ((SELECT @typeId), 'handheld devices', '1', 'primary', '', 0, 10000, 0, 0, 10000, now(), 10000, now());

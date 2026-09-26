@@ -9,46 +9,46 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 定时任务日志
+ * Scheduled task log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Data
-@Schema(description = "定时任务日志")
+@Schema(description = "Scheduled task log")
 public class ScheduleJobLogVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
     private Long id;
 
-    @Schema(description = "任务id")
+    @Schema(description = "Task id")
     private Long jobId;
 
-    @Schema(description = "任务名称")
+    @Schema(description = "Task name")
     private String jobName;
 
-    @Schema(description = "任务组名")
+    @Schema(description = "Task group name")
     private String jobGroup;
 
-    @Schema(description = "spring bean名称")
+    @Schema(description = "spring beanName")
     private String beanName;
 
-    @Schema(description = "执行方法")
+    @Schema(description = "Execution method")
     private String method;
 
-    @Schema(description = "参数")
+    @Schema(description = "Parameter")
     private String params;
 
-    @Schema(description = "任务状态")
+    @Schema(description = "Task status")
     private Integer status;
 
-    @Schema(description = "异常信息")
+    @Schema(description = "Exception info")
     private String error;
 
-    @Schema(description = "耗时(单位：毫秒)")
+    @Schema(description = "Elapsed time(Unit: milliseconds)")
     private Integer times;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Creation time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime createTime;
 

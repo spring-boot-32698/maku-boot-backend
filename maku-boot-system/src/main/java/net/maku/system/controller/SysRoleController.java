@@ -26,14 +26,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 角色管理
+ * Role management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/role")
-@Tag(name = "角色管理")
+@Tag(name = "Role management")
 @AllArgsConstructor
 public class SysRoleController {
     private final SysRoleService sysRoleService;
@@ -44,7 +44,7 @@ public class SysRoleController {
     private final SysUserRoleService sysUserRoleService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('sys:role:page')")
     public Result<PageResult<SysRoleVO>> page(@ParameterObject @Valid SysRoleQuery query) {
         PageResult<SysRoleVO> page = sysRoleService.page(query);
@@ -53,7 +53,7 @@ public class SysRoleController {
     }
 
     @GetMapping("list")
-    @Operation(summary = "列表")
+    @Operation(summary = "List")
     @PreAuthorize("hasAuthority('sys:role:list')")
     public Result<List<SysRoleVO>> list() {
         List<SysRoleVO> list = sysRoleService.getList(new SysRoleQuery());
@@ -62,19 +62,19 @@ public class SysRoleController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('sys:role:info')")
     public Result<SysRoleVO> get(@PathVariable("id") Long id) {
         SysRoleEntity entity = sysRoleService.getById(id);
 
-        // 转换对象
+        // Convert object
         SysRoleVO role = BeanUtil.copyProperties(entity, SysRoleVO.class);
 
-        // 查询角色对应的菜单
+        // Query the menus of the role
         List<Long> menuIdList = sysRoleMenuService.getMenuIdList(id);
         role.setMenuIdList(menuIdList);
 
-        // 查询角色对应的数据权限
+        // Query the data permission of the role
         List<Long> orgIdList = sysRoleDataScopeService.getOrgIdList(id);
         role.setOrgIdList(orgIdList);
 
@@ -82,7 +82,7 @@ public class SysRoleController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @OperateLog(type = OperateTypeEnum.INSERT)
     @PreAuthorize("hasAuthority('sys:role:save')")
     public Result<String> save(@RequestBody @Valid SysRoleVO vo) {
@@ -92,7 +92,7 @@ public class SysRoleController {
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('sys:role:update')")
     public Result<String> update(@RequestBody @Valid SysRoleVO vo) {
@@ -102,7 +102,7 @@ public class SysRoleController {
     }
 
     @PutMapping("data-scope")
-    @Operation(summary = "数据权限")
+    @Operation(summary = "Data permission")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('sys:role:update')")
     public Result<String> dataScope(@RequestBody @Valid SysRoleDataScopeVO vo) {
@@ -112,7 +112,7 @@ public class SysRoleController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @OperateLog(type = OperateTypeEnum.DELETE)
     @PreAuthorize("hasAuthority('sys:role:delete')")
     public Result<String> delete(@RequestBody List<Long> idList) {
@@ -122,7 +122,7 @@ public class SysRoleController {
     }
 
     @GetMapping("menu")
-    @Operation(summary = "角色菜单")
+    @Operation(summary = "Role menu")
     @PreAuthorize("hasAuthority('sys:role:menu')")
     public Result<List<SysMenuVO>> menu() {
         UserDetail user = SecurityUser.getUser();
@@ -132,7 +132,7 @@ public class SysRoleController {
     }
 
     @GetMapping("user/page")
-    @Operation(summary = "角色用户-分页")
+    @Operation(summary = "Role users - paginated")
     @PreAuthorize("hasAuthority('sys:role:update')")
     public Result<PageResult<SysUserVO>> userPage(@Valid SysRoleUserQuery query) {
         PageResult<SysUserVO> page = sysUserService.roleUserPage(query);
@@ -141,7 +141,7 @@ public class SysRoleController {
     }
 
     @DeleteMapping("user/{roleId}")
-    @Operation(summary = "删除角色用户")
+    @Operation(summary = "Delete role users")
     @OperateLog(type = OperateTypeEnum.DELETE)
     @PreAuthorize("hasAuthority('sys:role:update')")
     public Result<String> userDelete(@PathVariable("roleId") Long roleId, @RequestBody List<Long> userIdList) {
@@ -151,17 +151,17 @@ public class SysRoleController {
     }
 
     @PostMapping("user/{roleId}")
-    @Operation(summary = "分配角色给用户列表")
+    @Operation(summary = "Assign roles to user list")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('sys:role:update')")
     public Result<String> userSave(@PathVariable("roleId") Long roleId, @RequestBody List<Long> userIdList) {
         if(userIdList.isEmpty()) {
             return Result.error("UserId is empty!");
         }
-        //查询数据库该角色对应的用户列表
+        //Query the user list of this role in the database
         List<Long> existsUserIdList = sysUserRoleService.getExistsUserIdList(roleId);
 
-        //取出需要新增的用户列表
+        //Take out the list of users to be added
         List<Long> addUserIdList = userIdList.stream()
             .filter(userId -> !existsUserIdList.contains(userId))
             .collect(Collectors.toList());
@@ -175,7 +175,7 @@ public class SysRoleController {
     }
 
     @PostMapping("nameList")
-    @Operation(summary = "名称列表")
+    @Operation(summary = "Name list")
     public Result<List<String>> nameList(@RequestBody List<Long> idList) {
         List<String> list = sysRoleService.getNameList(idList);
 

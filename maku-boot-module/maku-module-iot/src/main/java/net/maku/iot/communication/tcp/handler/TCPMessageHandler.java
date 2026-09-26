@@ -2,14 +2,14 @@ package net.maku.iot.communication.tcp.handler;
 
 
 /**
- * TCP消息处理接口
+ * TCPMessage handling interface
  *
  * @author LSF maku_lsf@163.com
  */
 public interface TCPMessageHandler {
 
     /**
-     * 是否支持处理指定的topic
+     * Whether handling the specified topic is supported
      *
      * @param topic
      * @return
@@ -17,7 +17,7 @@ public interface TCPMessageHandler {
     boolean supports(String topic);
 
     /**
-     * TCP消息处理接口
+     * TCPMessage handling interface
      *
      * @param topic
      * @param message

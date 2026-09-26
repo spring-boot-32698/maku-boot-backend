@@ -11,9 +11,9 @@ import net.maku.framework.common.utils.HttpContextUtils;
 import org.springframework.util.PathMatcher;
 
 /**
- * xss json过滤
+ * xss jsonFilter
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @AllArgsConstructor
@@ -33,7 +33,7 @@ public class XssFilterJsonDeserializer extends ValueDeserializer<String> {
             return value;
         }
 
-        // 判断该URI是否放行
+        // Check whether the URI is allowed through
         boolean flag = properties.getExcludeUrls().stream().anyMatch(excludeUrl -> pathMatcher.match(excludeUrl, request.getServletPath()));
         if (flag) {
             return value;

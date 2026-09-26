@@ -5,9 +5,9 @@ import net.maku.system.entity.SysSmsLogEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 短信日志
+ * SMS log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Mapper
 public interface SysSmsLogDao extends BaseDao<SysSmsLogEntity> {

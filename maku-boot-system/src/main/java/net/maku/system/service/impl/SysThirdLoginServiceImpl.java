@@ -15,9 +15,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * 第三方登录
+ * Third-party login
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -54,7 +54,7 @@ public class SysThirdLoginServiceImpl extends BaseServiceImpl<SysThirdLoginDao, 
         SysThirdLoginEntity entity = baseMapper.selectOne(Wrappers.<SysThirdLoginEntity>lambdaQuery()
                 .eq(SysThirdLoginEntity::getOpenType, openType).eq(SysThirdLoginEntity::getOpenId, openId));
         if (entity == null) {
-            throw new ServerException("还未绑定用户，请先绑定用户");
+            throw new ServerException("No user bound yet, please bind a user first");
         }
 
         return entity.getUserId();

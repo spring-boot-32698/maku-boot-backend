@@ -12,45 +12,45 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 字典数据
+ * Dictionary data
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "字典数据")
+@Schema(description = "Dictionary data")
 public class SysDictDataVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
     private Long id;
 
-    @Schema(description = "字典类型ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "字典类型ID不能为空")
+    @Schema(description = "Dictionary type ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "Dictionary type ID cannot be empty")
     private Long dictTypeId;
 
-    @Schema(description = "字典标签", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "字典标签不能为空")
+    @Schema(description = "Dictionary label", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Dictionary label cannot be empty")
     private String dictLabel;
 
-    @Schema(description = "标签样式")
+    @Schema(description = "Label style")
     private String labelClass;
 
-    @Schema(description = "字典值")
+    @Schema(description = "Dictionary value")
     private String dictValue;
 
-    @Schema(description = "备注")
+    @Schema(description = "Remarks")
     private String remark;
 
-    @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Min(value = 0, message = "排序值不能小于0")
+    @Schema(description = "Sort", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Min(value = 0, message = "Sort value cannot be less than 0")
     private Integer sort;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Creation time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime createTime;
 
-    @Schema(description = "更新时间")
+    @Schema(description = "Update time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime updateTime;
 }

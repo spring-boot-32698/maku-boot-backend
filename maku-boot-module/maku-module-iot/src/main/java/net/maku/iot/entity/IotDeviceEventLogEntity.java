@@ -8,7 +8,7 @@ import net.maku.framework.mybatis.entity.BaseEntity;
 import java.time.LocalDateTime;
 
 /**
- * 设备事件日志
+ * Device event log
  *
  * @author LSF maku_lsf@163.com
  */
@@ -18,32 +18,32 @@ import java.time.LocalDateTime;
 public class IotDeviceEventLogEntity extends BaseEntity {
 
     /**
-     * 设备id
+     * Device id
      */
     private Long deviceId;
 
     /**
-     * 事件类型
+     * Event type
      */
     private Integer eventType;
 
     /**
-     * 事件标识id
+     * Event identifier id
      */
     private String eventUid;
 
     /**
-     * 事件数据
+     * Event data
      */
     private String eventPayload;
 
     /**
-     * 事件时间
+     * Event time
      */
     private LocalDateTime eventTime;
 
     /**
-     * 租户ID
+     * Tenant ID
      */
     private Long tenantId;
 

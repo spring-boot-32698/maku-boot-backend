@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 import java.io.InputStream;
 
 /**
- * 存储服务Api
+ * Storage service Api
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Component

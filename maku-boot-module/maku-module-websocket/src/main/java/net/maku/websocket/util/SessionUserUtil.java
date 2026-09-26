@@ -9,9 +9,9 @@ public class SessionUserUtil {
     private static final String SESSION_USER = "SESSION_USER";
 
     /**
-     * 设置用户
+     * Set user
      *
-     * @param user       用户
+     * @param user       User
      * @param attributes attributes
      */
     public static void setUser(UserDetail user, Map<String, Object> attributes) {
@@ -19,7 +19,7 @@ public class SessionUserUtil {
     }
 
     /**
-     * 获取用户
+     * Get user
      */
     public static UserDetail getUser(WebSocketSession session) {
         return (UserDetail) session.getAttributes().get(SESSION_USER);

@@ -20,20 +20,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 参数管理
+ * Parameter management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/params")
-@Tag(name = "参数管理")
+@Tag(name = "Parameter management")
 @AllArgsConstructor
 public class SysParamsController {
     private final SysParamsService sysParamsService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('sys:params:all')")
     public Result<PageResult<SysParamsVO>> page(@ParameterObject @Valid SysParamsQuery query) {
         PageResult<SysParamsVO> page = sysParamsService.page(query);
@@ -42,7 +42,7 @@ public class SysParamsController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('sys:params:all')")
     public Result<SysParamsVO> get(@PathVariable("id") Long id) {
         SysParamsEntity entity = sysParamsService.getById(id);
@@ -51,7 +51,7 @@ public class SysParamsController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @OperateLog(type = OperateTypeEnum.INSERT)
     @PreAuthorize("hasAuthority('sys:params:all')")
     public Result<String> save(@RequestBody SysParamsVO vo) {
@@ -61,7 +61,7 @@ public class SysParamsController {
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('sys:params:all')")
     public Result<String> update(@RequestBody @Valid SysParamsVO vo) {
@@ -71,7 +71,7 @@ public class SysParamsController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @OperateLog(type = OperateTypeEnum.DELETE)
     @PreAuthorize("hasAuthority('sys:params:all')")
     public Result<String> delete(@RequestBody List<Long> idList) {

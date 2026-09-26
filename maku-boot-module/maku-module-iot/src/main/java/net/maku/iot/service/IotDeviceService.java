@@ -14,7 +14,7 @@ import net.maku.iot.vo.IotDeviceVO;
 import java.util.List;
 
 /**
- * 设备表
+ * Device table
  *
  * @author LSF maku_lsf@163.com
  */
@@ -29,54 +29,54 @@ public interface IotDeviceService extends BaseService<IotDeviceEntity> {
     void delete(List<Long> idList);
 
     /**
-     * 根据设备的协议类型获取发送服务
-     * @param device 设备
+     * Get the sending service by the protocol type of the device
+     * @param device Device
      * @return
      */
     BaseCommunication getSendService(IotDeviceEntity device);
 
     /**
-     * 根据协议类型获取发送服务
+     * Get the sending service by protocol type
      * @param protocolType
      * @return
      */
     BaseCommunication getSendService(String protocolType);
 
     /**
-     * 根据设备ID获取发送服务
+     * Get the sending service by device ID
      * @param deviceId
      * @return
      */
     BaseCommunication getSendService(Long deviceId);
 
     /**
-     * 对设备下发指令-同步响应模式
+     * Send command to device - synchronous response mode
      *
      * @param vo
      */
     DeviceCommandResponseDTO syncSendCommand(DeviceCommandVO vo);
 
     /**
-     * 对设备下发指令-同步响应模式-调试
+     * Send command to device - synchronous response mode - debug
      *
      * @param vo
      */
     DeviceCommandResponseDTO syncSendCommandDebug(DeviceCommandVO vo);
 
     /**
-     * 对设备下发指令-异步响应模式
+     * Send command to device - asynchronous response mode
      *
      * @param vo
      */
     void asyncSendCommand(DeviceCommandVO vo);
 
     /**
-     * 模拟设备属性数据上报
+     * Simulate device property data report
      */
     void simulateDeviceReportAttributeData(DeviceReportAttributeDataVO vo);
 
     /**
-     * 模拟设备服务指令响应数据
+     * Simulate device service command response data
      */
     void simulateDeviceCommandResponseAttributeData(DeviceCommandResponseAttributeDataVO vo);
 }

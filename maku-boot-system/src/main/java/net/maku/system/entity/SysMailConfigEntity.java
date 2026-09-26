@@ -6,41 +6,41 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.mybatis.entity.BaseEntity;
 
 /**
- * 邮件平台
+ * Mail platform
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("sys_mail_config")
 public class SysMailConfigEntity extends BaseEntity {
     /**
-     * 平台类型  -1：本地   0：阿里云
+     * Platform type  -1: local   0: Alibaba Cloud
      */
     private Integer platform;
 
     /**
-     * 分组名称，发送邮件时，可指定分组
+     * Group name; a group can be specified when sending mail
      */
     private String groupName;
 
     /**
-     * SMTP服务器
+     * SMTPServer
      */
     private String mailHost;
 
     /**
-     * SMTP端口
+     * SMTPPort
      */
     private Integer mailPort;
 
     /**
-     * 发件人邮箱
+     * Sender email
      */
     private String mailFrom;
 
     /**
-     * 发件人密码
+     * Sender password
      */
     private String mailPass;
 
@@ -50,7 +50,7 @@ public class SysMailConfigEntity extends BaseEntity {
     private String regionId;
 
     /**
-     * 阿里云 endpoint
+     * Alibaba Cloud endpoint
      */
     private String endpoint;
 
@@ -65,7 +65,7 @@ public class SysMailConfigEntity extends BaseEntity {
     private String secretKey;
 
     /**
-     * 状态  0：禁用   1：启用
+     * Status  0: disabled   1: enabled
      */
     private Integer status;
 

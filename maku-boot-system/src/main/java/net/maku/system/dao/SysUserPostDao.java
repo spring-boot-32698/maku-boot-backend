@@ -8,16 +8,16 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
-* 用户岗位关系
+* User-post relationship
 *
-* @author 阿沐 babamu@126.com
+* @author Amu babamu@126.com
 */
 @Mapper
 public interface SysUserPostDao extends BaseDao<SysUserPostEntity> {
 
     /**
-     * 岗位ID列表
-     * @param userId  用户ID
+     * Post ID list
+     * @param userId  User ID
      */
     List<Long> getPostIdList(@Param("userId") Long userId);
 }

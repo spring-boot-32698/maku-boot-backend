@@ -1,18 +1,18 @@
 package net.maku.framework.security.third;
 
 /**
- * 第三方登录，通过code，获取开放平台用户唯一标识
+ * Third-party login, get the open platform user unique identifier by code
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface ThirdOpenIdService {
 
     /**
-     * 通过code，获取开放平台用户唯一标识
+     * Get the open platform user unique identifier by code
      *
-     * @param login 第三方登录信息
-     * @return 开放平台用户唯一标识
+     * @param login Third-party login info
+     * @return Open platform user unique identifier
      */
     String getOpenId(ThirdLogin login);
 }

@@ -9,9 +9,9 @@ import net.maku.member.vo.MemberUserVO;
 import java.util.List;
 
 /**
- * 会员管理
+ * Member management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 public interface MemberUserService extends BaseService<MemberUserEntity> {
 

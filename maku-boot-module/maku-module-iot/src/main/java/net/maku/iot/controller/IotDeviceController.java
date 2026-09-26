@@ -20,19 +20,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 设备表
+ * Device table
  *
  * @author LSF maku_lsf@163.com
  */
 @RestController
 @RequestMapping("iot/device")
-@Tag(name = "设备表")
+@Tag(name = "Device table")
 @AllArgsConstructor
 public class IotDeviceController {
     private final IotDeviceService iotDeviceService;
 
     @GetMapping("/page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('iot:device:page')")
     public Result<PageResult<IotDeviceVO>> page(@ParameterObject @Valid IotDeviceQuery query) {
         PageResult<IotDeviceVO> page = iotDeviceService.page(query);
@@ -41,7 +41,7 @@ public class IotDeviceController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('iot:device:info')")
     public Result<IotDeviceVO> get(@PathVariable("id") Long id) {
         IotDeviceEntity entity = iotDeviceService.getById(id);
@@ -50,7 +50,7 @@ public class IotDeviceController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @PreAuthorize("hasAuthority('iot:device:save')")
     public Result<String> save(@RequestBody IotDeviceVO vo) {
         iotDeviceService.save(vo);
@@ -59,7 +59,7 @@ public class IotDeviceController {
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @PreAuthorize("hasAuthority('iot:device:update')")
     public Result<String> update(@RequestBody @Valid IotDeviceVO vo) {
         iotDeviceService.update(vo);
@@ -68,7 +68,7 @@ public class IotDeviceController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @PreAuthorize("hasAuthority('iot:device:delete')")
     public Result<String> delete(@RequestBody List<Long> idList) {
         iotDeviceService.delete(idList);
@@ -77,7 +77,7 @@ public class IotDeviceController {
     }
 
     @PostMapping("/asyncSendCommand")
-    @Operation(summary = "下发指令-不等待设备回复")
+    @Operation(summary = "Send command - do not wait for device reply")
     @PreAuthorize("hasAuthority('iot:device:send')")
     public Result<String> asyncSendCommand(@RequestBody DeviceCommandVO vo) {
         iotDeviceService.asyncSendCommand(vo);
@@ -85,7 +85,7 @@ public class IotDeviceController {
     }
 
     @PostMapping("/syncSendCommand")
-    @Operation(summary = "下发指令-等待设备回复")
+    @Operation(summary = "Send command - wait for device reply")
     @PreAuthorize("hasAuthority('iot:device:send')")
     public Result<String> syncSendCommand(@RequestBody DeviceCommandVO vo) {
         iotDeviceService.syncSendCommand(vo);
@@ -93,14 +93,14 @@ public class IotDeviceController {
     }
 
     @PostMapping("/syncSendCommand/debug")
-    @Operation(summary = "下发指令-等待设备回复-调试")
+    @Operation(summary = "Send command - wait for device reply - debug")
     @PreAuthorize("hasAuthority('iot:device:send')")
     public Result<String> syncSendCommandDebug(@RequestBody DeviceCommandVO vo) {
         return Result.ok(iotDeviceService.syncSendCommandDebug(vo).getResponsePayload());
     }
 
     @PostMapping("/simulateDeviceReportAttributeData")
-    @Operation(summary = "模拟设备属性数据上报")
+    @Operation(summary = "Simulate device property data report")
     @PreAuthorize("hasAuthority('iot:device:report')")
     public Result<String> simulateDeviceReportAttributeData(@RequestBody DeviceReportAttributeDataVO vo) {
         iotDeviceService.simulateDeviceReportAttributeData(vo);

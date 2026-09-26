@@ -3,30 +3,30 @@ package net.maku.system.service;
 import net.maku.system.vo.SysCaptchaVO;
 
 /**
- * 验证码
+ * Captcha
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysCaptchaService {
     /**
-     * 生成验证码
+     * Generate verification code
      */
     SysCaptchaVO generate();
 
     /**
-     * 验证码效验
+     * Captcha validation
      *
      * @param key  key
-     * @param code 验证码
-     * @return true：成功  false：失败
+     * @param code Captcha
+     * @return true: success  false: failure
      */
     boolean validate(String key, String code);
 
     /**
-     * 是否开启登录验证码
+     * Whether to enable the login captcha
      *
-     * @return true：开启  false：关闭
+     * @return true: enabled  false: disabled
      */
     boolean isCaptchaEnabled();
 }

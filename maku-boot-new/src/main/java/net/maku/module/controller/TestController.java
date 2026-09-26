@@ -9,21 +9,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 新模块测试
+ * New module test
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("new/test")
-@Tag(name="新模块测试")
+@Tag(name="New module test")
 @AllArgsConstructor
 public class TestController {
 
     @GetMapping()
-    @Operation(summary = "测试接口")
+    @Operation(summary = "Test API")
     public Result<String> test(){
 
-        return Result.ok("测试数据");
+        return Result.ok("Test data");
     }
 }

@@ -9,9 +9,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 邮件日志
+ * Mail log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Data
 @TableName("sys_mail_log")
@@ -23,47 +23,47 @@ public class SysMailLogEntity {
     private Long id;
 
     /**
-     * 平台ID
+     * Platform ID
      */
     private Long platformId;
 
     /**
-     * 平台类型
+     * Platform type
      */
     private Integer platform;
 
     /**
-     * 发件人邮箱
+     * Sender email
      */
     private String mailFrom;
 
     /**
-     * 接受人邮箱
+     * Recipient email
      */
     private String mailTos;
 
     /**
-     * 邮件主题
+     * Mail subject
      */
     private String subject;
 
     /**
-     * 邮件内容
+     * Mail content
      */
     private String content;
 
     /**
-     * 状态  0：失败   1：成功
+     * Status  0: failed   1: succeeded
      */
     private Integer status;
 
     /**
-     * 异常信息
+     * Exception info
      */
     private String error;
 
     /**
-     * 创建时间
+     * Creation time
      */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

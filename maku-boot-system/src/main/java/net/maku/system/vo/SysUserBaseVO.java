@@ -9,33 +9,33 @@ import org.hibernate.validator.constraints.Range;
 import java.io.Serializable;
 
 /**
- * 用户基本信息
+ * User basic info
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "用户基本信息")
+@Schema(description = "User basic info")
 public class SysUserBaseVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "姓名", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "姓名不能为空")
+    @Schema(description = "Name", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Name cannot be empty")
     private String realName;
 
-    @Schema(description = "头像")
+    @Schema(description = "Avatar")
     private String avatar;
 
-    @Schema(description = "性别 0：男   1：女   2：未知", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Range(min = 0, max = 2, message = "性别不正确")
+    @Schema(description = "Gender 0: male   1: female   2: unknown", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Range(min = 0, max = 2, message = "Gender is incorrect")
     private Integer gender;
 
-    @Schema(description = "邮箱")
-    @Email(message = "邮箱格式不正确")
+    @Schema(description = "Email")
+    @Email(message = "Email format is incorrect")
     private String email;
 
-    @Schema(description = "手机号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "手机号不能为空")
+    @Schema(description = "Mobile number", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Mobile number cannot be empty")
     private String mobile;
 
 }

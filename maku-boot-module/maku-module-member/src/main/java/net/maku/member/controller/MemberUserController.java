@@ -18,19 +18,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 会员管理
+ * Member management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @RestController
 @RequestMapping("member/user")
-@Tag(name = "会员管理")
+@Tag(name = "Member management")
 @AllArgsConstructor
 public class MemberUserController {
     private final MemberUserService memberUserService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('member:user:all')")
     public Result<PageResult<MemberUserVO>> page(@ParameterObject @Valid MemberUserQuery query) {
         PageResult<MemberUserVO> page = memberUserService.page(query);
@@ -39,7 +39,7 @@ public class MemberUserController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('member:user:all')")
     public Result<MemberUserVO> get(@PathVariable("id") Long id) {
         MemberUserEntity entity = memberUserService.getById(id);
@@ -48,7 +48,7 @@ public class MemberUserController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @PreAuthorize("hasAuthority('member:user:all')")
     public Result<String> save(@RequestBody MemberUserVO vo) {
         memberUserService.save(vo);
@@ -57,7 +57,7 @@ public class MemberUserController {
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @PreAuthorize("hasAuthority('member:user:all')")
     public Result<String> update(@RequestBody @Valid MemberUserVO vo) {
         memberUserService.update(vo);
@@ -66,7 +66,7 @@ public class MemberUserController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @PreAuthorize("hasAuthority('member:user:all')")
     public Result<String> delete(@RequestBody List<Long> idList) {
         memberUserService.delete(idList);

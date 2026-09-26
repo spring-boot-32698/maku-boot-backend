@@ -12,9 +12,9 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import java.io.IOException;
 
 /**
- * 匿名用户(token不存在、错误)，异常处理器
+ * Anonymous user(tokenDoes not exist, error), exception handler
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class SecurityAuthenticationEntryPoint implements AuthenticationEntryPoint {

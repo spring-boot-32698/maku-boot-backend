@@ -6,28 +6,28 @@ import net.maku.system.entity.SysRoleDataScopeEntity;
 import java.util.List;
 
 /**
- * 角色数据权限
+ * Role data permission
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysRoleDataScopeService extends BaseService<SysRoleDataScopeEntity> {
 
     /**
-     * 保存或修改
-     * @param roleId      角色ID
-     * @param orgIdList   机构ID列表
+     * Save or update
+     * @param roleId      Role ID
+     * @param orgIdList   Organization ID list
      */
     void saveOrUpdate(Long roleId, List<Long> orgIdList);
 
     /**
-     * 根据角色ID，获取机构ID列表
+     * Get the organization ID list by role ID
      */
     List<Long> getOrgIdList(Long roleId);
 
     /**
-     * 根据角色id列表，删除角色数据权限关系
-     * @param roleIdList 角色id列表
+     * Delete role data-permission relationships by role id list
+     * @param roleIdList Role id list
      */
     void deleteByRoleIdList(List<Long> roleIdList);
 }

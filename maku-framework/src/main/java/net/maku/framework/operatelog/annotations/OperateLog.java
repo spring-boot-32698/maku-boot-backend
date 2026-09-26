@@ -8,26 +8,26 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 操作日志
+ * Operation log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OperateLog {
     /**
-     * 模块名
+     * Module name
      */
     String module() default "";
 
     /**
-     * 操作名
+     * Operation name
      */
     String name() default "";
 
     /**
-     * 操作类型
+     * Operation type
      */
     OperateTypeEnum[] type() default OperateTypeEnum.OTHER;
 }

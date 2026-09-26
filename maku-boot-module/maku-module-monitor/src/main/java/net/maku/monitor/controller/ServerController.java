@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 服务器监控
+ * Server monitoring
  *
  * @author Pure tea
  */
@@ -20,7 +20,7 @@ import java.util.List;
 public class ServerController {
 
     /**
-     * 服务器相关信息
+     * Server related info
      */
     @GetMapping("info")
     @PreAuthorize("hasAuthority('monitor:server:all')")
@@ -30,7 +30,7 @@ public class ServerController {
     }
 
     /**
-     * CPU相关信息
+     * CPURelated info
      */
     @GetMapping("cpu")
     @PreAuthorize("hasAuthority('monitor:server:all')")
@@ -40,7 +40,7 @@ public class ServerController {
     }
 
     /**
-     * 内存相关信息
+     * Memory related info
      */
     @GetMapping("mem")
     @PreAuthorize("hasAuthority('monitor:server:all')")
@@ -50,7 +50,7 @@ public class ServerController {
     }
 
     /**
-     * JVM相关信息
+     * JVMRelated info
      */
     @GetMapping("jvm")
     @PreAuthorize("hasAuthority('monitor:server:all')")
@@ -60,7 +60,7 @@ public class ServerController {
     }
 
     /**
-     * 系统相关信息
+     * System related info
      */
     @GetMapping("sys")
     @PreAuthorize("hasAuthority('monitor:server:all')")
@@ -70,7 +70,7 @@ public class ServerController {
     }
 
     /**
-     * 系统文件相关信息
+     * System file related info
      */
     @GetMapping("disk")
     @PreAuthorize("hasAuthority('monitor:server:all')")

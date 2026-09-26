@@ -6,26 +6,26 @@ import lombok.Getter;
 import java.util.Objects;
 
 /**
- * 用户性别状态
+ * User gender status
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum UserGenderEnum {
     /**
-     * 男
+     * Male
      */
-    MAN(0, "男"),
+    MAN(0, "Male"),
     /**
-     * 女
+     * Female
      */
-    WOMEN(1, "女"),
+    WOMEN(1, "Female"),
     /**
-     * 未知
+     * Unknown
      */
-    UNKNOWN(2,"未知");
+    UNKNOWN(2,"Unknown");
 
     private final int value;
     private final String name;

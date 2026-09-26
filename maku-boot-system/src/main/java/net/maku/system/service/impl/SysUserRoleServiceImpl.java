@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 用户角色关系
+ * User-role relationship
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -27,10 +27,10 @@ public class SysUserRoleServiceImpl extends BaseServiceImpl<SysUserRoleDao, SysU
 
     @Override
     public void saveOrUpdate(Long userId, List<Long> roleIdList) {
-        // 数据库角色ID列表
+        // Role ID list in the database
         List<Long> dbRoleIdList = getRoleIdList(userId);
 
-        // 需要新增的角色ID
+        // Role IDs to add
         Collection<Long> insertRoleIdList = CollUtil.subtract(roleIdList, dbRoleIdList);
         if (CollUtil.isNotEmpty(insertRoleIdList)) {
             List<SysUserRoleEntity> roleList = insertRoleIdList.stream().map(roleId -> {
@@ -40,11 +40,11 @@ public class SysUserRoleServiceImpl extends BaseServiceImpl<SysUserRoleDao, SysU
                 return entity;
             }).collect(Collectors.toList());
 
-            // 批量新增
+            // Batch add
             saveBatch(roleList);
         }
 
-        // 需要删除的角色ID
+        // Role IDs to delete
         Collection<Long> deleteRoleIdList = CollUtil.subtract(dbRoleIdList, roleIdList);
         if (CollUtil.isNotEmpty(deleteRoleIdList)) {
             LambdaQueryWrapper<SysUserRoleEntity> queryWrapper = new LambdaQueryWrapper<>();
@@ -61,10 +61,10 @@ public class SysUserRoleServiceImpl extends BaseServiceImpl<SysUserRoleDao, SysU
             return entity;
         }).collect(Collectors.toList());
 
-        // 批量新增
+        // Batch add
         saveBatch(list);
 
-        // 更新用户的缓存权限
+        // Update the user cached permissions
         userIdList.forEach(sysUserTokenService::updateCacheAuthByUserId);
     }
 
@@ -83,7 +83,7 @@ public class SysUserRoleServiceImpl extends BaseServiceImpl<SysUserRoleDao, SysU
         LambdaQueryWrapper<SysUserRoleEntity> queryWrapper = new LambdaQueryWrapper<>();
         remove(queryWrapper.eq(SysUserRoleEntity::getRoleId, roleId).in(SysUserRoleEntity::getUserId, userIdList));
 
-        // 更新用户的缓存权限
+        // Update the user cached permissions
         userIdList.forEach(sysUserTokenService::updateCacheAuthByUserId);
     }
 

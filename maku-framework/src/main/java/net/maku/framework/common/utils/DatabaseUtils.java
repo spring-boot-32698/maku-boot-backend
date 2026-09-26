@@ -9,17 +9,17 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 
 /**
- * 数据库工具类
+ * Database utility class
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Slf4j
 public class DatabaseUtils {
 
     /**
-     * 获取数据库产品名称
+     * Get database product name
      *
-     * @return 数据库产品名称
+     * @return Database product name
      */
     public static String getProductName() {
         DataSource dataSource = SpringUtil.getBean(DataSource.class);
@@ -33,16 +33,16 @@ public class DatabaseUtils {
     }
 
     /**
-     * 获取数据库产品名称
+     * Get database product name
      *
-     * @return 数据库产品名称
+     * @return Database product name
      */
     public static String getProductName(Connection connection) {
         String productName = DbConstant.MySQL;
         try {
             productName = connection.getMetaData().getDatabaseProductName();
 
-            // 如果是Oracle，则需要判断驱动名，有可能为达梦数据库
+            // If it is Oracle, check the driver name, as it may be the Dameng database
             if (StrUtil.contains(productName, DbConstant.Oracle)) {
                 String driverName = connection.getMetaData().getDriverName();
                 if (driverName.contains("dm.jdbc.driver.DmDriver")) {

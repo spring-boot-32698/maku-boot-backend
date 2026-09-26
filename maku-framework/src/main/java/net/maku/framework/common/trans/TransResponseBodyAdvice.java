@@ -20,9 +20,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 全局翻译拦截器
+ * Global translation interceptor
  * <p>
- * 只拦截返回值中包含 TransPojo 的 ResponseBody，自动对实现了 TransPojo 接口的对象进行字段翻译
+ * Only intercept ResponseBody whose return value contains TransPojo, and automatically translate fields of objects implementing the TransPojo interface
  *
  * @author maku
  */
@@ -33,7 +33,7 @@ public class TransResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     private final TransService transService;
 
     /**
-     * 缓存方法返回类型是否涉及 TransPojo 的判断结果，避免重复反射
+     * Cache the result of whether a method return type involves TransPojo, to avoid repeated reflection
      */
     private final Map<MethodParameter, Boolean> supportsCache = new ConcurrentHashMap<>();
 
@@ -43,7 +43,7 @@ public class TransResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     }
 
     /**
-     * 判断方法返回类型是否直接或间接包含 TransPojo
+     * Check whether the method return type directly or indirectly contains TransPojo
      */
     private boolean containsTransPojo(MethodParameter returnType) {
         Type genericType = returnType.getGenericParameterType();
@@ -51,19 +51,19 @@ public class TransResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     }
 
     /**
-     * 递归检查类型及其泛型参数是否涉及 TransPojo
+     * Recursively check whether the type and its generic parameters involve TransPojo
      */
     private boolean checkType(Type type, Set<Type> visited) {
         if (type == null || !visited.add(type)) {
             return false;
         }
 
-        // 处理 Class 类型
+        // Handle Class type
         if (type instanceof Class<?> clazz) {
             if (TransPojo.class.isAssignableFrom(clazz)) {
                 return true;
             }
-            // 检查类的字段中是否包含 TransPojo 类型（仅检查非 JDK 类）
+            // Check whether the fields of the class contain the TransPojo type (only non-JDK classes are checked)
             if (!clazz.getName().startsWith("java.") && !clazz.getName().startsWith("javax.")
                     && !clazz.isPrimitive() && !clazz.isEnum()) {
                 for (Field field : clazz.getDeclaredFields()) {
@@ -75,7 +75,7 @@ public class TransResponseBodyAdvice implements ResponseBodyAdvice<Object> {
             return false;
         }
 
-        // 处理泛型参数类型，如 Result<PageResult<UserVO>>
+        // Handle generic parameter types, such as Result<PageResult<UserVO>>
         if (type instanceof ParameterizedType parameterizedType) {
             Type rawType = parameterizedType.getRawType();
             if (rawType instanceof Class<?> rawClass && TransPojo.class.isAssignableFrom(rawClass)) {
@@ -86,7 +86,7 @@ public class TransResponseBodyAdvice implements ResponseBodyAdvice<Object> {
                     return true;
                 }
             }
-            // 同时检查原始类型的字段
+            // Also check fields of primitive types
             if (rawType instanceof Class<?>) {
                 return checkType(rawType, visited);
             }
@@ -105,7 +105,7 @@ public class TransResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         try {
             processTranslation(body);
         } catch (Exception e) {
-            log.debug("翻译处理异常", e);
+            log.debug("Translation handling exception", e);
         }
         return body;
     }
@@ -122,7 +122,7 @@ public class TransResponseBodyAdvice implements ResponseBodyAdvice<Object> {
             return;
         }
 
-        // 处理常见的包装类型（如 PageResult、Result 等）
+        // Handle common wrapper types (such as PageResult, Result, etc.)
         processWrapperFields(obj);
 
         if (!(obj instanceof TransPojo)) {
@@ -133,7 +133,7 @@ public class TransResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     }
 
     /**
-     * 处理包装类中可能包含 TransPojo 的字段
+     * Handle fields that may contain TransPojo in wrapper classes
      */
     private void processWrapperFields(Object obj) {
         Class<?> clazz = obj.getClass();

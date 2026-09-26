@@ -20,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 岗位管理
+ * Post management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -40,7 +40,7 @@ public class SysPostServiceImpl extends BaseServiceImpl<SysPostDao, SysPostEntit
     @Override
     public List<SysPostVO> getList() {
         SysPostQuery query = new SysPostQuery();
-        //正常岗位列表
+        //Normal post list
         query.setStatus(1);
         List<SysPostEntity> entityList = baseMapper.selectList(getWrapper(query));
 
@@ -83,10 +83,10 @@ public class SysPostServiceImpl extends BaseServiceImpl<SysPostDao, SysPostEntit
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> idList) {
-        // 删除岗位
+        // Delete post
         removeByIds(idList);
 
-        // 删除岗位用户关系
+        // Delete post-user relationship
         sysUserPostService.deleteByPostIdList(idList);
     }
 

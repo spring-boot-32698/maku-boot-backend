@@ -10,28 +10,28 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 设备事件日志
+ * Device event log
  *
  * @author LSF maku_lsf@163.com
  */
 @Data
-@Schema(description = "设备事件日志")
+@Schema(description = "Device event log")
 public class IotDeviceEventLogVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "事件类型")
+    @Schema(description = "Event type")
     private Integer eventType;
 
-    @Schema(description = "事件")
+    @Schema(description = "Event")
     private DeviceEventTypeEnum eventTypeEnum;
 
-    @Schema(description = "事件标识id")
+    @Schema(description = "Event identifier id")
     private String eventUid;
 
-    @Schema(description = "事件数据")
+    @Schema(description = "Event data")
     private String eventPayload;
 
-    @Schema(description = "事件时间")
+    @Schema(description = "Event time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime eventTime;
 
