@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kubernetes with Maku</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script src="../../assets/quiz.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><span>Kubernetes &amp; Helm</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a><a href="../reference/interview.html">Interview Q&amp;A</a><a href="../../lessons/index.html">Codebase course</a></div>
+  <h1>Kubernetes &amp; Helm, with maku</h1>
+  <p class="subtitle">Learn Kubernetes by taking apart — and then rebuilding — a real deployment of this project.</p>
+
+  <div class="goal">
+    <span class="label">Mission</span>
+    <p>Deploy and operate maku on Kubernetes with Helm, confidently enough for work and for interviews. <a href="../MISSION.md">MISSION.md</a></p>
+  </div>
+
+  <p><strong>How this course works.</strong> maku is already running on your local cluster (<code>deploy/k3d/up.sh</code> did it). Each lesson explains one layer of that working system, then you poke it with real commands. In lesson 9 you tear it all down and rebuild it by hand. The chart you're studying: <code>maku-boot-backend/deploy/helm/maku</code> · guide: <code>deploy/helm/README.md</code>.</p>
+
+  <h2>Part 1 — Core objects</h2>
+  <ol class="lesson-list">
+    <li data-lesson-link="k8s-0001"><span class="num">01</span><a href="0001-cluster-and-desired-state.html">The cluster and desired state</a><span class="desc">What a cluster is, who does what, and why deleted pods come back.</span></li>
+    <li data-lesson-link="k8s-0002"><span class="num">02</span><a href="0002-pods-and-deployments.html">Pods, ReplicaSets, Deployments</a><span class="desc">Run, scale, update and roll back an app; read maku-backend's Deployment.</span></li>
+    <li data-lesson-link="k8s-0003"><span class="num">03</span><a href="0003-services-and-dns.html">Services and DNS</a><span class="desc">How the backend finds MySQL by name, and how traffic finds a pod.</span></li>
+    <li data-lesson-link="k8s-0004"><span class="num">04</span><a href="0004-config-and-secrets.html">ConfigMaps and Secrets</a><span class="desc">Feeding Spring Boot its settings, and why a Secret isn't a safe.</span></li>
+    <li data-lesson-link="k8s-0005"><span class="num">05</span><a href="0005-storage-and-statefulsets.html">Storage and StatefulSets</a><span class="desc">Why MySQL keeps its data when its pod dies, and Redis doesn't.</span></li>
+  </ol>
+
+  <h2>Part 2 — Running a real app</h2>
+  <ol class="lesson-list">
+    <li data-lesson-link="k8s-0006"><span class="num">06</span><a href="0006-probes-and-resources.html">Probes and resources</a><span class="desc">startup / readiness / liveness for a slow Spring Boot app; requests, limits, OOMKilled.</span></li>
+    <li data-lesson-link="k8s-0007"><span class="num">07</span><a href="0007-ingress.html">Ingress</a><span class="desc">From <code>maku.localhost:8088</code> through Traefik to a pod; hosts, TLS, Gateway API.</span></li>
+    <li data-lesson-link="k8s-0008"><span class="num">08</span><a href="0008-helm-charts.html">Helm charts from the inside</a><span class="desc">Chart.yaml, values, templates, <code>include</code>/<code>nindent</code>; add a feature to the chart.</span></li>
+  </ol>
+
+  <h2>Part 3 — Operating it</h2>
+  <ol class="lesson-list">
+    <li data-lesson-link="k8s-0009"><span class="num">09</span><a href="0009-rebuild-by-hand.html">Rebuild maku by hand</a><span class="desc">Delete everything; cluster → install → images → verify, no script.</span></li>
+    <li data-lesson-link="k8s-0010"><span class="num">10</span><a href="0010-ship-and-rollback.html">Ship a change and roll back</a><span class="desc">New image tag, <code>helm upgrade</code>, a broken release, <code>helm rollback</code>.</span></li>
+    <li data-lesson-link="k8s-0011"><span class="num">11</span><a href="0011-debugging-playbook.html">Debugging playbook</a><span class="desc">Eight broken labs: Pending, ImagePullBackOff, CrashLoopBackOff, OOMKilled, not Ready, and more.</span></li>
+    <li data-lesson-link="k8s-0012"><span class="num">12</span><a href="0012-production-and-interviews.html">Towards production &amp; interviews</a><span class="desc">Registries, GitOps, secrets, security, why maku can't scale yet, an autoscaler in action.</span></li>
+  </ol>
+  <p>Reference: <a href="../reference/glossary.html">Glossary</a> · <a href="../reference/cheatsheet.html">Cheat sheet</a> · <a href="../reference/interview.html">Interview Q&amp;A</a> · labs in <code>.claude/k8s/labs/</code></p>
+
+  <h2>Ground rules</h2>
+  <p>Do one lesson per sitting, roughly in order; lessons 09 and 11 are the big hands-on milestones. Predict command output <em>before</em> opening “Expected output”. Exercises that change things use a scratch namespace <code>play</code>, so maku stays healthy. If you break maku anyway: <code>deploy/k3d/up.sh</code> puts it back.</p>
+
+  <div class="ask"><span class="label">Your teacher</span>Ask your agent anything, any time: “why is my pod Pending?”, “quiz me on Services”, “explain this line of the chart”. Tell it when you finish a lesson so it can record your progress and write the next one at the right level.</div>
+</main>
+</body>
+</html>

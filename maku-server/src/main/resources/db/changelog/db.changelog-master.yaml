@@ -1,0 +1,94 @@
+# Liquibase master changelog.
+#
+# 1. Baseline: the scripts in db/mysql-ver-english (packaged as classpath:db/init by maku-server/pom.xml).
+#    Each changeset has a precondition so a database that was already initialised from these
+#    scripts (e.g. via docker-entrypoint-initdb.d) is adopted (MARK_RAN) instead of re-created.
+# 2. Every later schema/data change goes into db/changelog/changes/ as a new file — never edit the
+#    baseline scripts or an applied changeset; Liquibase checksums would fail.
+databaseChangeLog:
+  - changeSet:
+      id: 0001-baseline-core
+      author: maku
+      dbms: mysql
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: sys_user
+      changes:
+        - sqlFile:
+            path: db/init/maku.sql
+            encoding: UTF-8
+            splitStatements: true
+            stripComments: true
+
+  - changeSet:
+      id: 0002-baseline-generator
+      author: maku
+      dbms: mysql
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: gen_table
+      changes:
+        - sqlFile:
+            path: db/init/module/maku-module-generator.sql
+            encoding: UTF-8
+            splitStatements: true
+            stripComments: true
+
+  - changeSet:
+      id: 0003-baseline-member
+      author: maku
+      dbms: mysql
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: member_user
+      changes:
+        - sqlFile:
+            path: db/init/module/maku-module-member.sql
+            encoding: UTF-8
+            splitStatements: true
+            stripComments: true
+
+  - changeSet:
+      id: 0004-baseline-monitor
+      author: maku
+      dbms: mysql
+      # Menu rows only, so check for the menu instead of a table
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: select count(*) from sys_menu where url = 'monitor/server/index'
+      changes:
+        - sqlFile:
+            path: db/init/module/maku-module-monitor.sql
+            encoding: UTF-8
+            splitStatements: true
+            stripComments: true
+
+  - changeSet:
+      id: 0005-baseline-quartz
+      author: maku
+      dbms: mysql
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: schedule_job
+      changes:
+        - sqlFile:
+            path: db/init/module/maku-module-quartz.sql
+            encoding: UTF-8
+            splitStatements: true
+            stripComments: true
+
+  # New migrations: create db/changelog/changes/ and add files like 0006-add-biz-product.yaml
+  # (applied in file-name order; formatted .sql files need the "--liquibase formatted sql" header)
+  - includeAll:
+      path: db/changelog/changes/
+      errorIfMissingOrEmpty: false

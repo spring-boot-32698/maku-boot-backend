@@ -1,5 +1,6 @@
 # Backend stack: MySQL + Redis + maku-boot API (http://localhost:8080)
 # Start with: docker compose up -d --build
+# The database schema is created/migrated by Liquibase on application start-up.
 services:
   mysql:
     image: mysql:8.0
@@ -15,12 +16,8 @@ services:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-      # Scripts run in file-name order on first start (English version of the schema)
-      - ./db/mysql-ver-english/maku.sql:/docker-entrypoint-initdb.d/01-maku.sql:ro
-      - ./db/mysql-ver-english/module/maku-module-generator.sql:/docker-entrypoint-initdb.d/02-generator.sql:ro
-      - ./db/mysql-ver-english/module/maku-module-member.sql:/docker-entrypoint-initdb.d/03-member.sql:ro
-      - ./db/mysql-ver-english/module/maku-module-monitor.sql:/docker-entrypoint-initdb.d/04-monitor.sql:ro
-      - ./db/mysql-ver-english/module/maku-module-quartz.sql:/docker-entrypoint-initdb.d/05-quartz.sql:ro
+      # Schema + seed data are applied by Liquibase when maku-boot starts
+      # (maku-server/src/main/resources/db/changelog, baseline = db/mysql-ver-english).
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot"]
       interval: 5s

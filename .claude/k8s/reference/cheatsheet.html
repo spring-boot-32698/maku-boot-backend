@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kubectl Helm Cheatsheet</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="../lessons/index.html">K8s course</a><span>›</span><span>Reference</span><span>·</span><a href="glossary.html">Glossary</a></div>
+  <h1>kubectl · helm · k3d cheat sheet</h1>
+  <p class="subtitle">Tuned to the maku setup. Namespace <code>maku</code>, release <code>maku</code>, cluster <code>k3d-maku</code>.</p>
+
+  <h2>Orient yourself</h2>
+  <pre><code>kubectl config current-context            # which cluster am I talking to?
+kubectl config use-context k3d-maku
+kubectl get nodes -o wide
+kubectl get ns
+kubectl get all -n maku                    # deploy, rs, sts, pods, svc
+kubectl api-resources | less               # every object kind + short names (po, svc, deploy, sts, cm, pvc, ing)
+kubectl explain deployment.spec.strategy   # built-in field docs</code></pre>
+
+  <h2>Look &amp; debug</h2>
+  <pre><code>kubectl -n maku get pods -o wide -w                      # watch, with node + IP
+kubectl -n maku describe pod &lt;pod&gt;                       # read Events at the bottom!
+kubectl -n maku logs deploy/maku-backend -f              # follow logs
+kubectl -n maku logs &lt;pod&gt; --previous                    # logs of the crashed container
+kubectl -n maku logs &lt;pod&gt; -c wait-for-mysql             # an init container's logs
+kubectl -n maku get events --sort-by=.lastTimestamp
+kubectl -n maku exec -it deploy/maku-backend -- sh       # shell in a pod
+kubectl -n maku get pod &lt;pod&gt; -o yaml                    # full spec + status
+kubectl -n maku get endpointslices -l kubernetes.io/service-name=maku-backend
+kubectl -n maku run t --rm -it --image=busybox:1.36 --restart=Never -- sh   # throwaway debug pod
+kubectl top pods -n maku                                 # CPU/memory (metrics-server)</code></pre>
+
+  <h2>Debug decision table</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Symptom</th><th>Look at</th><th>Usual cause</th></tr>
+    <tr><td><code>Pending</code></td><td>describe → Events</td><td>no node fits requests; PVC not bound</td></tr>
+    <tr><td><code>ImagePullBackOff</code></td><td>describe → Events</td><td>wrong image/tag; forgot <code>k3d image import</code>; private registry</td></tr>
+    <tr><td><code>Init:0/1</code> for long</td><td><code>logs -c wait-for-mysql</code></td><td>MySQL not ready / wrong host</td></tr>
+    <tr><td><code>CrashLoopBackOff</code></td><td><code>logs --previous</code></td><td>app error at startup (config, DB auth)</td></tr>
+    <tr><td><code>OOMKilled</code> in describe</td><td>Last State</td><td>memory limit &lt; JVM needs</td></tr>
+    <tr><td>Running but <code>0/1</code> READY</td><td>describe → probe failures</td><td>readiness failing (DB/Redis down)</td></tr>
+    <tr><td>Ingress 404 “page not found”</td><td>get ingress, endpointslices</td><td>wrong host, no ready endpoints</td></tr>
+    <tr><td>Service: “connection refused”</td><td>endpointslices empty?</td><td>selector ≠ pod labels</td></tr>
+    <tr><td>Service: timeout</td><td>NetworkPolicy, port/targetPort</td><td>traffic blocked / pod not listening</td></tr>
+    <tr><td>PVC <code>Pending</code></td><td>describe pvc</td><td>StorageClass missing; WaitForFirstConsumer (normal until a pod uses it)</td></tr>
+  </table></div>
+
+  <h2>Change things (imperative — for learning)</h2>
+  <pre><code>kubectl create ns play
+kubectl -n play create deployment web --image=nginx:1.27-alpine --replicas=2
+kubectl -n play scale deploy/web --replicas=4
+kubectl -n play set image deploy/web nginx=nginx:1.28-alpine
+kubectl -n play rollout status|history|undo deploy/web
+kubectl -n play rollout restart deploy/web
+kubectl -n play expose deploy/web --port=80
+kubectl -n maku port-forward svc/maku-backend 18080:8080
+kubectl -n play autoscale deploy/web --cpu-percent=50 --min=1 --max=5   # HPA (needs CPU requests)
+kubectl -n play create ingress web --class=traefik --rule="web.localhost/*=web:80"
+kubectl -n play apply -f .claude/k8s/labs/              # the 8 broken debugging labs
+kubectl delete ns play                                   # deletes everything inside
+kubectl wait --for=delete ns/play                        # before re-creating it</code></pre>
+  <p>Declarative (what real teams do): keep YAML in git, <code>kubectl apply -f file.yaml</code>, or let Helm render and apply it.</p>
+
+  <h2>Helm</h2>
+  <pre><code>helm lint deploy/helm/maku -f deploy/helm/maku/values-k3d.yaml
+helm template maku deploy/helm/maku -f deploy/helm/maku/values-k3d.yaml      # render locally, apply nothing
+helm upgrade --install maku deploy/helm/maku -n maku --create-namespace \
+     -f deploy/helm/maku/values-k3d.yaml [--set backend.image.tag=5.0.1] --wait
+helm list -n maku
+helm status maku -n maku
+helm history maku -n maku
+helm rollback maku &lt;revision&gt; -n maku
+helm get values maku -n maku          # what you supplied
+helm get manifest maku -n maku        # what was applied
+helm test maku -n maku
+helm upgrade … --rollback-on-failure --timeout 5m   # Helm 4 (Helm 3: --atomic); --force → --force-replace
+helm uninstall maku -n maku           # PVCs from StatefulSets / keep-policy survive
+helm template … | kubectl apply --dry-run=server -f -   # let the API server validate rendered YAML</code></pre>
+  <p>Value precedence: <code>values.yaml</code> &lt; <code>-f a.yaml</code> &lt; <code>-f b.yaml</code> &lt; <code>--set</code>.</p>
+
+  <h2>k3d</h2>
+  <pre><code>k3d cluster create --config deploy/k3d/cluster.yaml
+k3d cluster list | stop maku | start maku | delete maku
+k3d image import maku-boot:5.0.1 -c maku               # local image → every node
+docker ps --filter name=k3d-maku                        # nodes are containers</code></pre>
+
+  <h2>maku in the cluster</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Object</th><th>Kind</th><th>Notes</th></tr>
+    <tr><td>maku-backend</td><td>Deployment + Service :8080</td><td>Recreate, init wait-for-mysql, probes on /actuator/health/*</td></tr>
+    <tr><td>maku-frontend</td><td>Deployment + Service :80</td><td>nginx, API URL baked into image</td></tr>
+    <tr><td>maku-mysql</td><td>StatefulSet + Service + headless Service</td><td>PVC data-maku-mysql-0 (5Gi)</td></tr>
+    <tr><td>maku-redis</td><td>Deployment + Service :6379</td><td>no volume — restart logs users out</td></tr>
+    <tr><td>maku-backend</td><td>ConfigMap</td><td>Spring env vars</td></tr>
+    <tr><td>maku-db</td><td>Secret</td><td>mysql-password, mysql-root-password</td></tr>
+    <tr><td>maku-uploads</td><td>PVC 2Gi</td><td>/app/upload, kept on uninstall</td></tr>
+    <tr><td>maku</td><td>Ingress (traefik)</td><td>maku.localhost, api.maku.localhost → :8088</td></tr>
+  </table></div>
+</main>
+</body>
+</html>

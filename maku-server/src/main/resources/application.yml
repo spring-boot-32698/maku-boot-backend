@@ -12,6 +12,21 @@ server:
       cookie:
         http-only: true
 
+# Actuator: expose only the health endpoint (public via auth.yml /actuator/**, details hidden).
+# Probe groups /actuator/health/liveness and /readiness are used by the Kubernetes probes.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db,redis
+
 knife4j:
   enable: false
   setting:
@@ -35,6 +50,16 @@ spring:
     multipart:
       max-file-size: 1024MB
       max-request-size: 1024MB
+  # Database migrations. Uses its own connection to the master datasource
+  # (dynamic-datasource routes the app's DataSource, so we point Liquibase at master explicitly).
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    # Context = active profile, so changesets tagged context:dev (demo accounts) never run in test/prod
+    contexts: ${spring.profiles.active}
+    url: ${spring.datasource.dynamic.datasource.master.url}
+    user: ${spring.datasource.dynamic.datasource.master.username}
+    password: ${spring.datasource.dynamic.datasource.master.password}
 
 storage:
   enabled: true

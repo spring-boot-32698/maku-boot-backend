@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kubernetes Interview Q&amp;A</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="../lessons/index.html">K8s course</a><span>›</span><span>Reference</span><span>·</span><a href="glossary.html">Glossary</a><a href="cheatsheet.html">Cheat sheet</a></div>
+  <h1>Interview Q&amp;A</h1>
+  <p class="subtitle">Answer out loud first, then open. Ground every answer in something you did to maku; that's what separates you from someone who memorised a list.</p>
+  <p><b>Spaced practice:</b> go through this tomorrow, in a week, and in a month. Note which ones you missed and ask your agent to quiz you on those.</p>
+
+  <h2>Fundamentals</h2>
+  <details class="recall"><summary>What happens when you run <code>kubectl apply -f deployment.yaml</code>?</summary>
+    <p>kubectl → <b>API server</b> (authn, authz, admission, validation) → stored in <b>etcd</b> → Deployment controller creates/updates a <b>ReplicaSet</b> → ReplicaSet controller creates <b>Pods</b> → <b>scheduler</b> binds each pod to a node (filtering on requests, affinity, taints) → that node's <b>kubelet</b> pulls the image via containerd, starts containers, runs probes, reports status. <em>Lesson 01.</em></p></details>
+  <details class="recall"><summary>What's the difference between a Pod, a ReplicaSet and a Deployment?</summary>
+    <p>Pod: one or more containers sharing network and volumes, disposable. ReplicaSet: keeps N pods matching a selector. Deployment: manages ReplicaSets to give rolling updates, history and rollback. You create Deployments; the rest is created for you. <em>Lesson 02.</em></p></details>
+  <details class="recall"><summary>Deployment vs StatefulSet?</summary>
+    <p>Deployment: interchangeable replicas, random names, shared template (maku-backend, frontend). StatefulSet: stable names (<code>-0</code>), per-replica PVCs via volumeClaimTemplates, ordered rollout, stable DNS via a headless Service (maku-mysql). Neither gives database replication; that's the database's job. <em>Lesson 05.</em></p></details>
+  <details class="recall"><summary>What is a namespace, and what isn't it?</summary>
+    <p>A scope for names, RBAC, quotas and policies. It is <em>not</em> a network or security boundary by itself: pods can reach other namespaces' Services (<code>maku-mysql.maku</code>) unless NetworkPolicies say otherwise. Nodes and PVs are cluster-wide.</p></details>
+
+  <h2>Networking</h2>
+  <details class="recall"><summary>Explain ClusterIP, NodePort, LoadBalancer and headless Services.</summary>
+    <p>ClusterIP: internal virtual IP + DNS (all of maku's). NodePort: a port on every node. LoadBalancer: an external LB from the provider (Traefik's Service on k3s). Headless (<code>clusterIP: None</code>): DNS returns pod IPs, used by StatefulSets. <em>Lesson 03.</em></p></details>
+  <details class="recall"><summary>How does one pod find another?</summary>
+    <p>Through a Service name resolved by CoreDNS: <code>&lt;svc&gt;.&lt;ns&gt;.svc.cluster.local</code>, short name within the namespace thanks to the resolv.conf search list. The Service routes to ready endpoints (EndpointSlices) via kube-proxy. maku-backend uses <code>jdbc:mysql://maku-mysql:3306</code>. <em>Lesson 03.</em></p></details>
+  <details class="recall"><summary>Walk a browser request from URL to pod.</summary>
+    <p>DNS → external LB → ingress controller's Service (LoadBalancer/NodePort) → controller pod (Traefik) → Ingress rule by Host/path → backend Service → a ready pod IP → containerPort. TLS terminates at the controller. <em>Lesson 07.</em></p></details>
+  <details class="recall"><summary>Ingress vs Gateway API? What happened to ingress-nginx?</summary>
+    <p>Ingress: simple host/path → Service rules, now feature-frozen. Gateway API: role-oriented (<code>GatewayClass</code>/<code>Gateway</code> for platform, <code>HTTPRoute</code> for apps), richer matching, more protocols, the recommended direction. The community ingress-nginx controller was retired in March 2026, so existing users must migrate to another controller or Gateway API. <em>Lesson 07.</em></p></details>
+  <details class="recall"><summary>A Service doesn't work. How do you debug it?</summary>
+    <p><code>get endpointslices</code>: if empty, the selector doesn't match labels (instant “connection refused”); if present but <code>ready=false</code>, readiness is failing. Then check port/targetPort names, test from a debug pod (<code>wget svc:port</code>), check DNS, then NetworkPolicies (timeouts). <em>Lesson 11, labs E/F.</em></p></details>
+
+  <h2>Configuration, storage, health</h2>
+  <details class="recall"><summary>ConfigMap vs Secret? Are Secrets secure?</summary>
+    <p>Both inject config as env or files. Secrets are for sensitive data, get separate RBAC, and plug into secret tooling, but they're only base64-encoded by default. Security comes from RBAC, encryption at rest, and keeping them out of git (External Secrets, Sealed Secrets). Env vars only update on restart, hence the checksum annotation trick. <em>Lesson 04.</em></p></details>
+  <details class="recall"><summary>PV vs PVC vs StorageClass; what are access modes?</summary>
+    <p>PVC = request, PV = actual storage, StorageClass = how to provision it dynamically (and its reclaim policy). RWO = one node, RWX = many nodes, RWOP = one pod. maku's uploads PVC is RWO, which is why the backend uses Recreate. <em>Lesson 05.</em></p></details>
+  <details class="recall"><summary>Readiness vs liveness vs startup probes?</summary>
+    <p>Startup: “finished booting?”, and it pauses the others (5 min for maku's JVM + Liquibase). Readiness: “send traffic?”; failure removes the pod from endpoints, no restart (includes DB + Redis for maku). Liveness: “wedged?”; failure restarts it, and it should check only the process itself, never dependencies. <em>Lesson 06.</em></p></details>
+  <details class="recall"><summary>Requests vs limits? What's OOMKilled?</summary>
+    <p>Requests: reserved, used for scheduling and HPA percentages. Limits: ceilings. Memory over limit → SIGKILL, exit 137, OOMKilled. CPU over limit → throttling. For the JVM, the limit must exceed <code>-Xmx</code> (maku: 1024M heap, 1536Mi limit). <em>Lesson 06.</em></p></details>
+
+  <h2>Helm &amp; delivery</h2>
+  <details class="recall"><summary>Why Helm? Helm vs Kustomize?</summary>
+    <p>Helm: templated, parameterised charts; releases with revisions (upgrade, rollback, uninstall as a unit); hooks; packaging. Kustomize: template-free overlays and patches, built into kubectl. Helm suits distributing configurable software; Kustomize suits environment overlays of your own YAML. <em>Lesson 08.</em></p></details>
+  <details class="recall"><summary>How do you roll back a bad release?</summary>
+    <p><code>helm rollback &lt;release&gt; &lt;rev&gt;</code> (it creates a new revision), or <code>kubectl rollout undo</code> for a plain Deployment. Prevention: readiness + RollingUpdate keeps bad pods from getting traffic, <code>--rollback-on-failure</code> (Helm 3: <code>--atomic</code>), immutable tags. <em>Lesson 10.</em></p></details>
+  <details class="recall"><summary>RollingUpdate vs Recreate: when do you choose Recreate?</summary>
+    <p>RollingUpdate gives zero downtime but briefly runs old and new versions side by side. Recreate stops old pods first, causing downtime, but needs no coexistence: use it for RWO volumes (maku-backend) or versions that can't run together. <em>Lessons 02, 10.</em></p></details>
+  <details class="recall"><summary>What's GitOps?</summary>
+    <p>Desired cluster state lives in git; an in-cluster agent (Argo CD, Flux) continuously reconciles the cluster to it. Deploy = merge, rollback = revert, drift is detected automatically. <em>Lesson 12.</em></p></details>
+
+  <h2>Troubleshooting</h2>
+  <details class="recall"><summary>A pod is CrashLoopBackOff. Debug it.</summary>
+    <p><code>describe</code> (Last State: exit code, OOMKilled?; Events: liveness kills?) → <code>logs --previous</code> → typical causes: missing config/secret, dependency down at boot, bad command, OOM, a liveness probe too eager for a slow start. Reproduce with a sleep override or <code>kubectl debug</code>. <em>Lesson 11, lab C.</em></p></details>
+  <details class="recall"><summary>A pod is Pending. Why might that be?</summary>
+    <p>The scheduler can't place it: requests exceed free capacity (lab A), unbound PVC or missing StorageClass (lab H), node selectors/affinity/taints, quota. <code>describe pod</code> → FailedScheduling event says which. <em>Lesson 11.</em></p></details>
+  <details class="recall"><summary>ImagePullBackOff: causes?</summary>
+    <p>Wrong name or tag (lab B), private registry without imagePullSecrets, image only in local Docker and not in the cluster (lesson 09), rate limits. Events show the exact pull error. <em>Lessons 09, 11.</em></p></details>
+
+  <h2>Design</h2>
+  <details class="recall"><summary>Is this app ready to scale horizontally? (asked about maku)</summary>
+    <p>Check where state lives. Sessions in Redis ✅; migrations locked by Liquibase ✅; Quartz in-memory ❌ (every replica runs jobs; needs JDBC clustering); uploads on an RWO volume ❌ (needs object storage, which maku supports via MinIO/S3-style backends). Then switch to RollingUpdate, add a PDB, then an HPA. <em>Lesson 12.</em></p></details>
+  <details class="recall"><summary>Would you run MySQL inside Kubernetes?</summary>
+    <p>It's possible (StatefulSet + PVC, ideally an operator for backups and failover), but most teams use managed databases to offload backups, upgrades and HA. Our chart supports both: <code>mysql.enabled</code> vs <code>externalDatabase</code>. For dev and test, in-cluster is convenient. <em>Lessons 05, 12.</em></p></details>
+</main>
+</body>
+</html>

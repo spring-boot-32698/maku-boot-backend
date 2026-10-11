@@ -1,0 +1,142 @@
+# Default values for the maku chart.
+# Override per environment with -f values-<env>.yaml (see values-k3d.yaml, values-production.example.yaml).
+
+nameOverride: ""
+fullnameOverride: ""
+
+# ---------------------------------------------------------------------------
+# Backend: maku-boot (Spring Boot API, port 8080)
+# ---------------------------------------------------------------------------
+backend:
+  replicaCount: 1          # keep 1: Quartz uses an in-memory job store, so N replicas run every job N times
+  image:
+    repository: maku-boot
+    tag: ""                # defaults to .Chart.AppVersion
+    pullPolicy: IfNotPresent
+  # Spring profile. Also selects Liquibase contexts: "dev" adds the demo accounts (manager/staff/auditor).
+  springProfile: dev
+  timezone: Asia/Shanghai
+  # Public base URL of the API as the browser sees it. Used for URLs of uploaded files (storage.config.domain).
+  publicUrl: http://localhost:8080
+  service:
+    type: ClusterIP
+    port: 8080
+  resources:
+    requests:
+      cpu: 250m
+      memory: 768Mi
+    limits:
+      memory: 1536Mi       # the image starts the JVM with -Xmx1024M; leave headroom for metaspace/threads
+  # Uploaded files (local storage). ReadWriteOnce => all backend pods must run on the same node.
+  uploads:
+    enabled: true
+    size: 2Gi
+    storageClass: ""       # "" = cluster default (k3d: local-path)
+  # Wait for MySQL's port before starting the JVM (avoids crash-loops on first install)
+  waitForDatabase: true
+  probes:
+    startup:               # Spring Boot + Liquibase can take a while on first start: allow up to 5 minutes
+      periodSeconds: 5
+      failureThreshold: 60
+      timeoutSeconds: 3
+    liveness:
+      periodSeconds: 20
+      failureThreshold: 3
+      timeoutSeconds: 3    # default is 1s; a GC pause shouldn't get the container killed
+    readiness:
+      periodSeconds: 10
+      failureThreshold: 3
+      timeoutSeconds: 3
+  # Extra environment variables, e.g. any Spring property in env-var form
+  extraEnv: []
+  #  - name: LOGGING_LEVEL_NET_MAKU
+  #    value: debug
+
+# ---------------------------------------------------------------------------
+# Frontend: maku-admin (static Vue build served by nginx, port 80)
+# NOTE: the API URL is compiled into the image (VITE_API_URL build arg), it is NOT a runtime setting.
+# ---------------------------------------------------------------------------
+frontend:
+  enabled: true
+  # Public URL of the UI (only used in the install notes)
+  publicUrl: http://localhost:3000
+  replicaCount: 1
+  image:
+    repository: maku-admin
+    tag: ""
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+
+# ---------------------------------------------------------------------------
+# Database credentials (used by both the backend and the in-cluster MySQL)
+# ---------------------------------------------------------------------------
+database:
+  name: maku_boot
+  username: maku
+  # DEV ONLY defaults. For real environments set them via --set / a private values file,
+  # or point existingSecret at a Secret with keys: mysql-password, mysql-root-password
+  password: maku123456
+  rootPassword: root123456
+  existingSecret: ""
+
+# In-cluster MySQL (StatefulSet). Set enabled=false to use externalDatabase instead.
+mysql:
+  enabled: true
+  image:
+    repository: mysql
+    tag: "8.0"
+    pullPolicy: IfNotPresent
+  persistence:
+    size: 5Gi
+    storageClass: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
+
+externalDatabase:
+  host: ""
+  port: 3306
+
+# In-cluster Redis (sessions/tokens, caches, operate-log queue). No persistence:
+# a restart logs everyone out. Set enabled=false to use externalRedis.
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: 7-alpine
+    pullPolicy: IfNotPresent
+  database: 1
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      memory: 256Mi
+
+externalRedis:
+  host: ""
+  port: 6379
+
+# ---------------------------------------------------------------------------
+# Ingress: two hosts, because the API serves from "/" (no /api prefix)
+# ---------------------------------------------------------------------------
+ingress:
+  enabled: false
+  className: ""            # k3d/k3s: traefik ; otherwise your cluster's IngressClass (kubectl get ingressclass)
+  annotations: {}
+  frontendHost: maku.example.com
+  backendHost: api.maku.example.com
+  tls: []
+  #  - secretName: maku-tls
+  #    hosts: [maku.example.com, api.maku.example.com]

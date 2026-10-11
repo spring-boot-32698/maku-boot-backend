@@ -1,0 +1,52 @@
+# EXAMPLE production overrides — copy, fill in, and keep the real file out of git
+# (or better: use existingSecret with a secret manager such as External Secrets / Sealed Secrets).
+#
+#   helm upgrade --install maku deploy/helm/maku -n maku --create-namespace -f values-production.yaml
+
+backend:
+  replicaCount: 1                       # >1 needs: shared upload storage (RWX/object storage) + Quartz JDBC store
+  image:
+    repository: registry.example.com/maku/maku-boot
+    tag: "5.0.0"
+  springProfile: prod                   # Liquibase context "prod": no demo accounts
+  publicUrl: https://api.maku.example.com
+  resources:
+    requests: { cpu: 500m, memory: 1Gi }
+    limits: { memory: 1536Mi }
+
+frontend:
+  publicUrl: https://maku.example.com
+  replicaCount: 2
+  image:
+    repository: registry.example.com/maku/maku-admin   # built with VITE_API_URL=https://api.maku.example.com
+    tag: "5.0.0"
+
+database:
+  existingSecret: maku-db               # keys: mysql-password, mysql-root-password
+
+# Managed database instead of the in-cluster StatefulSet
+mysql:
+  enabled: false
+externalDatabase:
+  host: maku.cluster-xyz.eu-west-1.rds.amazonaws.com
+  port: 3306
+
+redis:
+  enabled: false
+externalRedis:
+  host: maku.abc123.cache.amazonaws.com
+  port: 6379
+
+# Note: the community ingress-nginx controller was retired in March 2026
+# (https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). Use a maintained controller
+# (Traefik, HAProxy, F5 NGINX Ingress, a cloud LB controller…) or move to Gateway API.
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  frontendHost: maku.example.com
+  backendHost: api.maku.example.com
+  tls:
+    - secretName: maku-tls
+      hosts: [maku.example.com, api.maku.example.com]
