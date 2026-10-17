@@ -7,9 +7,9 @@ import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.ser.jdk.NumberSerializer;
 
 /**
- * 解决js精度丢失问题
+ * Solve the js precision loss problem
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @JacksonStdImpl
@@ -20,7 +20,7 @@ public class BigNumberSerializer extends NumberSerializer {
     private static final long MAX_SAFE_INTEGER = 9007199254740991L;
     private static final long MIN_SAFE_INTEGER = -9007199254740991L;
     /**
-     * 提供实例
+     * Provide an instance
      */
     public static final BigNumberSerializer INSTANCE = new BigNumberSerializer(Number.class);
 
@@ -30,7 +30,7 @@ public class BigNumberSerializer extends NumberSerializer {
 
     @Override
     public void serialize(Number value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
-        // 超出范围 序列化位字符串
+        // Out of range, serialize as a string
         if (value.longValue() > MIN_SAFE_INTEGER && value.longValue() < MAX_SAFE_INTEGER) {
             super.serialize(value, gen, provider);
         } else {

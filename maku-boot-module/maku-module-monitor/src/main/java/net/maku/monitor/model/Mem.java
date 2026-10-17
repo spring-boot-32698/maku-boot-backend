@@ -14,22 +14,22 @@ import oshi.hardware.GlobalMemory;
 public class Mem {
 
     /**
-     * 内存总数(G)
+     * Total memory(G)
      */
     private double total;
 
     /**
-     * 已用内存(G)
+     * Used memory(G)
      */
     private double used;
 
     /**
-     * 剩余内存(G)
+     * Free memory(G)
      */
     private double free;
 
     /**
-     * 内存使用率
+     * Memory usage
      */
     private double usage;
 

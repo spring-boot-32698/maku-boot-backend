@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * TCP服务器连接处理器
+ * TCPServer connection handler
  *
  * @author LSF maku_lsf@163.com
  */
@@ -43,15 +43,15 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter {
         if (msg == null) {
             return;
         }
-        //鉴权认证
+        //Authentication
         if (authenticate(ctx, msg)) {
-            //这里可以根据业务自定义扩展消息处理
+            //Custom message handling can be extended here according to business needs
             if (StrUtil.contains(msg.toString(), "topic")) {
-                // 处理 TCP 消息
+                // Handle TCP messages
                 handleTcpMessage( JsonUtils.parseObject(msg.toString(), TcpMsgDTO.class));
             } else {
-                // 处理其他类型的消息
-                log.warn("接收到未知的消息类型：{}", msg);
+                // Handle other types of messages
+                log.warn("Received an unknown message type:{}", msg);
             }
         } else {
             ctx.close();
@@ -66,7 +66,7 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter {
         if (deviceId != null) {
             deviceChannels.remove(deviceId);
         }
-        log.info(" 设备 {} 断开连接", deviceId == null ? "未知设备" : deviceId);
+        log.info(" Device {} Disconnect the connection", deviceId == null ? "Unknown device" : deviceId);
     }
 
     private void handleTcpMessage( TcpMsgDTO message) {
@@ -76,20 +76,20 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter {
                 handler.handle(topic, message.getMsg());
             });
         } else {
-            log.warn("接收到主题为null的消息。");
+            log.warn("Received a message whose topic is null.");
         }
     }
 
 
     /**
-     * TCP连接鉴权，自行根据业务扩展
+     * TCPConnection authentication, extend it according to business needs
      */
     private boolean authenticate(ChannelHandlerContext ctx, Object message) {
         String messageRegex = "\"(authenticate|deviceId)\"\\s*:\\s*\"\\d+\"";
         Pattern messagePattern = Pattern.compile(messageRegex);
         Matcher matcherPattern = messagePattern.matcher(message.toString());
         if (!matcherPattern.find()) {
-            ctx.writeAndFlush("设备消息无法识别！");
+            ctx.writeAndFlush("Device message not recognized!");
             return false;
         }
         if (StrUtil.contains(message.toString(), "authenticate")) {
@@ -111,7 +111,7 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter {
                 String deviceId = matcher.group(1);
                 Channel channel = deviceChannels.get(deviceId);
                 if (channel == null) {
-                    ctx.writeAndFlush("设备连接不存在！请重新连接");
+                    ctx.writeAndFlush("Device connection does not exist! Please reconnect");
                     return false;
                 }
             }

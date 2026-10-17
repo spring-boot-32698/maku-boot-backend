@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 短信服务
+ * SMS service
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Slf4j
@@ -35,56 +35,56 @@ public class SmsService {
     private final SmsConfigCache smsConfigCache;
 
     /**
-     * 发送短信
+     * Send SMS
      *
-     * @param mobile 手机号
-     * @return 是否发送成功
+     * @param mobile Mobile number
+     * @return Whether sent successfully
      */
     public boolean send(String mobile) {
         return this.send(mobile, MapUtil.newHashMap());
     }
 
     /**
-     * 发送短信
+     * Send SMS
      *
-     * @param groupName 分组名称
-     * @param mobile    手机号
-     * @return 是否发送成功
+     * @param groupName Group name
+     * @param mobile    Mobile number
+     * @return Whether sent successfully
      */
     public boolean send(String groupName, String mobile) {
         return this.send(groupName, mobile, MapUtil.newHashMap());
     }
 
     /**
-     * 发送短信
+     * Send SMS
      *
-     * @param mobile 手机号
-     * @param params 参数
-     * @return 是否发送成功
+     * @param mobile Mobile number
+     * @param params Parameter
+     * @return Whether sent successfully
      */
     public boolean send(String mobile, Map<String, String> params) {
         return this.send(null, mobile, params);
     }
 
     /**
-     * 发送短信
+     * Send SMS
      *
-     * @param groupName 分组名称
-     * @param mobile    手机号
-     * @param params    参数
-     * @return 是否发送成功
+     * @param groupName Group name
+     * @param mobile    Mobile number
+     * @param params    Parameter
+     * @return Whether sent successfully
      */
     public boolean send(String groupName, String mobile, Map<String, String> params) {
         SmsConfig config = roundSmsConfig(groupName);
 
         try {
-            // 发送短信
+            // Send SMS
             new SmsContext(config).send(mobile, params);
 
             saveLog(config, mobile, params, null);
             return true;
         } catch (Exception e) {
-            log.error("短信发送失败，手机号：{}", mobile, e);
+            log.error("SMS sending failed, mobile number:{}", mobile, e);
 
             saveLog(config, mobile, params, e);
 
@@ -93,7 +93,7 @@ public class SmsService {
     }
 
     /**
-     * 保存短信日志
+     * Save SMS log
      */
     public void saveLog(SmsConfig config, String mobile, Map<String, String> params, Exception e) {
         SysSmsLogEntity logEntity = new SysSmsLogEntity();
@@ -114,37 +114,37 @@ public class SmsService {
     }
 
     /**
-     * 通过轮询算法，获取短信平台的配置
+     * Get the SMS platform settings via a round-robin algorithm
      *
-     * @param groupName 分组名称
-     * @return 短信平台配置
+     * @param groupName Group name
+     * @return SMS platform settings
      */
     private SmsConfig roundSmsConfig(String groupName) {
         List<SmsConfig> platformList = sysSmsConfigService.listByEnable();
 
-        // 是否有可用的短信平台
+        // Whether there is an available SMS platform
         if (platformList.isEmpty()) {
-            throw new ServerException("没有可用的短信平台，请先添加");
+            throw new ServerException("No SMS platform available, please add one first");
         }
 
-        // 没有短信编码的情况
+        // Case without an SMS code
         if (StrUtil.isBlank(groupName)) {
-            // 采用轮询算法，发送短信
+            // Send SMS using a round-robin algorithm
             long round = smsConfigCache.getRoundValue();
 
             return platformList.get((int) round % platformList.size());
         }
 
 
-        // 有短信编码的情况
+        // Case with an SMS code
         List<SmsConfig> newList = platformList.stream().filter(platform -> StrUtil.equals(platform.getGroupName(), groupName)).toList();
         if (newList.isEmpty()) {
-            throw new ServerException("短信分组不存在");
+            throw new ServerException("SMS group does not exist");
         }
 
         long round = smsConfigCache.getRoundCodeValue();
 
-        // 指定短信平台
+        // Specify the SMS platform
         return newList.get((int) round % newList.size());
     }
 

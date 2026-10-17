@@ -9,35 +9,35 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 第三方登录
+ * Third-party login
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "第三方登录")
+@Schema(description = "Third-party login")
 public class SysThirdLoginVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
     private Long id;
 
-    @Schema(description = "开放平台类型")
+    @Schema(description = "Open platform type")
     private String openType;
 
-    @Schema(description = "开放平台，唯一标识")
+    @Schema(description = "Open platform, unique identifier")
     private String openId;
 
-    @Schema(description = "昵称")
+    @Schema(description = "Nickname")
     private String username;
 
-    @Schema(description = "用户ID")
+    @Schema(description = "User ID")
     private Long userId;
 
-    @Schema(description = "租户ID")
+    @Schema(description = "Tenant ID")
     private Long tenantId;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Creation time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime createTime;
 }

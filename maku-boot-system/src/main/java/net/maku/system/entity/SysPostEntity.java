@@ -6,9 +6,9 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.mybatis.entity.BaseEntity;
 
 /**
- * 岗位管理
+ * Post management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -16,23 +16,23 @@ import net.maku.framework.mybatis.entity.BaseEntity;
 @TableName("sys_post")
 public class SysPostEntity extends BaseEntity {
     /**
-     * 岗位编码
+     * Post code
      */
     private String postCode;
     /**
-     * 岗位名称
+     * Post name
      */
     private String postName;
     /**
-     * 排序
+     * Sort
      */
     private Integer sort;
     /**
-     * 状态  0：停用   1：正常
+     * Status  0: disabled   1: normal
      */
     private Integer status;
     /**
-     * 租户ID
+     * Tenant ID
      */
     private Long tenantId;
 }

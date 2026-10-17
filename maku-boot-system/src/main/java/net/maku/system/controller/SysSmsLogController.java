@@ -19,20 +19,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 短信日志
+ * SMS log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/sms/log")
-@Tag(name = "短信日志")
+@Tag(name = "SMS log")
 @AllArgsConstructor
 public class SysSmsLogController {
     private final SysSmsLogService sysSmsLogService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('sys:sms:log')")
     public Result<PageResult<SysSmsLogVO>> page(@ParameterObject @Valid SysSmsLogQuery query) {
         PageResult<SysSmsLogVO> page = sysSmsLogService.page(query);
@@ -41,7 +41,7 @@ public class SysSmsLogController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('sys:sms:log')")
     public Result<SysSmsLogVO> get(@PathVariable("id") Long id) {
         SysSmsLogEntity entity = sysSmsLogService.getById(id);

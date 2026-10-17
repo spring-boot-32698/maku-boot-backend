@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 定时任务
+ * Scheduled task
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -24,83 +24,83 @@ public class ScheduleJobEntity implements Serializable {
     private Long id;
 
     /**
-     * 任务名称
+     * Task name
      */
     private String jobName;
 
     /**
-     * 任务组名
+     * Task group name
      */
     private String jobGroup;
 
     /**
-     * bean名称
+     * beanName
      */
     private String beanName;
 
     /**
-     * 执行方法
+     * Execution method
      */
     private String method;
 
     /**
-     * 方法参数
+     * Method parameters
      */
     private String params;
 
     /**
-     * cron表达式
+     * cronExpression
      */
     private String cronExpression;
 
     /**
-     * 状态
+     * Status
      */
     private Integer status;
 
     /**
-     * 是否并发  0：禁止  1：允许
+     * Whether concurrent  0: forbidden  1: allowed
      */
     private Integer concurrent;
 
     /**
-     * 备注
+     * Remarks
      */
     private String remark;
 
     /**
-     * 创建者
+     * Creator
      */
     @TableField(fill = FieldFill.INSERT)
     private Long creator;
 
     /**
-     * 创建时间
+     * Creation time
      */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
-     * 更新者
+     * Updater
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updater;
 
     /**
-     * 更新时间
+     * Update time
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     /**
-     * 版本号
+     * Version number
      */
     @Version
     @TableField(fill = FieldFill.INSERT)
     private Integer version;
 
     /**
-     * 删除标记
+     * Delete flag
      */
     @TableLogic
     @TableField(fill = FieldFill.INSERT)

@@ -6,22 +6,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import net.maku.framework.common.utils.HttpContextUtils;
 
 /**
- * Token 工具类
+ * Token Utility class
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class TokenUtils {
 
     /**
-     * 生成 AccessToken
+     * Generate AccessToken
      */
     public static String generator() {
         return UUID.fastUUID().toString(true);
     }
 
     /**
-     * 获取 AccessToken
+     * Get AccessToken
      */
     public static String getAccessToken() {
         HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
@@ -33,7 +33,7 @@ public class TokenUtils {
     }
 
     /**
-     * 获取 AccessToken
+     * Get AccessToken
      */
     public static String getAccessToken(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization");

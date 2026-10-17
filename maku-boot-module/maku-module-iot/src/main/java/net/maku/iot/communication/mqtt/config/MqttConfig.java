@@ -22,7 +22,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
 /**
- * MQTT 配置类，用于设置和管理 MQTT 连接和消息处理。
+ * MQTT Configuration class for setting up and managing MQTT connections and message handling.
  *
  * @author LSF maku_lsf@163.com
  */
@@ -35,38 +35,38 @@ public class MqttConfig {
     public static final String OUTBOUND_CHANNEL = "mqttOutboundChannel";
     public static final String INPUT_CHANNEL = "mqttInputChannel";
 
-    // MQTT 用户名
+    // MQTT Username
     private String username;
 
-    // MQTT 密码
+    // MQTT Password
     private String password;
 
-    // MQTT 服务器 URL
+    // MQTT Server URL
     private String host;
 
-    // 客户端 ID
+    // Client ID
     private String clientId;
 
-    // 默认主题
+    // Default theme
     private String defaultTopic;
 
-    // 处理 MQTT 消息的工厂
+    // Factory for handling MQTT messages
     @Resource
     private MqttMessageHandlerFactory mqttMessageHandlerFactory;
 
     @PostConstruct
     public void init() {
-        log.info("MQTT 主机: {} 客户端ID: {} 默认主题：{}", this.host, this.clientId, this.defaultTopic);
+        log.info("MQTT Host: {} Client ID: {} Default theme:{}", this.host, this.clientId, this.defaultTopic);
     }
 
     /**
-     * 配置并返回一个 MqttPahoClientFactory 实例，用于创建 MQTT 客户端连接。
+     * Configure and return an MqttPahoClientFactory instance for creating MQTT client connections.
      *
      * @return MqttPahoClientFactory
      */
     @Bean
     public MqttPahoClientFactory mqttClientFactory() {
-        // 设置连接选项，包括服务器 URI、用户名和密码。
+        // Set connection options, including server URI, username and password.
         final MqttConnectOptions options = new MqttConnectOptions();
         options.setServerURIs(new String[]{host});
         options.setUserName(username);
@@ -77,7 +77,7 @@ public class MqttConfig {
     }
 
     /**
-     * 创建一个用于发送 MQTT 消息的 MessageChannel。
+     * Create a MessageChannel for sending MQTT messages.
      *
      * @return MessageChannel
      */
@@ -87,14 +87,14 @@ public class MqttConfig {
     }
 
     /**
-     * 配置用于发送 MQTT 消息的 MessageHandler。
+     * Configure the MessageHandler used to send MQTT messages.
      *
      * @return MessageHandler
      */
     @Bean
     @ServiceActivator(inputChannel = OUTBOUND_CHANNEL)
     public MessageHandler mqttOutboundHandler() {
-        // 使用 MqttPahoMessageHandler 创建一个新的 MQTT 客户端连接，用于发布消息。
+        // Use MqttPahoMessageHandler to create a new MQTT client connection for publishing messages.
         final MqttPahoMessageHandler handler = new MqttPahoMessageHandler(clientId + "_pub", mqttClientFactory());
         handler.setDefaultQos(1);
         handler.setDefaultRetained(false);
@@ -104,7 +104,7 @@ public class MqttConfig {
     }
 
     /**
-     * 创建用于接收 MQTT 消息的 MessageChannel。
+     * Create a MessageChannel for receiving MQTT messages.
      *
      * @return MessageChannel
      */
@@ -114,9 +114,9 @@ public class MqttConfig {
     }
 
     /**
-     * 配置  客户端，订阅的主题，
-     * PROPERTY：设备属性上报主题，
-     * COMMAND_RESPONSE：下发指令执行结果主题
+     * Configure the client and subscribed topics,
+     * PROPERTY: device property report topic,
+     * COMMAND_RESPONSE: topic for command execution results
      *
      * @return MqttPahoMessageDrivenChannelAdapter
      */
@@ -135,7 +135,7 @@ public class MqttConfig {
     }
 
     /**
-     * 通过通道获取数据并处理消息。
+     * Get data through the channel and process the message.
      *
      * @return MessageHandler
      */
@@ -147,12 +147,12 @@ public class MqttConfig {
             if (topic != null) {
                 mqttMessageHandlerFactory.getHandlersForTopic(topic).forEach(handler -> {
                     if (log.isDebugEnabled()) {
-                        log.debug("主题: {}, 消息内容: {}", topic, message.getPayload());
+                        log.debug("Topic: {}, Message content: {}", topic, message.getPayload());
                     }
                     handler.handle(topic, message.getPayload().toString());
                 });
             } else {
-                log.warn("接收到主题为null的消息。");
+                log.warn("Received a message whose topic is null.");
             }
         };
     }

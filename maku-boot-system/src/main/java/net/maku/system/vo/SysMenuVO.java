@@ -13,45 +13,45 @@ import org.hibernate.validator.constraints.Range;
 import java.time.LocalDateTime;
 
 /**
- * 菜单管理
+ * Menu management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Schema(description = "菜单")
+@Schema(description = "Menu")
 public class SysMenuVO extends TreeNode<SysMenuVO> {
 
-    @Schema(description = "菜单名称")
-    @NotBlank(message = "菜单名称不能为空")
+    @Schema(description = "Menu name")
+    @NotBlank(message = "Menu name cannot be empty")
     private String name;
 
-    @Schema(description = "菜单URL")
+    @Schema(description = "Menu URL")
     private String url;
 
-    @Schema(description = "类型  0：菜单   1：按钮   2：接口")
-    @Range(min = 0, max = 2, message = "类型不正确")
+    @Schema(description = "Type  0: menu   1: button   2: API")
+    @Range(min = 0, max = 2, message = "Type is incorrect")
     private Integer type;
 
-    @Schema(description = "打开方式   0：内部   1：外部")
-    @Range(min = 0, max = 1, message = "打开方式不正确")
+    @Schema(description = "Open mode   0: internal   1: external")
+    @Range(min = 0, max = 1, message = "Open mode is incorrect")
     private Integer openStyle;
 
-    @Schema(description = "菜单图标")
+    @Schema(description = "Menu icon")
     private String icon;
 
-    @Schema(description = "授权标识(多个用逗号分隔，如：sys:menu:list,sys:menu:save)")
+    @Schema(description = "Authorization identifier(Separate multiple values with commas, e.g.: sys:menu:list,sys:menu:save)")
     private String authority;
 
-    @Schema(description = "排序")
-    @Min(value = 0, message = "排序值不能小于0")
+    @Schema(description = "Sort")
+    @Min(value = 0, message = "Sort value cannot be less than 0")
     private Integer sort;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Creation time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime createTime;
 
-    @Schema(description = "上级菜单名称")
+    @Schema(description = "Parent menu name")
     private String parentName;
 }

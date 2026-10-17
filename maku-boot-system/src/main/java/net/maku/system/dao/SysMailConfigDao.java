@@ -5,9 +5,9 @@ import net.maku.system.entity.SysMailConfigEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 邮件配置
+ * Mail settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Mapper
 public interface SysMailConfigDao extends BaseDao<SysMailConfigEntity> {

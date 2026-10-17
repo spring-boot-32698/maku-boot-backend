@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <!-- Shared IntelliJ run configuration (works in Community and Ultimate).
+       Start dependencies first:  docker compose up -d   (mysql + redis only) -->
+  <configuration default="false" name="ServerApplication (dev)" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="net.maku.ServerApplication" />
+    <module name="maku-server" />
+    <envs>
+      <env name="SPRING_PROFILES_ACTIVE" value="dev" />
+    </envs>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

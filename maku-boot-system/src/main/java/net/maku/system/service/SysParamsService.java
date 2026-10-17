@@ -9,9 +9,9 @@ import net.maku.system.vo.SysParamsVO;
 import java.util.List;
 
 /**
- * 参数管理
+ * Parameter management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysParamsService extends BaseService<SysParamsEntity> {
@@ -25,31 +25,31 @@ public interface SysParamsService extends BaseService<SysParamsEntity> {
     void delete(List<Long> idList);
 
     /**
-     * 根据paramKey，获取字符串值
+     * Get the string value by paramKey
      *
-     * @param paramKey 参数Key
+     * @param paramKey Parameter Key
      */
     String getString(String paramKey);
 
     /**
-     * 根据paramKey，获取整型值
+     * Get the integer value by paramKey
      *
-     * @param paramKey 参数Key
+     * @param paramKey Parameter Key
      */
     int getInt(String paramKey);
 
     /**
-     * 根据paramKey，获取布尔值
+     * Get the boolean value by paramKey
      *
-     * @param paramKey 参数Key
+     * @param paramKey Parameter Key
      */
     boolean getBoolean(String paramKey);
 
     /**
-     * 根据paramKey，获取对象值
+     * Get the object value by paramKey
      *
-     * @param paramKey  参数Key
-     * @param valueType 类型
+     * @param paramKey  Parameter Key
+     * @param valueType Type
      */
     <T> T getJSONObject(String paramKey, Class<T> valueType);
 }

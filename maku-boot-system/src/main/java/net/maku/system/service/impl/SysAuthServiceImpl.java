@@ -22,9 +22,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 /**
- * 权限认证服务
+ * Permission authentication service
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -40,31 +40,31 @@ public class SysAuthServiceImpl implements SysAuthService {
 
     @Override
     public SysUserTokenVO loginByAccount(SysAccountLoginVO login) {
-        // 验证码效验
+        // Captcha validation
         boolean flag = sysCaptchaService.validate(login.getKey(), login.getCaptcha());
         if (!flag) {
-            // 保存登录日志
+            // Save login log
             sysLogLoginService.save(login.getUsername(), Constant.FAIL, LoginOperationEnum.CAPTCHA_FAIL.getValue());
 
-            throw new ServerException("验证码错误");
+            throw new ServerException("Wrong captcha");
         }
 
         Authentication authentication;
         try {
-            // 用户认证
+            // User authentication
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(login.getUsername(), Sm2Util.decrypt(login.getPassword())));
         } catch (BadCredentialsException e) {
-            throw new ServerException("用户名或密码错误");
+            throw new ServerException("Wrong username or password");
         }
 
-        // 用户信息
+        // User info
         UserDetail user = (UserDetail) authentication.getPrincipal();
 
-        // 生成 accessToken
+        // Generate accessToken
         SysUserTokenVO userTokenVO = sysUserTokenService.createToken(user.getId());
 
-        // 保存用户信息到缓存
+        // Save user info to cache
         tokenStoreCache.saveUser(userTokenVO.getAccessToken(), user);
 
         return userTokenVO;
@@ -74,20 +74,20 @@ public class SysAuthServiceImpl implements SysAuthService {
     public SysUserTokenVO loginByMobile(SysMobileLoginVO login) {
         Authentication authentication;
         try {
-            // 用户认证
+            // User authentication
             authentication = authenticationManager.authenticate(
                     new MobileAuthenticationToken(login.getMobile(), login.getCode()));
         } catch (BadCredentialsException e) {
-            throw new ServerException("手机号或验证码错误");
+            throw new ServerException("Mobile number or verification code is wrong");
         }
 
-        // 用户信息
+        // User info
         UserDetail user = (UserDetail) authentication.getPrincipal();
 
-        // 生成 accessToken
+        // Generate accessToken
         SysUserTokenVO userTokenVO = sysUserTokenService.createToken(user.getId());
 
-        // 保存用户信息到缓存
+        // Save user info to cache
         tokenStoreCache.saveUser(userTokenVO.getAccessToken(), user);
 
         return userTokenVO;
@@ -97,22 +97,22 @@ public class SysAuthServiceImpl implements SysAuthService {
     public SysUserTokenVO loginByThird(SysThirdCallbackVO login) {
         Authentication authentication;
         try {
-            // 转换对象
+            // Convert object
             ThirdLogin thirdLogin = BeanUtil.copyProperties(login, ThirdLogin.class);
 
-            // 用户认证
+            // User authentication
             authentication = authenticationManager.authenticate(new ThirdAuthenticationToken(thirdLogin));
         } catch (BadCredentialsException e) {
-            throw new ServerException("第三方登录失败");
+            throw new ServerException("Third-party login failed");
         }
 
-        // 用户信息
+        // User info
         UserDetail user = (UserDetail) authentication.getPrincipal();
 
-        // 生成 accessToken
+        // Generate accessToken
         SysUserTokenVO userTokenVO = sysUserTokenService.createToken(user.getId());
 
-        // 保存用户信息到缓存
+        // Save user info to cache
         tokenStoreCache.saveUser(userTokenVO.getAccessToken(), user);
 
         return userTokenVO;
@@ -120,15 +120,15 @@ public class SysAuthServiceImpl implements SysAuthService {
 
     @Override
     public boolean sendCode(String mobile) {
-        // 生成6位验证码
+        // Generate a 6-digit verification code
         String code = RandomUtil.randomNumbers(6);
 
         SysUserVO user = sysUserService.getByMobile(mobile);
         if (user == null) {
-            throw new ServerException("手机号未注册");
+            throw new ServerException("Mobile number is not registered");
         }
 
-        // 发送短信
+        // Send SMS
         return smsApi.sendCode(mobile, "code", code);
     }
 
@@ -136,7 +136,7 @@ public class SysAuthServiceImpl implements SysAuthService {
     public AccessTokenVO getAccessToken(String refreshToken) {
         SysUserTokenVO token = sysUserTokenService.refreshToken(refreshToken);
 
-        // 封装 AccessToken
+        // Wrap AccessToken
         AccessTokenVO accessToken = new AccessTokenVO();
         accessToken.setAccessToken(token.getAccessToken());
         accessToken.setAccessTokenExpire(token.getAccessTokenExpire());
@@ -146,16 +146,16 @@ public class SysAuthServiceImpl implements SysAuthService {
 
     @Override
     public void logout(String accessToken) {
-        // 用户信息
+        // User info
         UserDetail user = tokenStoreCache.getUser(accessToken);
 
-        // 删除用户信息
+        // Delete user info
         tokenStoreCache.deleteUser(accessToken);
 
-        // Token过期
+        // TokenExpired
         sysUserTokenService.expireToken(user.getId());
 
-        // 保存登录日志
+        // Save login log
         sysLogLoginService.save(user.getUsername(), Constant.SUCCESS, LoginOperationEnum.LOGOUT_SUCCESS.getValue());
     }
 }

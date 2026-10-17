@@ -3,9 +3,9 @@ package net.maku.quartz.utils;
 import org.quartz.DisallowConcurrentExecution;
 
 /**
- * 禁止并发
+ * Forbid concurrency
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  *
  */

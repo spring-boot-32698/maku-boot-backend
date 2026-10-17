@@ -69,12 +69,12 @@
             <groupId>com.tencentcloudapi</groupId>
             <artifactId>tencentcloud-sdk-java-sms</artifactId>
         </dependency>
-        <!--阿里云邮件sdk-->
+        <!--Alibaba Cloud mail sdk-->
         <dependency>
             <groupId>com.aliyun</groupId>
             <artifactId>dm20151123</artifactId>
         </dependency>
-        <!-- 腾讯云邮件sdk -->
+        <!-- Tencent Cloud mail sdk -->
         <dependency>
             <groupId>com.tencentcloudapi</groupId>
             <artifactId>tencentcloud-sdk-java-ses</artifactId>

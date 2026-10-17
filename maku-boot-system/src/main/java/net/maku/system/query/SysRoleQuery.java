@@ -6,16 +6,16 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
- * 角色管理
+ * Role management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "角色查询")
+@Schema(description = "Role query")
 public class SysRoleQuery extends Query {
-    @Schema(description = "角色名称")
+    @Schema(description = "Role name")
     private String name;
 
 }

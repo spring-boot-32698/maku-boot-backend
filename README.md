@@ -1,36 +1,36 @@
-## 项目说明
+## Project overview
 
-- maku-boot 是采用SpringBoot4.0、SpringSecurity7.0、Mybatis-Plus、Vue3、Element-plus等技术开发的低代码开发平台，旨在为开发者提供一个简洁、高效、可扩展的低代码开发平台。
-- 使用门槛极低，支持国密加密、达梦、人大金仓、华为高斯数据库等，符合信创需求的低代码开发平台。
-- 采用组件模式，扩展不同的业务功能，可以很方便的实现各种业务需求，且不会导致系统臃肿，若想使用某个组件，按需引入即可，反之亦然。
-- 支持Online在线表单开发，通过拖拽组件，实现表单开发，可快速开发业务，无需部署及重启服务等优点。
-- 支持SSO单点登录功能，可解决企业内部单点问题，不受开发语言限制。
-- 支持代码生成功能，可以生成单表、树表、多表等业务代码，开发更快速。
-- 支持多种数据库，包括MySQL、SQL Server、Oracle、PostgreSQL、达梦、人大金仓、OpenGauss等，可灵活切换。
-- 支持Flowable8工作流，包括流程设计、动态表单、多表单、或签、会签（票签）、依次审批、加签、、退回、转办、委托、抄送、撤销、子流程等。
-- 支持多种登录方式，包括账号密码、短信验证码、企业微信、钉钉、飞书、微信等，可灵活选择。
-- 支持多租户模式，可实现不同业务系统之间的隔离，能同时支持字段隔离、数据源隔离方式，满足对多租户的全部需求。
+- maku-boot is a low-code development platform built with SpringBoot 4.0, SpringSecurity 7.0, Mybatis-Plus, Vue3, Element-plus, etc., aiming to give developers a simple, efficient and extensible low-code platform.
+- Very low barrier to entry; supports national cryptographic algorithms and the Dameng, Kingbase and Huawei GaussDB databases, meeting Xinchuang requirements.
+- Uses a component model to extend business features, so various requirements are easy to implement without bloating the system; include a component when you need it, and leave it out otherwise.
+- Supports online form development by dragging and dropping components, enabling rapid business development without redeploying or restarting services.
+- Supports SSO single sign-on, solving internal enterprise sign-on problems regardless of development language.
+- Supports code generation for single-table, tree-table and multi-table business code, for faster development.
+- Supports many databases, including MySQL, SQL Server, Oracle, PostgreSQL, Dameng, Kingbase, OpenGauss, etc., and you can switch freely.
+- Supports Flowable 8 workflows, including process design, dynamic forms, multiple forms, any-one approval, joint approval (vote), sequential approval, adding approvers, return, transfer, delegation, carbon copy, withdrawal, sub-processes, etc.
+- Supports multiple login methods, including account and password, SMS verification code, WeCom, DingTalk, Feishu, WeChat, etc.
+- Supports multi-tenancy with isolation between business systems, including both field isolation and data source isolation, covering all multi-tenant needs.
 
-- 开发文档：https://maku.net/docs/maku-boot
-- 演示环境：https://demo.maku.net
-- 企业版：https://maku.net/price
+- Documentation: https://maku.net/docs/maku-boot
+- Demo: https://demo.maku.net
+- Enterprise edition: https://maku.net/price
 
-## 移动端
+## Mobile
 
-我们提供了移动端版本，采用 Vue、Pinia、uni-app、uni-ui 框架开发，支持H5、微信小程序、Android、鸿蒙等。
+We provide a mobile version built with Vue, Pinia, uni-app and uni-ui, supporting H5, WeChat Mini Program, Android, HarmonyOS, etc.
 
-- Android端，下载地址：https://app.maku.net/maku.apk
-- H5版本，访问地址：https://app.maku.net
-- 微信小程序，体验二维码：
+- Android download: https://app.maku.net/maku.apk
+- H5 version: https://app.maku.net
+- WeChat Mini Program, QR code to try it:
 
-![输入图片说明](images/wechat.jpg)
+![screenshot](images/wechat.jpg)
 
 
-## 架构图
+## Architecture
 
-![输入图片说明](images/0.png)
+![screenshot](images/0.png)
 
-## 效果图
+## Screenshots
 
 <table>
     <tr>
@@ -97,8 +97,8 @@
 
 
 
-## 版权说明
-- MAKU生态技术框架全系列版本遵循Apache License 2.0开源协议。
-- 允许教育培训、个人项目、承接私活及企业内部项目等使用，可享有终身免费许可。
-- 禁止任何针对开源项目或产品销售的二次开发行为，未经授权的行为将视为侵权。
-- 请尊重知识产权，不允许删除源码注释申明及作者信息，违者将追究法律责任。
+## License
+- All versions of the MAKU ecosystem frameworks follow the Apache License 2.0.
+- Education and training, personal projects, freelance work and internal enterprise projects may use it, with a lifetime free license.
+- Any secondary development aimed at reselling the open-source project or product is prohibited; unauthorized behavior is considered infringement.
+- Please respect intellectual property; removing source comment declarations and author information is not allowed, and violators will be held legally responsible.

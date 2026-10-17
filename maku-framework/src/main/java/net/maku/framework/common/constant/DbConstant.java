@@ -1,9 +1,9 @@
 package net.maku.framework.common.constant;
 
 /**
- * 数据库常量
+ * Database constants
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface DbConstant {

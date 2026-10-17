@@ -1,0 +1,20 @@
+{{- if .Values.backend.uploads.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "maku.fullname" . }}-uploads
+  labels:
+    {{- include "maku.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+  annotations:
+    # Keep uploaded files when the release is uninstalled
+    helm.sh/resource-policy: keep
+spec:
+  accessModes: [ReadWriteOnce]
+  {{- with .Values.backend.uploads.storageClass }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.backend.uploads.size }}
+{{- end }}

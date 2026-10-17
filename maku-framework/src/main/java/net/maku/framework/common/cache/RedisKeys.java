@@ -1,15 +1,15 @@
 package net.maku.framework.common.cache;
 
 /**
- * Redis Key管理
+ * Redis KeyManagement
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class RedisKeys {
 
     /**
-     * 验证码Key
+     * Captcha Key
      */
     public static String getCaptchaKey(String key) {
         return "sys:captcha:" + key;

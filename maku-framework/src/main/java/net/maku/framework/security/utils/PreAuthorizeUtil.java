@@ -13,17 +13,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * SpringSecurity @PreAuthorize 注解 权限标识
+ * SpringSecurity @PreAuthorize Annotation permission identifier
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class PreAuthorizeUtil {
 
     /**
-     * 获取 @PreAuthorize 注解的权限标识列表
+     * Get @PreAuthorize List of annotated permission identifiers
      *
-     * @return 权限标识列表
+     * @return Permission identifier list
      */
     public static List<String> getPreAuthorizeList() {
         List<String> authorities = new ArrayList<>();
@@ -36,7 +36,7 @@ public class PreAuthorizeUtil {
                 PreAuthorize preAuthorize = AnnotationUtils.findAnnotation(method, PreAuthorize.class);
                 if (preAuthorize != null) {
                     String value = preAuthorize.value();
-                    // 使用正则表达式提取权限字符串
+                    // Extract permission strings with a regular expression
                     Pattern pattern = Pattern.compile("hasAuthority\\('([^']*)'\\)");
                     Matcher matcher = pattern.matcher(value);
                     while (matcher.find()) {

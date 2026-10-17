@@ -3,50 +3,50 @@ package net.maku.sms.config;
 import lombok.Data;
 
 /**
- * 短信配置项
+ * SMS settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 public class SmsConfig {
     /**
-     * 平台ID
+     * Platform ID
      */
     private Long id;
 
     /**
-     * 平台类型
+     * Platform type
      */
     private Integer platform;
 
     /**
-     * 分组名称
+     * Group name
      */
     private String groupName;
 
     /**
-     * 短信签名
+     * SMS signature
      */
     private String signName;
 
     /**
-     * 短信模板
+     * SMS template
      */
     private String templateId;
 
     /**
-     * 短信应用的ID，如：腾讯云等
+     * ID of the SMS application, e.g.: Tencent Cloud
      */
     private String appId;
 
     /**
-     * 腾讯云国际短信、华为云等需要
+     * Required for Tencent Cloud international SMS, Huawei Cloud, etc.
      */
     private String senderId;
 
     /**
-     * 接入地址，如：华为云
+     * Access address, e.g.: Huawei Cloud
      */
     private String url;
 

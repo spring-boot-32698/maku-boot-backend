@@ -22,9 +22,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 角色
+ * Role
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -53,7 +53,7 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRoleEntit
         LambdaQueryWrapper<SysRoleEntity> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(StrUtil.isNotBlank(query.getName()), SysRoleEntity::getName, query.getName());
 
-        // 数据权限
+        // Data permission
         dataScopeWrapper(wrapper);
 
         return wrapper;
@@ -64,11 +64,11 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRoleEntit
     public void save(SysRoleVO vo) {
         SysRoleEntity entity = BeanUtil.copyProperties(vo, SysRoleEntity.class);
 
-        // 保存角色
+        // Save role
         entity.setDataScope(DataScopeEnum.SELF.getValue());
         baseMapper.insert(entity);
 
-        // 保存角色菜单关系
+        // Save role-menu relationship
         sysRoleMenuService.saveOrUpdate(entity.getId(), vo.getMenuIdList());
     }
 
@@ -77,13 +77,13 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRoleEntit
     public void update(SysRoleVO vo) {
         SysRoleEntity entity = BeanUtil.copyProperties(vo, SysRoleEntity.class);
 
-        // 更新角色
+        // Update role
         updateById(entity);
 
-        // 更新角色菜单关系
+        // Update role-menu relationship
         sysRoleMenuService.saveOrUpdate(entity.getId(), vo.getMenuIdList());
 
-        // 更新角色对应用户的缓存权限
+        // Update cached permissions of users of the role
         sysUserTokenService.updateCacheAuthByRoleId(entity.getId());
     }
 
@@ -92,36 +92,36 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRoleEntit
     public void dataScope(SysRoleDataScopeVO vo) {
         SysRoleEntity entity = getById(vo.getId());
         entity.setDataScope(vo.getDataScope());
-        // 更新角色
+        // Update role
         updateById(entity);
 
-        // 更新角色数据权限关系
+        // Update role data-permission relationship
         if (vo.getDataScope().equals(DataScopeEnum.CUSTOM.getValue())) {
             sysRoleDataScopeService.saveOrUpdate(entity.getId(), vo.getOrgIdList());
         } else {
             sysRoleDataScopeService.deleteByRoleIdList(Collections.singletonList(vo.getId()));
         }
 
-        // 更新角色对应用户的缓存权限
+        // Update cached permissions of users of the role
         sysUserTokenService.updateCacheAuthByRoleId(entity.getId());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> idList) {
-        // 删除角色
+        // Delete role
         removeByIds(idList);
 
-        // 删除用户角色关系
+        // Delete user-role relationship
         sysUserRoleService.deleteByRoleIdList(idList);
 
-        // 删除角色菜单关系
+        // Delete role-menu relationship
         sysRoleMenuService.deleteByRoleIdList(idList);
 
-        // 删除角色数据权限关系
+        // Delete role data-permission relationship
         sysRoleDataScopeService.deleteByRoleIdList(idList);
 
-        // 更新角色对应用户的缓存权限
+        // Update cached permissions of users of the role
         idList.forEach(sysUserTokenService::updateCacheAuthByRoleId);
     }
 

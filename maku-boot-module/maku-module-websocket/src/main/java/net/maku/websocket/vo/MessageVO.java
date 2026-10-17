@@ -10,24 +10,24 @@ import java.time.LocalDateTime;
 
 
 /**
- * 发送消息的对象
+ * Object that sends the message
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Tag(name = "发送消息的对象")
+@Tag(name = "Object that sends the message")
 public class MessageVO {
-    @Schema(description = "用户名")
+    @Schema(description = "Username")
     private String name;
 
-    @Schema(description = "用户头像")
+    @Schema(description = "User avatar")
     private String avatar;
 
-    @Schema(description = "消息内容")
+    @Schema(description = "Message content")
     private String content;
 
-    @Schema(description = "发送时间")
+    @Schema(description = "Send time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime sendTime;
 }

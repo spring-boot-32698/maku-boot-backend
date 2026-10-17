@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pods and Deployments</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script src="../../assets/quiz.js" defer></script>
+<script src="../../assets/steps.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">K8s course</a><span>›</span><span>Lesson 02</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Pods, ReplicaSets, Deployments</h1>
+  <p class="subtitle">You almost never create a pod. You create a Deployment and let it manage pods for you.</p>
+  <div class="meta"><span><b>Time</b> ~15 min</span><span><b>Prereq</b> <a href="0001-cluster-and-desired-state.html">Lesson 01</a></span><span><b>Namespace</b> play</span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>You can deploy, scale, update and roll back an app with kubectl — and read maku-backend's Deployment line by line.</p>
+  </div>
+
+  <h2>Three layers</h2>
+  <pre><code>Deployment  maku-backend               "run this pod template, 1 replica, update by Recreate"
+  └─ ReplicaSet  maku-backend-779d8657fd   "keep exactly 1 pod matching these labels"   (hash = template version)
+       └─ Pod  maku-backend-779d8657fd-pvnnc   one or more containers sharing an IP</code></pre>
+  <ul>
+    <li>A <a href="../reference/glossary.html#pod">Pod</a> is disposable. If it dies, it's <em>replaced</em> with a new one (new name, new IP), never repaired.</li>
+    <li>A <a href="../reference/glossary.html#replicaset">ReplicaSet</a> keeps N pods alive. It finds “its” pods by <a href="../reference/glossary.html#labels">label selector</a>.</li>
+    <li>A <a href="../reference/glossary.html#deployment">Deployment</a> manages ReplicaSets. Change the pod template (image, env…) and it creates a <em>new</em> ReplicaSet, shifting pods from old to new. That's a <strong>rollout</strong>, and the old ReplicaSet is kept for <strong>rollback</strong>.</li>
+  </ul>
+  <p class="sidenote">Compose equivalent: one <code>services:</code> entry ≈ Deployment + pod template. Source: <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">Deployments</a>.</p>
+
+  <h2>Two update strategies</h2>
+  <p><b>RollingUpdate</b> (default): start new pods, wait until they're ready, then stop old ones, so there's no downtime. <b>Recreate</b>: stop all old pods, then start new ones, with a brief gap. maku-backend uses <b>Recreate</b> because its uploads volume is ReadWriteOnce: if the new pod were scheduled on the other node while the old pod still held the volume, it couldn't mount it (lesson 05).</p>
+
+  <h2>Hands-on</h2>
+  <ol class="steps" data-id="k8s-l2">
+    <li><p>Make a scratch namespace so you can't hurt maku.</p>
+      <pre><code>kubectl create namespace play</code></pre></li>
+    <li><p>Create a Deployment of nginx with 2 replicas, then look at all three layers with their labels.</p>
+      <pre><code>kubectl -n play create deployment web --image=nginx:1.27-alpine --replicas=2
+kubectl -n play get deploy,rs,pods --show-labels</code></pre>
+      <details class="expect"><summary>Expected output (hashes differ)</summary><pre>NAME                  READY   UP-TO-DATE   AVAILABLE   LABELS
+deployment.apps/web   2/2     2            2           app=web
+NAME                             DESIRED   CURRENT   READY   LABELS
+replicaset.apps/web-5d8f7c9b6d   2         2         2       app=web,pod-template-hash=5d8f7c9b6d
+NAME                       READY   STATUS    LABELS
+pod/web-5d8f7c9b6d-4kq2x   1/1     Running   app=web,pod-template-hash=5d8f7c9b6d
+pod/web-5d8f7c9b6d-x8m9z   1/1     Running   app=web,pod-template-hash=5d8f7c9b6d</pre></details></li>
+    <li><p><strong>Predict, then do:</strong> remove the <code>app=web</code> label from one pod. What will the ReplicaSet do?</p>
+      <pre><code>kubectl -n play label pod &lt;one-pod-name&gt; app-
+kubectl -n play get pods --show-labels</code></pre>
+      <details class="expect"><summary>What happens</summary><p>You now see <b>3</b> pods. The unlabelled one no longer matches the selector, so it's an orphan the ReplicaSet ignores; it created a new pod to get back to 2. Selection is purely by labels. Clean up the orphan: <code>kubectl -n play delete pod &lt;that-pod&gt;</code>.</p></details></li>
+    <li><p>Scale up, and watch the scheduler spread pods across nodes.</p>
+      <pre><code>kubectl -n play scale deploy/web --replicas=4
+kubectl -n play get pods -o wide</code></pre></li>
+    <li><p>Roll out a new version. A second terminal with <code>kubectl -n play get rs -w</code> shows the hand-over.</p>
+      <pre><code>kubectl -n play set image deploy/web nginx=nginx:1.28-alpine
+kubectl -n play rollout status deploy/web
+kubectl -n play get rs</code></pre>
+      <details class="expect"><summary>What to notice</summary><pre>NAME             DESIRED   CURRENT   READY
+web-5d8f7c9b6d   0         0         0      ← old version, kept for rollback
+web-7b9c6d8f4c   4         4         4      ← new version</pre></details></li>
+    <li><p>Simulate “the new version is broken”: roll back.</p>
+      <pre><code>kubectl -n play rollout history deploy/web
+kubectl -n play rollout undo deploy/web
+kubectl -n play get deploy web -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>nginx:1.27-alpine</pre></details></li>
+    <li><p>Now read the real thing. Find <code>replicas</code>, <code>strategy</code>, <code>selector.matchLabels</code>, the template's <code>labels</code>, <code>initContainers</code>, <code>image</code>, and the three <code>*Probe</code> blocks.</p>
+      <pre><code>kubectl -n maku get deploy maku-backend -o yaml | less</code></pre>
+      <p>Compare with the source template: <code>deploy/helm/maku/templates/backend-deployment.yaml</code>.</p></li>
+  </ol>
+
+  <h2>Practice</h2>
+
+  <div class="quiz">
+    <p class="q">1. What is the smallest deployable unit in Kubernetes?</p>
+    <div class="opts">
+      <button class="opt" data-correct>A Pod</button>
+      <button class="opt">A container</button>
+      <button class="opt">A Deployment</button>
+      <button class="opt">A ReplicaSet</button>
+    </div>
+    <div class="why">Kubernetes schedules pods, not containers. A pod can hold several containers (plus init containers, like maku-backend's <code>wait-for-mysql</code>) that share one IP.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. How does a ReplicaSet know which pods are its own?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Its selector matches the pods' labels</button>
+      <button class="opt">Pods are named after the Deployment</button>
+      <button class="opt">The namespace contains only its pods</button>
+      <button class="opt">The scheduler records which pods belong</button>
+    </div>
+    <div class="why">You proved it in step 3: removing a label orphaned the pod. Names are cosmetic; a namespace can hold many apps.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. You change a Deployment's image (default strategy). What happens?</p>
+    <div class="opts">
+      <button class="opt" data-correct>New ReplicaSet scales up, old scales down</button>
+      <button class="opt">All pods stop, then new ones start</button>
+      <button class="opt">Running containers download the new image live</button>
+      <button class="opt">Nothing until you delete every pod manually</button>
+    </div>
+    <div class="why">RollingUpdate replaces pods gradually; the old ReplicaSet stays at 0 replicas for <code>rollout undo</code>. “All stop, then start” is <code>Recreate</code>. Containers are never patched in place.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. Why does maku-backend use <code>strategy: Recreate</code>?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Its ReadWriteOnce volume can't attach twice</button>
+      <button class="opt">Spring Boot cannot run two instances</button>
+      <button class="opt">Recreate is faster for Java applications</button>
+      <button class="opt">Helm charts only support Recreate strategy</button>
+    </div>
+    <div class="why">The uploads PVC is RWO. With RollingUpdate, the new pod could land on the other node while the old one still holds the volume, and it would hang in <code>ContainerCreating</code>. The trade-off is a few seconds of downtime per deploy.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. You run <code>kubectl -n play delete deployment web</code>. What happens to its pods?</p>
+    <div class="opts">
+      <button class="opt" data-correct>They are deleted along with it</button>
+      <button class="opt">They keep running without an owner</button>
+      <button class="opt">They move to the default namespace</button>
+      <button class="opt">They restart under a new ReplicaSet</button>
+    </div>
+    <div class="why">Deleting the owner cascades: Deployment → ReplicaSets → Pods (garbage collection via owner references). Try it: <code>kubectl -n play delete deploy web</code>.</div>
+  </div>
+
+  <details class="recall"><summary>Recall: what does the <code>779d8657fd</code> in <code>maku-backend-779d8657fd-pvnnc</code> mean, and when does it change?</summary>
+    <p>It's the <code>pod-template-hash</code>, identifying one version of the pod template (one ReplicaSet). It changes whenever the template changes: a new image, env, annotation (like our <code>checksum/config</code>), or probes. A new hash means a new ReplicaSet and a rollout.</p>
+  </details>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">Deployments (kubernetes.io)</a> — read “Creating”, “Updating”, and “Rolling back”. Then <a href="https://kubernetes.io/docs/concepts/workloads/pods/">Pods</a>, first half.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “what are maxSurge and maxUnavailable?” or “why not just run pods directly?”.</div>
+
+  <div class="score" data-lesson="k8s-0002"></div>
+  <div class="pager"><a href="0001-cluster-and-desired-state.html">← Lesson 01</a><a href="0003-services-and-dns.html">Lesson 03: Services &amp; DNS →</a></div>
+</main>
+</body>
+</html>

@@ -6,19 +6,19 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
- * 字典类型
+ * Dictionary type
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "字典类型查询")
+@Schema(description = "Dictionary type query")
 public class SysDictTypeQuery extends Query {
-    @Schema(description = "字典类型")
+    @Schema(description = "Dictionary type")
     private String dictType;
 
-    @Schema(description = "字典名称")
+    @Schema(description = "Dictionary name")
     private String dictName;
 
 }

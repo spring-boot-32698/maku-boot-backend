@@ -12,19 +12,34 @@ server:
       cookie:
         http-only: true
 
+# Actuator: expose only the health endpoint (public via auth.yml /actuator/**, details hidden).
+# Probe groups /actuator/health/liveness and /readiness are used by the Kubernetes probes.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db,redis
+
 knife4j:
   enable: false
   setting:
     custom-code: 500
     enable-footer-custom: false
 
-# 禁用springdoc，主要用于生产环境
+# Disable springdoc, mainly for production environments
 #springdoc:
 #  api-docs:
 #    enabled: false
 
 spring:
-  # 环境 dev|test|prod
+  # Environment dev|test|prod
   profiles:
     active: dev
   application:
@@ -35,11 +50,21 @@ spring:
     multipart:
       max-file-size: 1024MB
       max-request-size: 1024MB
+  # Database migrations. Uses its own connection to the master datasource
+  # (dynamic-datasource routes the app's DataSource, so we point Liquibase at master explicitly).
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    # Context = active profile, so changesets tagged context:dev (demo accounts) never run in test/prod
+    contexts: ${spring.profiles.active}
+    url: ${spring.datasource.dynamic.datasource.master.url}
+    user: ${spring.datasource.dynamic.datasource.master.username}
+    password: ${spring.datasource.dynamic.datasource.master.password}
 
 storage:
   enabled: true
   config:
-    # 存储类型：local、aliyun、tencent、qiniu、huawei、minio
+    # Storage type: local, aliyun, tencent, qiniu, huawei, minio
     type: local
     domain: http://localhost:8080
   local:
@@ -51,26 +76,26 @@ maku:
     exclude-urls:
       - /maku-generator/**
   security:
-    # 8小时过期
+    # 8 hours until expiry
     access-token-expire: 28800
-    # 14天过期
+    # 14 days until expiry
     refresh-token-expire: 1209600
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
-  # 实体扫描，多个package用逗号或者分号分隔
+  # Entity scanning, separate multiple packages with commas or semicolons
   typeAliasesPackage: net.maku.*.entity
   global-config:
-    # 数据库相关配置
+    # Database related settings
     db-config:
-      # ID自增
+      # IDAuto increment
       id-type: AUTO
-      # 逻辑已删除值
+      # Logical deleted value
       logic-delete-value: 1
-      # 逻辑未删除值
+      # Logical not-deleted value
       logic-not-delete-value: 0
     banner: false
-  # 原生配置
+  # Native settings
   configuration:
     map-underscore-to-camel-case: true
     cache-enabled: false

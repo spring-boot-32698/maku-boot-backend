@@ -9,7 +9,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 /**
- * MQTT网关
+ * MQTTGateway
  *
  * @author LSF maku_lsf@163.com
  */

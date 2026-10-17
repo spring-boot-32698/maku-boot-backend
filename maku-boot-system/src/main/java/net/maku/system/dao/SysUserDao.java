@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 系统用户
+ * System user
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Mapper

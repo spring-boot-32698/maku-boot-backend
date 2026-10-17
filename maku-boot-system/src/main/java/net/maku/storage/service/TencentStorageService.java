@@ -16,9 +16,9 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 /**
- * 腾讯云存储
+ * Tencent Cloud storage
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class TencentStorageService extends StorageService {
@@ -52,10 +52,10 @@ public class TencentStorageService extends StorageService {
 
             cosClient.shutdown();
             if (result.getETag() == null) {
-                throw new ServerException("上传文件失败，请检查配置信息");
+                throw new ServerException("File upload failed, please check the configuration");
             }
         } catch (Exception e) {
-            throw new ServerException("上传文件失败：", e);
+            throw new ServerException("File upload failed:", e);
         }
 
         return properties.getConfig().getDomain() + "/" + path;

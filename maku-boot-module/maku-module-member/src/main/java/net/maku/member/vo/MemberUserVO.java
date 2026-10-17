@@ -9,48 +9,48 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 会员管理
+ * Member management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Data
-@Schema(description = "会员管理")
+@Schema(description = "Member management")
 public class MemberUserVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
     private Long id;
 
-    @Schema(description = "昵称")
+    @Schema(description = "Nickname")
     private String nickName;
 
-    @Schema(description = "手机号")
+    @Schema(description = "Mobile number")
     private String mobile;
 
-    @Schema(description = "头像")
+    @Schema(description = "Avatar")
     private String avatar;
 
-    @Schema(description = "出生日期")
+    @Schema(description = "Date of birth")
     @JsonFormat(pattern = DateUtils.DATE_PATTERN)
     private LocalDateTime birthday;
 
-    @Schema(description = "性别")
+    @Schema(description = "Gender")
     private Integer gender;
 
-    @Schema(description = "最后登录IP")
+    @Schema(description = "Last login IP")
     private String lastLoginIp;
 
-    @Schema(description = "最后登录时间")
+    @Schema(description = "Last login time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime lastLoginTime;
 
-    @Schema(description = "备注")
+    @Schema(description = "Remarks")
     private String remark;
 
-    @Schema(description = "状态")
+    @Schema(description = "Status")
     private Integer status;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Creation time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime createTime;
 

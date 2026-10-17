@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 认证 Cache
+ * Authentication Cache
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Component

@@ -6,22 +6,22 @@ import lombok.Getter;
 import java.util.Objects;
 
 /**
- * 用户状态
+ * User status
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum UserStatusEnum {
     /**
-     * 停用
+     * Disabled
      */
-    DISABLE(0, "停用"),
+    DISABLE(0, "Disabled"),
     /**
-     * 正常
+     * Normal
      */
-    ENABLED(1, "正常");
+    ENABLED(1, "Normal");
 
     private final int value;
     private final String name;

@@ -10,9 +10,9 @@ import net.maku.system.vo.SysMailConfigVO;
 import java.util.List;
 
 /**
- * 邮件平台
+ * Mail platform
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 public interface SysMailConfigService extends BaseService<SysMailConfigEntity> {
 
@@ -21,7 +21,7 @@ public interface SysMailConfigService extends BaseService<SysMailConfigEntity> {
     List<SysMailConfigVO> list(Integer platform);
 
     /**
-     * 启用的邮件平台列表
+     * List of enabled mail platforms
      */
     List<EmailConfig> listByEnable();
 

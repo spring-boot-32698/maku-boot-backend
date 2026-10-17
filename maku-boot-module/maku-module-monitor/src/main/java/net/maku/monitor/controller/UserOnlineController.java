@@ -24,19 +24,19 @@ import java.util.List;
 @RestController
 @RequestMapping("monitor/user")
 @AllArgsConstructor
-@Tag(name = "在线用户监控")
+@Tag(name = "Online user monitoring")
 public class UserOnlineController {
     private final TokenStoreCache tokenStoreCache;
     private final RedisCache redisCache;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('monitor:user:all')")
     public Result<PageResult<UserOnlineVO>> page(@ParameterObject @Valid Query query) {
-        // 获取登录用户的全部key
+        // Get all keys of the logged-in user
         List<String> keys = tokenStoreCache.getUserKeyList();
 
-        // 逻辑分页
+        // Logical pagination
         List<String> keyList = ListUtil.page(query.getPage() - 1, query.getLimit(), keys);
 
         List<UserOnlineVO> userOnlineList = new ArrayList<>();
@@ -60,15 +60,15 @@ public class UserOnlineController {
     }
 
     @DeleteMapping("{accessToken}")
-    @Operation(summary = "强制退出")
+    @Operation(summary = "Force logout")
     @PreAuthorize("hasAuthority('monitor:user:all')")
     public Result<String> forceLogout(@PathVariable("accessToken") String accessToken) {
-        // token不能为空
+        // tokenCannot be empty
         if (StrUtil.isBlank(accessToken)) {
-            Result.error("token不能为空");
+            Result.error("tokenCannot be empty");
         }
 
-        // 删除用户信息
+        // Delete user info
         tokenStoreCache.deleteUser(accessToken);
 
         return Result.ok();

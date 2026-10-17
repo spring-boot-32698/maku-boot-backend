@@ -9,9 +9,9 @@ import net.maku.system.vo.SysAttachmentVO;
 import java.util.List;
 
 /**
- * 附件管理
+ * Attachment management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysAttachmentService extends BaseService<SysAttachmentEntity> {

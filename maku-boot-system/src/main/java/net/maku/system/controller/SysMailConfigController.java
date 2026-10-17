@@ -29,20 +29,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 邮件配置
+ * Mail settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @RestController
 @RequestMapping("sys/mail/config")
-@Tag(name = "邮件配置")
+@Tag(name = "Mail settings")
 @AllArgsConstructor
 public class SysMailConfigController {
     private final SysMailConfigService sysMailConfigService;
     private final EmailService emailService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('sys:mail:config')")
     public Result<PageResult<SysMailConfigVO>> page(@ParameterObject @Valid SysMailConfigQuery query) {
         PageResult<SysMailConfigVO> page = sysMailConfigService.page(query);
@@ -51,7 +51,7 @@ public class SysMailConfigController {
     }
 
     @GetMapping("list")
-    @Operation(summary = "列表")
+    @Operation(summary = "List")
     public Result<List<SysMailConfigVO>> list(Integer platform) {
         List<SysMailConfigVO> list = sysMailConfigService.list(platform);
 
@@ -59,7 +59,7 @@ public class SysMailConfigController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('sys:mail:config')")
     public Result<SysMailConfigVO> get(@PathVariable("id") Long id) {
         SysMailConfigEntity entity = sysMailConfigService.getById(id);
@@ -68,7 +68,7 @@ public class SysMailConfigController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @PreAuthorize("hasAuthority('sys:mail:config')")
     public Result<String> save(@RequestBody SysMailConfigVO vo) {
         sysMailConfigService.save(vo);
@@ -77,13 +77,13 @@ public class SysMailConfigController {
     }
 
     @PostMapping("send")
-    @Operation(summary = "发送邮件")
+    @Operation(summary = "Send mail")
     @OperateLog(type = OperateTypeEnum.OTHER)
     public Result<String> send(@RequestBody SysMailSendVO vo) {
         SysMailConfigEntity entity = sysMailConfigService.getById(vo.getId());
         EmailConfig config = BeanUtil.copyProperties(entity, EmailConfig.class);
 
-        // 发送本地邮件
+        // Send local mail
         if (vo.getPlatform() == MailPlatformEnum.LOCAL.getValue()) {
             EmailLocalSendParam local = new EmailLocalSendParam();
             local.setTos(vo.getMailTos());
@@ -92,11 +92,11 @@ public class SysMailConfigController {
             local.setHtml(StrUtil.equalsIgnoreCase(vo.getMailFormat(), MailFormatEnum.HTML.name()));
             boolean flag = emailService.sendLocal(local, config);
 
-            return flag ? Result.ok() : Result.error("发送失败");
+            return flag ? Result.ok() : Result.error("Send failed");
         }
 
 
-        // 发送阿里云模板邮件
+        // Send Alibaba Cloud template mail
         if (vo.getPlatform() == MailPlatformEnum.ALIYUN.getValue()
                 && StrUtil.equalsIgnoreCase(vo.getMailFormat(), MailFormatEnum.TEMPLATE.name())) {
             EmailAliyunBatchSendParam aliyun = new EmailAliyunBatchSendParam();
@@ -106,10 +106,10 @@ public class SysMailConfigController {
             aliyun.setTemplateName(vo.getTemplateName());
             boolean flag = emailService.batchSendAliyun(aliyun, config);
 
-            return flag ? Result.ok() : Result.error("发送失败");
+            return flag ? Result.ok() : Result.error("Send failed");
         }
 
-        // 发送阿里云邮件
+        // Send Alibaba Cloud mail
         if (vo.getPlatform() == MailPlatformEnum.ALIYUN.getValue()) {
             EmailAliyunSendParam aliyun = new EmailAliyunSendParam();
             aliyun.setFrom(vo.getMailFrom());
@@ -120,14 +120,14 @@ public class SysMailConfigController {
             aliyun.setHtml(StrUtil.equalsIgnoreCase(vo.getMailFormat(), MailFormatEnum.HTML.name()));
             boolean flag = emailService.sendAliyun(aliyun, config);
 
-            return flag ? Result.ok() : Result.error("发送失败");
+            return flag ? Result.ok() : Result.error("Send failed");
         }
 
-        return Result.error("不支持的邮件平台或邮件格式");
+        return Result.error("Unsupported mail platform or mail format");
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @PreAuthorize("hasAuthority('sys:mail:config')")
     public Result<String> update(@RequestBody @Valid SysMailConfigVO vo) {
         sysMailConfigService.update(vo);
@@ -136,7 +136,7 @@ public class SysMailConfigController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @PreAuthorize("hasAuthority('sys:mail:config')")
     public Result<String> delete(@RequestBody List<Long> idList) {
         sysMailConfigService.delete(idList);

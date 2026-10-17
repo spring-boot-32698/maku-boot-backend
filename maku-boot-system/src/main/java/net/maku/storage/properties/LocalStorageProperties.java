@@ -3,19 +3,19 @@ package net.maku.storage.properties;
 import lombok.Data;
 
 /**
- * 本地存储配置项
+ * Local storage settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 public class LocalStorageProperties {
     /**
-     * 本地存储路径
+     * Local storage path
      */
     private String path;
     /**
-     * 资源起始路径
+     * Resource start path
      */
     private String url = "upload";
 }

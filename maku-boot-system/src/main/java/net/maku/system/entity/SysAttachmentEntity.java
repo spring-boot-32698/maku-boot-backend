@@ -7,9 +7,9 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.mybatis.entity.BaseEntity;
 
 /**
- * 附件管理
+ * Attachment management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -17,27 +17,27 @@ import net.maku.framework.mybatis.entity.BaseEntity;
 @TableName("sys_attachment")
 public class SysAttachmentEntity extends BaseEntity {
     /**
-     * 附件名称
+     * Attachment name
      */
     private String name;
 
     /**
-     * 附件地址
+     * Attachment address
      */
     private String url;
 
     /**
-     * 附件大小
+     * Attachment size
      */
     @TableField("size_")
     private Long size;
 
     /**
-     * 存储平台
+     * Storage platform
      */
     private String platform;
     /**
-     * 租户ID
+     * Tenant ID
      */
     private Long tenantId;
 

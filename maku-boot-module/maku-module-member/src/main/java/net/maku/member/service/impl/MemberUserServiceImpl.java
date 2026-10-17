@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 会员管理
+ * Member management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * @since 1.0.0 2024-03-11
  */
 @Service

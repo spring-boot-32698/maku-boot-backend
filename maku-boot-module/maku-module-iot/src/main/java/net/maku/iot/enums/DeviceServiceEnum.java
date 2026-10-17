@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum DeviceServiceEnum {
 
-    COMMAND_ID("命令ID");
+    COMMAND_ID("Command ID");
 
     /**
-     * 类型值
+     * Type value
      */
     private final String value;
 

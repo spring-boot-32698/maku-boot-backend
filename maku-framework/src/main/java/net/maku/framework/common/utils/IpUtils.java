@@ -12,9 +12,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
- * IP地址 工具类
+ * IPAddress utility class
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Slf4j
@@ -22,35 +22,35 @@ public class IpUtils {
     private final static Searcher searcher;
 
     static {
-        // ip地址库
+        // ipAddress library
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         Resource resource = resolver.getResource("classpath:ip2region.xdb");
 
         try {
             searcher = Searcher.newWithBuffer(resource.getContentAsByteArray());
         } catch (Exception e) {
-            log.error("ip2region 初始化异常", e);
-            throw new ServerException("ip2region 初始化异常", e);
+            log.error("ip2region Initialization exception", e);
+            throw new ServerException("ip2region Initialization exception", e);
         }
     }
 
     public static String getAddressByIP(String ip) {
-        // 内网
+        // Intranet
         if (IpUtils.internalIp(ip)) {
-            return "内网IP";
+            return "Intranet IP";
         }
 
         try {
             String address = searcher.search(ip);
-            return address.replace("0|", "").replace("|0", "").replace("中国|", "");
+            return address.replace("0|", "").replace("|0", "").replace("China|", "");
         } catch (Exception e) {
-            log.error("根据IP获取地址异常 {}", ip);
-            return "未知";
+            log.error("Failed to get the address by IP {}", ip);
+            return "Unknown";
         }
     }
 
     /**
-     * 获取客户端IP地址
+     * Get client IP address
      */
     public static String getIpAddr(HttpServletRequest request) {
         if (request == null) {
@@ -77,9 +77,9 @@ public class IpUtils {
     }
 
     /**
-     * 检查是否为内部IP地址
+     * Check whether it is an internal IP address
      *
-     * @param ip IP地址
+     * @param ip IPAddress
      */
     public static boolean internalIp(String ip) {
         byte[] addr = textToNumericFormatV4(ip);
@@ -87,9 +87,9 @@ public class IpUtils {
     }
 
     /**
-     * 检查是否为内部IP地址
+     * Check whether it is an internal IP address
      *
-     * @param addr byte地址
+     * @param addr byteAddress
      */
     private static boolean internalIp(byte[] addr) {
         if (addr == null || addr.length < 2) {
@@ -123,10 +123,10 @@ public class IpUtils {
     }
 
     /**
-     * 将IPv4地址转换成字节
+     * Convert IPv4 address to bytes
      *
-     * @param text IPv4地址
-     * @return byte 字节
+     * @param text IPv4Address
+     * @return byte Byte
      */
     public static byte[] textToNumericFormatV4(String text) {
         if (StrUtil.isBlank(text)) {
@@ -197,9 +197,9 @@ public class IpUtils {
     }
 
     /**
-     * 获取本地IP地址
+     * Get local IP address
      *
-     * @return 本地IP地址
+     * @return Local IP address
      */
     public static String getHostIp() {
         try {
@@ -211,9 +211,9 @@ public class IpUtils {
     }
 
     /**
-     * 获取主机名
+     * Get host name
      *
-     * @return 本地主机名
+     * @return Local host name
      */
     public static String getHostName() {
         try {
@@ -221,14 +221,14 @@ public class IpUtils {
         } catch (UnknownHostException ignored) {
 
         }
-        return "未知";
+        return "Unknown";
     }
 
     /**
-     * 从反向代理中，获得第一个非 unknown IP地址
+     * Get the first non-unknown IP address from the reverse proxy
      */
     public static String getMultistageReverseProxyIp(String ip) {
-        // 反向代理检测
+        // Reverse proxy detection
         if (ip.indexOf(",") > 0) {
             final String[] ips = ip.trim().split(",");
             for (String sub : ips) {

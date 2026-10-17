@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Production and Interviews</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script src="../../assets/quiz.js" defer></script>
+<script src="../../assets/steps.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">K8s course</a><span>›</span><span>Lesson 12</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a><a href="../reference/interview.html">Interview Q&amp;A</a></div>
+  <h1>Towards production &amp; interviews</h1>
+  <p class="subtitle">Your laptop cluster taught you the mechanics. Production adds three things: other people, failure, and attackers.</p>
+  <div class="meta"><span><b>Time</b> ~20 min</span><span><b>Prereq</b> lessons 01–11</span><span><b>Namespace</b> play</span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>You can say what's missing between our k3d setup and a production deployment of maku, why maku can't simply scale out yet, and you've watched an autoscaler work.</p>
+  </div>
+
+  <h2>Laptop vs production</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Concern</th><th>Our k3d setup</th><th>Production practice</th></tr>
+    <tr><td>Images</td><td><code>k3d image import</code></td><td>Push to a registry; immutable tags (version or git SHA) or digests; <code>imagePullSecrets</code> for private registries. <a href="https://kubernetes.io/docs/concepts/containers/images/">docs</a></td></tr>
+    <tr><td>Delivery</td><td><code>up.sh</code> from your shell</td><td>CI builds, tests, pushes, then either runs <code>helm upgrade --rollback-on-failure</code> or commits the new tag to a GitOps repo that <a href="https://argo-cd.readthedocs.io/en/stable/">Argo CD</a> / <a href="https://fluxcd.io/flux/">Flux</a> syncs into the cluster.</td></tr>
+    <tr><td>Database &amp; Redis</td><td>In-cluster StatefulSet / Deployment</td><td>Usually managed services (RDS, Cloud SQL, ElastiCache). Our chart: <code>mysql.enabled=false</code> + <code>externalDatabase.host</code>. If in-cluster: backups and an operator.</td></tr>
+    <tr><td>Secrets</td><td>Passwords in <code>values.yaml</code></td><td><code>database.existingSecret</code> fed by <a href="https://external-secrets.io/latest/">External Secrets</a> (from Vault/cloud secret managers) or <a href="https://github.com/bitnami-labs/sealed-secrets">Sealed Secrets</a> (encrypted in git); RBAC limits who can read Secrets.</td></tr>
+    <tr><td>Traffic</td><td>Traefik, HTTP, <code>*.localhost</code></td><td>Your platform's controller or <a href="https://kubernetes.io/docs/concepts/services-networking/gateway/">Gateway API</a>; TLS via cert-manager; real DNS. (ingress-nginx is retired; lesson 07.)</td></tr>
+    <tr><td>Config</td><td>profile <code>dev</code> (demo accounts!)</td><td><code>springProfile: prod</code> → Liquibase context <code>prod</code>; one values file per environment.</td></tr>
+    <tr><td>Isolation</td><td>one namespace, admin access</td><td>namespaces per team/env, <a href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/">RBAC</a>, <a href="https://kubernetes.io/docs/concepts/policy/resource-quotas/">ResourceQuotas</a>, <a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/">NetworkPolicies</a> (e.g. only the backend may reach MySQL).</td></tr>
+    <tr><td>Pod security</td><td>defaults (root)</td><td><code>securityContext</code>: <code>runAsNonRoot</code>, read-only root filesystem, dropped capabilities; enforced by <a href="https://kubernetes.io/docs/concepts/security/pod-security-standards/">Pod Security Standards</a>.</td></tr>
+    <tr><td>Availability</td><td>1 replica each, 2 nodes</td><td>≥ 2 replicas, spread across nodes/zones, a <a href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions/">PodDisruptionBudget</a> so node maintenance can't take all replicas at once, autoscaling.</td></tr>
+    <tr><td>Observability</td><td><code>kubectl logs</code></td><td>Central logs, metrics (Prometheus), dashboards and alerts on readiness, restarts and OOMKills.</td></tr>
+  </table></div>
+
+  <h2>Can maku scale out? Not yet, and here's exactly why</h2>
+  <p>Setting <code>backend.replicaCount: 3</code> would <em>run</em>, but behave wrongly:</p>
+  <div class="table-wrap"><table>
+    <tr><th>Concern</th><th>Status</th><th>Fix</th></tr>
+    <tr><td>Login sessions</td><td>✅ fine: tokens live in Redis, so any replica can serve any user</td><td>—</td></tr>
+    <tr><td>DB migrations</td><td>✅ fine: Liquibase takes a lock in <code>DATABASECHANGELOGLOCK</code>, so one replica migrates and the others wait</td><td>—</td></tr>
+    <tr><td>Scheduled jobs</td><td>❌ Quartz uses an in-memory store, so every replica runs every job</td><td>Quartz JDBC store with clustering (the commented-out settings in <code>ScheduleConfig.java</code>, plus <code>QRTZ_*</code> tables via a Liquibase changeset)</td></tr>
+    <tr><td>Uploaded files</td><td>❌ RWO volume, one node only; each replica would see different files</td><td>Object storage, which maku already supports (<code>storage.config.type: minio|aliyun|tencent|…</code>), or an RWX volume</td></tr>
+    <tr><td>Deploy strategy</td><td>⚠️ Recreate (downtime per deploy) because of the RWO volume</td><td>Once uploads are off the volume, switch to RollingUpdate</td></tr>
+  </table></div>
+  <p>That analysis (what state lives where) is exactly what interviewers mean by “is this app cloud-native?”. The frontend has no such state, so it can scale freely today.</p>
+
+  <h2>Hands-on: watch an autoscaler work</h2>
+  <p>A <a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/">HorizontalPodAutoscaler</a> adjusts replicas to hit a target metric. It computes CPU % <em>relative to requests</em>, which is why requests matter (lesson 06). It reads metrics from metrics-server, which k3s ships.</p>
+  <ol class="steps" data-id="k8s-l12">
+    <li><p>An app with CPU requests, a Service, and an autoscaler targeting 50% CPU, between 1 and 5 replicas.</p>
+      <pre><code>kubectl create namespace play
+kubectl -n play create deployment web --image=nginx:1.27-alpine
+kubectl -n play set resources deploy/web --requests=cpu=20m --limits=cpu=100m
+kubectl -n play expose deploy web --port=80
+kubectl -n play autoscale deploy/web --cpu-percent=50 --min=1 --max=5</code></pre></li>
+    <li><p>Generate load from inside the cluster, and watch. (Metrics take ~30 s to appear; until then TARGETS shows <code>&lt;unknown&gt;</code>.)</p>
+      <pre><code>kubectl -n play run load --image=busybox:1.36 --restart=Never -- sh -c 'while true; do wget -q -O /dev/null http://web; done'
+kubectl -n play get hpa web -w</code></pre>
+      <details class="expect"><summary>What happened when I ran it</summary><pre>NAME   REFERENCE        TARGETS              MINPODS   MAXPODS   REPLICAS
+web    Deployment/web   cpu: &lt;unknown&gt;/50%   1         5         1
+web    Deployment/web   cpu: 500%/50%        1         5         1      ← ~40 s in; desired replicas → 4
+web    Deployment/web   cpu: …               1         5         4</pre></details></li>
+    <li><p>Stop the load and watch it scale back down. Scale-down waits about 5 minutes by default (a stabilisation window), so it doesn't flap. Then clean up.</p>
+      <pre><code>kubectl -n play delete pod load
+kubectl -n play get hpa web -w      # Ctrl-C when bored
+kubectl delete namespace play</code></pre></li>
+  </ol>
+
+  <h2>Practice</h2>
+
+  <div class="quiz">
+    <p class="q">1. Why can't maku just run <code>backend.replicaCount: 3</code> today?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Quartz jobs would triple; uploads sit on one node</button>
+      <button class="opt">Login sessions are stored inside each separate JVM's memory</button>
+      <button class="opt">Liquibase would apply every single migration three separate times</button>
+      <button class="opt">Kubernetes allows only one replica when using a StatefulSet</button>
+    </div>
+    <div class="why">Sessions are in Redis and Liquibase locks, so both are fine. The in-memory Quartz store and the RWO uploads volume are the real blockers. The backend is a Deployment, not a StatefulSet.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. The HPA shows <code>cpu: &lt;unknown&gt;/50%</code> forever. Most likely cause?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Pods have no CPU requests, or metrics are missing</button>
+      <button class="opt">The Deployment's maximum replica count was never actually set</button>
+      <button class="opt">The Service has no LoadBalancer or Ingress in front</button>
+      <button class="opt">Autoscaling only works for StatefulSets on local k3s clusters</button>
+    </div>
+    <div class="why">Utilisation is usage ÷ request. With no request there's nothing to divide by, and without metrics-server there's no usage. (It's also normal for the first ~30 s.)</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. What is “GitOps”, as Argo CD and Flux practise it?</p>
+    <div class="opts">
+      <button class="opt" data-correct>A controller syncs the cluster to manifests in git</button>
+      <button class="opt">Developers run kubectl from their laptops after every merge</button>
+      <button class="opt">Git hooks build container images on each local commit</button>
+      <button class="opt">Kubernetes stores its etcd backups inside a git repo</button>
+    </div>
+    <div class="why">Desired state lives in git; an in-cluster agent pulls and reconciles it continuously. That's the same reconcile idea as lesson 01, applied to deployments. Rollback = <code>git revert</code>.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. What does a PodDisruptionBudget protect against?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Voluntary evictions taking down too many replicas at once</button>
+      <button class="opt">A container using more memory than its limit allows</button>
+      <button class="opt">Pods in other namespaces reaching the MySQL database directly</button>
+      <button class="opt">Developers accidentally deleting a Deployment in the production cluster</button>
+    </div>
+    <div class="why">During node drains and upgrades, a PDB (e.g. <code>minAvailable: 1</code>) makes the eviction wait. It needs ≥ 2 replicas to be meaningful. Memory → limits; network → NetworkPolicy; accidents → RBAC.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. Your company's cluster pulls from a private registry. What does the pod spec need?</p>
+    <div class="opts">
+      <button class="opt" data-correct><code>imagePullSecrets</code> referencing a Secret with registry credentials</button>
+      <button class="opt"><code>hostNetwork: true</code> so nodes reach the registry</button>
+      <button class="opt"><code>pullPolicy: Always</code> with a public tag name</button>
+      <button class="opt">A ConfigMap containing the registry login password</button>
+    </div>
+    <div class="why">A <code>kubernetes.io/dockerconfigjson</code> Secret referenced from the pod (or its ServiceAccount). Without it you get ImagePullBackOff with “unauthorized” (lesson 11, lab B's cousin).</div>
+  </div>
+
+  <h2>Interview preparation</h2>
+  <p>The <a href="../reference/interview.html">Interview Q&amp;A sheet</a> collects every recall question from this course, plus more, each answered in terms of maku. Use it for spaced practice: answer out loud, then open. Come back to it a day, a week, and a month from now.</p>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/">HorizontalPodAutoscaler Walkthrough</a>, then <a href="https://kubernetes.io/docs/concepts/security/pod-security-standards/">Pod Security Standards</a> and <a href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions/">Disruptions</a>. For a structured syllabus beyond this course, the <a href="https://github.com/cncf/curriculum">CKAD curriculum</a> is the best checklist.</div>
+  <div class="ask"><span class="label">What next?</span>Ask your agent to help you make maku scale: move uploads to MinIO and configure Quartz clustering, then raise <code>replicaCount</code> and switch to RollingUpdate. Or “mock interview me on Kubernetes”. For wisdom from practitioners, try <code>#kubernetes-novice</code> on <a href="https://slack.k8s.io/">Kubernetes Slack</a>.</div>
+
+  <div class="score" data-lesson="k8s-0012"></div>
+  <div class="pager"><a href="0011-debugging-playbook.html">← Lesson 11</a><a href="index.html">Course home →</a></div>
+</main>
+</body>
+</html>

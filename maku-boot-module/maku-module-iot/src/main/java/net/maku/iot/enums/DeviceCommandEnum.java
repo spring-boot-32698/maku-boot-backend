@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Arrays;
 
 /**
- * 服务端下发的指令枚举类
+ * Enum of commands sent by the server
  *
  * @author LSF maku_lsf@163.com
  */
@@ -16,38 +16,38 @@ import java.util.Arrays;
 public enum DeviceCommandEnum {
 
     /**
-     * 远程锁定
+     * Remote lock
      */
-    LOCK(1, "远程锁定", DeviceEventTypeEnum.LOCK),
+    LOCK(1, "Remote lock", DeviceEventTypeEnum.LOCK),
 
     /**
-     * 远程解锁
+     * Remote unlock
      */
-    UNLOCK(2, "远程解锁", DeviceEventTypeEnum.UNLOCK),
+    UNLOCK(2, "Remote unlock", DeviceEventTypeEnum.UNLOCK),
 
     /**
-     * OTA升级
+     * OTAUpgrade
      */
-    OTA_UPGRADE(3, "OTA升级", DeviceEventTypeEnum.OTA_UPGRADE);
+    OTA_UPGRADE(3, "OTAUpgrade", DeviceEventTypeEnum.OTA_UPGRADE);
 
     /**
-     * 类型值
+     * Type value
      */
     private final Integer value;
 
     /**
-     * 显示名称
+     * Display name
      */
     private final String title;
 
 
     /**
-     * 对应的设备事件日志类型
+     * Corresponding device event log type
      */
     private final DeviceEventTypeEnum eventType;
 
     /**
-     * 解析指定的valueName
+     * Parse the specified valueName
      *
      * @param valueName
      * @return DeviceCommandEnum
@@ -57,11 +57,11 @@ public enum DeviceCommandEnum {
         return Arrays.stream(DeviceCommandEnum.values())
                 .filter(d -> d.name().equalsIgnoreCase(valueName)).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
-                        StrUtil.format("无效的DeviceCommandEnum值：{}", valueName)));
+                        StrUtil.format("Invalid DeviceCommandEnum value:{}", valueName)));
     }
 
     /**
-     * 根据 value值 获取对应枚举
+     * Get the corresponding enum by value
      *
      * @param value
      * @return DeviceCommandEnum

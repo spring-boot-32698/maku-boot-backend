@@ -27,9 +27,9 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 用户Token
+ * User Token
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Service
 @AllArgsConstructor
@@ -41,7 +41,7 @@ public class SysUserTokenServiceImpl extends BaseServiceImpl<SysUserTokenDao, Sy
 
     @Override
     public SysUserTokenVO createToken(Long userId) {
-        // 生成token
+        // Generate token
         String accessToken = TokenUtils.generator();
         String refreshToken = TokenUtils.generator();
 
@@ -50,12 +50,12 @@ public class SysUserTokenServiceImpl extends BaseServiceImpl<SysUserTokenDao, Sy
         entity.setAccessToken(accessToken);
         entity.setRefreshToken(refreshToken);
 
-        // 过期时间
+        // Expiration time
         Date now = new Date();
         entity.setAccessTokenExpire(DateUtil.toLocalDateTime(DateUtil.offsetSecond(now, securityProperties.getAccessTokenExpire())));
         entity.setRefreshTokenExpire(DateUtil.toLocalDateTime(DateUtil.offsetSecond(now, securityProperties.getRefreshTokenExpire())));
 
-        // 是否存在Token
+        // Whether a Token exists
         SysUserTokenEntity tokenEntity = baseMapper.selectOne(new LambdaQueryWrapper<SysUserTokenEntity>().eq(SysUserTokenEntity::getUserId, userId));
         if (tokenEntity == null) {
             baseMapper.insert(entity);
@@ -73,29 +73,29 @@ public class SysUserTokenServiceImpl extends BaseServiceImpl<SysUserTokenDao, Sy
         query.eq(SysUserTokenEntity::getRefreshToken, refreshToken);
         query.ge(SysUserTokenEntity::getRefreshTokenExpire, new Date());
 
-        // 不存在，则表示refreshToken错误，或者已过期
+        // If it does not exist, the refreshToken is wrong or has expired
         SysUserTokenEntity entity = baseMapper.selectOne(query);
         if (entity == null) {
             throw new ServerException(ErrorCode.REFRESH_TOKEN_INVALID);
         }
 
-        // 删除缓存信息
+        // Delete cache info
         tokenStoreCache.deleteUser(entity.getAccessToken());
 
-        // 生成新 accessToken
+        // Generate a new accessToken
         String accessToken = TokenUtils.generator();
         entity.setAccessToken(accessToken);
         entity.setAccessTokenExpire(DateUtil.toLocalDateTime(DateUtil.offsetSecond(new Date(), securityProperties.getAccessTokenExpire())));
 
-        // 更新
+        // Update
         baseMapper.updateById(entity);
 
-        // 设置用户权限信息
+        // Set user permission info
         SysUserEntity user = sysUserDao.selectById(entity.getUserId());
         UserDetail userDetail = BeanUtil.copyProperties(user, UserDetail.class);
         sysUserDetailsService.getUserDetails(userDetail);
 
-        // 保存用户信息到缓存
+        // Save user info to cache
         tokenStoreCache.saveUser(accessToken, userDetail);
 
         return BeanUtil.copyProperties(entity, SysUserTokenVO.class);
@@ -114,7 +114,7 @@ public class SysUserTokenServiceImpl extends BaseServiceImpl<SysUserTokenDao, Sy
     @Async
     @Override
     public void updateCacheAuthByRoleId(Long roleId) {
-        // 根据角色ID，查询用户 access_token 列表
+        // Query the access_token list of users by role ID
         List<String> accessTokenList = baseMapper.getOnlineAccessTokenListByRoleId(roleId, LocalDateTime.now());
 
         accessTokenList.forEach(this::updateCacheAuth);
@@ -123,33 +123,33 @@ public class SysUserTokenServiceImpl extends BaseServiceImpl<SysUserTokenDao, Sy
     @Async
     @Override
     public void updateCacheAuthByUserId(Long userId) {
-        // 根据用户ID，查询用户 access_token 列表
+        // Query the access_token list of the user by user ID
         List<String> accessTokenList = baseMapper.getOnlineAccessTokenListByUserId(userId, LocalDateTime.now());
 
         accessTokenList.forEach(this::updateCacheAuth);
     }
 
     /**
-     * 根据accessToken，更新Cache里面的用户权限
+     * Update the user permissions in the Cache by accessToken
      *
      * @param accessToken access_token
      */
     private void updateCacheAuth(String accessToken) {
         UserDetail user = tokenStoreCache.getUser(accessToken);
-        // 用户不存在
+        // User does not exist
         if (user == null) {
             return;
         }
 
-        // 查询过期时间
+        // Query expiration time
         Long expire = tokenStoreCache.getExpire(accessToken);
         if (expire == null) {
             return;
         }
 
-        // 设置用户权限信息
+        // Set user permission info
         sysUserDetailsService.getUserDetails(user);
-        // 更新缓存
+        // Update cache
         tokenStoreCache.saveUser(accessToken, user, expire);
 
     }

@@ -1,0 +1,16 @@
+# Lab B
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-b
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: lab-b }
+  template:
+    metadata:
+      labels: { app: lab-b }
+    spec:
+      containers:
+        - name: app
+          image: nginx:1.27-alpinee

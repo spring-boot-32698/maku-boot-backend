@@ -5,22 +5,22 @@ import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
 
 /**
- * XSS 过滤工具类
+ * XSS Filter utility class
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class XssUtils {
     /**
-     * 不格式化
+     * Do not format
      */
     private final static Document.OutputSettings outputSettings = new Document.OutputSettings().prettyPrint(false);
 
     /**
-     * XSS过滤
+     * XSSFilter
      *
-     * @param content 需要过滤的内容
-     * @return 返回过滤后的内容
+     * @param content Content to filter
+     * @return Return the filtered content
      */
     public static String filter(String content) {
         return Jsoup.clean(content, "", Safelist.relaxed(), outputSettings);

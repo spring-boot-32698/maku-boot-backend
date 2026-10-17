@@ -20,20 +20,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 字典数据
+ * Dictionary data
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/dict/data")
-@Tag(name = "字典数据")
+@Tag(name = "Dictionary data")
 @AllArgsConstructor
 public class SysDictDataController {
     private final SysDictDataService sysDictDataService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('sys:dict:page')")
     public Result<PageResult<SysDictDataVO>> page(@ParameterObject @Valid SysDictDataQuery query) {
         PageResult<SysDictDataVO> page = sysDictDataService.page(query);
@@ -42,7 +42,7 @@ public class SysDictDataController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('sys:dict:info')")
     public Result<SysDictDataVO> get(@PathVariable("id") Long id) {
         SysDictDataEntity entity = sysDictDataService.getById(id);
@@ -51,7 +51,7 @@ public class SysDictDataController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @OperateLog(type = OperateTypeEnum.INSERT)
     @PreAuthorize("hasAuthority('sys:dict:save')")
     public Result<String> save(@RequestBody @Valid SysDictDataVO vo) {
@@ -61,7 +61,7 @@ public class SysDictDataController {
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('sys:dict:update')")
     public Result<String> update(@RequestBody @Valid SysDictDataVO vo) {
@@ -71,7 +71,7 @@ public class SysDictDataController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @OperateLog(type = OperateTypeEnum.DELETE)
     @PreAuthorize("hasAuthority('sys:dict:delete')")
     public Result<String> delete(@RequestBody List<Long> idList) {

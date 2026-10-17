@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Map</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">Course</a><span>›</span><span>Lesson 01</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>The map: modules, layers and one request</h1>
+  <p class="subtitle">Before you can change anything, you need to know where it lives.</p>
+  <div class="meta"><span><b>Time</b> ~10 min</span><span><b>Prereq</b> none</span><span><b>Deep dive</b> <a href="../docs/02-architecture.md">docs/02-architecture.md</a></span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>Given any screen in the admin UI, you can name the Vue file that renders it and the Java controller that serves its data.</p>
+  </div>
+
+  <h2>Two repos, one contract</h2>
+  <p><code>maku-admin-frontend</code> is a Vue 3 SPA. <code>maku-boot-backend</code> is a Spring Boot 4 monolith. They speak JSON over HTTP, and every response has the same envelope — the <a href="../reference/glossary.html#result"><code>Result</code></a>:</p>
+  <pre><code>{ "code": 0, "msg": "success", "data": … }   // code ≠ 0 means failure — even though HTTP status is 200</code></pre>
+  <p class="sidenote">Source: <code>maku-framework/…/common/utils/Result.java</code>. The frontend checks <code>res.code</code>, not the HTTP status (<code>src/utils/request.ts</code>).</p>
+
+  <h2>Backend: six Maven modules</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Module</th><th>Holds</th><th>You'll touch it when…</th></tr>
+    <tr><td><code>maku-framework</code></td><td>Infrastructure: security filter, MyBatis base classes, Redis, <code>Result</code>, exceptions</td><td>rarely — it's the foundation</td></tr>
+    <tr><td><code>maku-boot-system</code></td><td>Users, orgs, roles, menus, dicts, logs, storage, SMS, email</td><td>changing core admin features</td></tr>
+    <tr><td><code>maku-boot-module/*</code></td><td>Optional features: quartz, websocket, monitor, member, generator</td><td>working on those features</td></tr>
+    <tr><td><code>maku-boot-api</code></td><td>Small interfaces (<code>SmsApi</code>, <code>StorageApi</code>)</td><td>one module needs another's service</td></tr>
+    <tr><td><code>maku-boot-new</code></td><td>Empty skeleton, package <code>net.maku.module</code></td><td><strong>adding new business features</strong></td></tr>
+    <tr><td><code>maku-server</code></td><td><code>ServerApplication</code> + <code>application*.yml</code></td><td>config, wiring modules in</td></tr>
+  </table></div>
+  <p><code>ServerApplication</code> sits in package <code>net.maku</code>, so Spring's component scan picks up every <code>net.maku.*</code> bean from every module on the classpath. Adding a module = adding a dependency in <code>maku-server/pom.xml</code>.</p>
+
+  <h2>Every feature has the same shape</h2>
+  <p>Inside a module, one feature = one file per layer. The simplest complete example is <em>Posts</em>:</p>
+  <pre><code>controller/SysPostController   @RequestMapping("sys/post")  → returns Result&lt;T&gt;
+service/impl/SysPostServiceImpl extends BaseServiceImpl&lt;SysPostDao, SysPostEntity&gt;
+dao/SysPostDao                  extends BaseDao&lt;SysPostEntity&gt;   (MyBatis-Plus mapper)
+entity/SysPostEntity            extends BaseEntity, @TableName("sys_post")
+vo/SysPostVO · query/SysPostQuery extends Query</code></pre>
+
+  <h2>From screen to file</h2>
+  <p>The sidebar is <strong>not</strong> hard-coded. After login the UI calls <code>GET /sys/menu/nav</code> and turns each <code>sys_menu</code> row into a route. A menu whose <code>url</code> is <code>sys/post/index</code> mounts <code>src/views/sys/post/index.vue</code>. That page calls <code>/sys/post/page</code> → <code>SysPostController</code>.</p>
+  <p class="sidenote">See <code>generateRoutes()</code> in <code>src/router/index.ts</code>; it uses <code>import.meta.glob('/src/views/**/*.vue')</code>. Vue Router's <a href="https://router.vuejs.org/guide/advanced/dynamic-routing.html">dynamic routing guide</a> explains <code>addRoute</code>.</p>
+  <p><strong>The trick:</strong> to find any screen's code, open <em>Menu Management</em>, read the menu's URL, and you have the Vue file. Open the Vue file, find the URL it calls, and grep the backend for the <code>@RequestMapping</code>.</p>
+
+  <h2>Practice</h2>
+  <p class="practice-intro">Answer from memory first. Wrong clicks are fine — they're how this sticks.</p>
+
+  <div class="quiz">
+    <p class="q">1. You're adding a brand-new business feature (not core system management). Which module is it meant to live in?</p>
+    <div class="opts">
+      <button class="opt" data-correct>maku-boot-new, package net.maku.module</button>
+      <button class="opt">maku-framework, package net.maku.framework</button>
+      <button class="opt">maku-server, package net.maku.server</button>
+      <button class="opt">maku-boot-api, package net.maku.api</button>
+    </div>
+    <div class="why"><code>maku-boot-new</code> is the empty skeleton for your code (sample <code>TestController</code> at <code>/new/test</code>). <code>maku-framework</code> is infrastructure with no business logic; <code>maku-server</code> only wires things together.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. A <code>sys_menu</code> row has <code>url = "sys/user/index"</code>. Which file renders it?</p>
+    <div class="opts">
+      <button class="opt" data-correct><code>src/views/sys/user/index.vue</code></button>
+      <button class="opt"><code>src/router/sys/user/index.ts</code></button>
+      <button class="opt"><code>src/api/sys/user/index.vue</code></button>
+      <button class="opt"><code>src/layout/sys/user/index.vue</code></button>
+    </div>
+    <div class="why"><code>getDynamicComponent(path)</code> looks up <code>/src/views/${path}.vue</code>. <code>src/api/</code> holds HTTP wrappers, <code>src/layout/</code> the shell.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. A module needs a new endpoint that works <em>without</em> logging in. Where is that declared?</p>
+    <div class="opts">
+      <button class="opt" data-correct>In that module's auth.yml file</button>
+      <button class="opt">In the main application.yml file</button>
+      <button class="opt">In the SecurityFilterConfig Java class</button>
+      <button class="opt">In a @PermitAll controller annotation</button>
+    </div>
+    <div class="why"><code>PermitResource</code> merges <code>auth.ignore_urls</code> from every <code>classpath*:auth.yml</code>; <code>SecurityFilterConfig</code> then calls <code>permitAll()</code> on them. Each module can ship its own <code>auth.yml</code> (e.g. the generator's <code>/maku-generator/**</code>).</div>
+  </div>
+
+  <div class="order">
+    <p class="q">4. Put one authenticated request — “load the post list” — in order.</p>
+    <ol class="answer" hidden>
+      <li><span class="tag fe">FE</span>axios interceptor adds <code>Authorization: &lt;token&gt;</code></li>
+      <li><span class="tag be">BE</span><code>AuthenticationTokenFilter</code> loads the user from Redis</li>
+      <li><span class="tag be">BE</span><code>@PreAuthorize</code> checks the permission code (if present)</li>
+      <li><span class="tag be">BE</span>Service + MyBatis-Plus query MySQL</li>
+      <li><span class="tag be">BE</span><code>Result.ok(page)</code> is serialized to JSON</li>
+      <li><span class="tag fe">FE</span>Response interceptor checks <code>code === 0</code></li>
+    </ol>
+    <div class="why">This is the spine of every later lesson: lesson 02 zooms into steps 1–2, lesson 03 into step 3, lesson 04 into step 4.</div>
+  </div>
+
+  <details class="recall"><summary>Recall: why does adding a new module only require a pom dependency, with no extra Spring config?</summary>
+    <p><code>ServerApplication</code> is annotated <code>@SpringBootApplication</code> in package <code>net.maku</code>; component scanning covers all sub-packages, and every module uses <code>net.maku.*</code>.</p>
+  </details>
+
+  <h2>Try it in the real app</h2>
+  <p>Run the stack (<a href="../docs/06-local-setup.md">docs/06</a>), log in as <code>admin</code>/<code>admin</code>, open <em>System Settings → Menu Management</em>, pick “Data dictionary”, and follow it to its Vue file and controller. Time yourself — aim for under two minutes.</p>
+
+  <div class="source"><span class="label">Primary source</span>The <a href="https://maku.net/docs/maku-boot">official maku-boot documentation</a> (project author) — skim “project structure”. Note it may describe a newer/older version; this repo's code is the truth.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “show me every file in the Posts feature” or “which module owns /monitor/server?”. It can open the code with you.</div>
+
+  <div class="score" data-lesson="0001"></div>
+  <div class="pager"><a href="index.html">← Course</a><a href="0002-login-and-tokens.html">Lesson 02: Login &amp; tokens →</a></div>
+</main>
+</body>
+</html>

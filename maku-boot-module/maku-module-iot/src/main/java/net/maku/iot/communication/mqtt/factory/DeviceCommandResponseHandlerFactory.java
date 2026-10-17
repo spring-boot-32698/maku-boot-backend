@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 设备命令响应处理器工厂，自动获取所有实现的handler实例
+ * Device command response handler factory that automatically gets all implemented handler instances
  *
  * @author LSF maku_lsf@163.com
  */
@@ -20,12 +20,12 @@ public class DeviceCommandResponseHandlerFactory {
     private final ApplicationContext applicationContext;
 
     /**
-     * 所有设备命令响应handlers
+     * All device command response handlers
      */
     private List<DeviceCommandResponseHandler> handlers;
 
     /**
-     * 获取设备命令响应handlers
+     * Get device command response handlers
      *
      * @return
      */

@@ -19,9 +19,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * 认证过滤器
+ * Authentication filter
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Component
@@ -32,23 +32,23 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         String accessToken = TokenUtils.getAccessToken(request);
-        // accessToken为空，表示未登录
+        // accessTokenEmpty means not logged in
         if (StringUtils.isBlank(accessToken)) {
             chain.doFilter(request, response);
             return;
         }
 
-        // 获取登录用户信息
+        // Get logged-in user info
         UserDetail user = tokenStoreCache.getUser(accessToken);
         if (user == null) {
             chain.doFilter(request, response);
             return;
         }
 
-        // 用户存在
+        // User exists
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 
-        // 新建 SecurityContext
+        // Create a new SecurityContext
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);

@@ -8,21 +8,21 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 角色管理
+ * Role management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Mapper
 public interface SysRoleDao extends BaseDao<SysRoleEntity> {
 
     /**
-     * 根据用户ID，获取用户最大的数据范围
+     * Get the maximum data scope of the user by user ID
      */
     Integer getDataScopeByUserId(@Param("userId") Long userId);
 
     /**
-     * 根据用户ID，获取用户角色编码
+     * Get the user role codes by user ID
      */
     List<String> geRoleCodeByUserId(@Param("userId") Long userId);
 

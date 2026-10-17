@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Arrays;
 
 /**
- * 设备运行状态枚举
+ * Device running status enum
  *
  * @author LSF maku_lsf@163.com
  */
@@ -15,33 +15,33 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public enum DeviceRunningStatusEnum {
     /**
-     * 离线状态
+     * Offline status
      */
-    OFFLINE(0, "离线", DeviceEventTypeEnum.OFFLINE),
+    OFFLINE(0, "Offline", DeviceEventTypeEnum.OFFLINE),
 
     /**
-     * 在线状态
+     * Online status
      */
-    ONLINE(1, "在线", DeviceEventTypeEnum.ONLINE);
+    ONLINE(1, "Online", DeviceEventTypeEnum.ONLINE);
 
     /**
-     * 状态值
+     * Status value
      */
     private final Integer value;
 
     /**
-     * 状态显示名称
+     * Status display name
      */
     private final String title;
 
     /**
-     * 设备事件类型
+     * Device event type
      */
     private final DeviceEventTypeEnum eventType;
 
 
     /**
-     * 解析指定的valueName
+     * Parse the specified valueName
      *
      * @param valueName
      * @return DeviceRunningStatusEnum
@@ -52,7 +52,7 @@ public enum DeviceRunningStatusEnum {
                 .filter(d -> d.getValue().toString().equals(valueName)
                         || d.name().equalsIgnoreCase(valueName)).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
-                        StrUtil.format("无效的DeviceRunningStatusEnum值：{}", valueName)));
+                        StrUtil.format("Invalid DeviceRunningStatusEnum value:{}", valueName)));
     }
 
 }

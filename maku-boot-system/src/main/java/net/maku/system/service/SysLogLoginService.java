@@ -7,9 +7,9 @@ import net.maku.system.query.SysLogLoginQuery;
 import net.maku.system.vo.SysLogLoginVO;
 
 /**
- * 登录日志
+ * Login log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysLogLoginService extends BaseService<SysLogLoginEntity> {
@@ -23,16 +23,16 @@ public interface SysLogLoginService extends BaseService<SysLogLoginEntity> {
     PageResult<SysLogLoginVO> page(SysLogLoginQuery query);
 
     /**
-     * 保存登录日志
+     * Save login log
      *
-     * @param username  用户名
-     * @param status    登录状态
-     * @param operation 操作信息
+     * @param username  Username
+     * @param status    Login status
+     * @param operation Operation info
      */
     void save(String username, Integer status, Integer operation);
 
     /**
-     * 导出登录日志
+     * Export login logs
      */
     void export();
 }

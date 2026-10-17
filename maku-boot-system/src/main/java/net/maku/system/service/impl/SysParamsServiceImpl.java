@@ -22,9 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 参数管理
+ * Parameter management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -52,17 +52,17 @@ public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParam
 
     @Override
     public void save(SysParamsVO vo) {
-        // 判断 参数键 是否存在
+        // Check whether the parameter key exists
         boolean exist = baseMapper.isExist(vo.getParamKey());
         if (exist) {
-            throw new ServerException("参数键已存在");
+            throw new ServerException("Parameter key already exists");
         }
 
         SysParamsEntity entity = BeanUtil.copyProperties(vo, SysParamsEntity.class);
 
         baseMapper.insert(entity);
 
-        // 保存到缓存
+        // Save to cache
         sysParamsCache.save(entity.getParamKey(), entity.getParamValue());
     }
 
@@ -70,35 +70,35 @@ public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParam
     public void update(SysParamsVO vo) {
         SysParamsEntity entity = baseMapper.selectById(vo.getId());
 
-        // 如果 参数键 修改过
+        // If the parameter key was modified
         if (!StrUtil.equalsIgnoreCase(entity.getParamKey(), vo.getParamKey())) {
-            // 判断 新参数键 是否存在
+            // Check whether the new parameter key exists
             boolean exist = baseMapper.isExist(vo.getParamKey());
             if (exist) {
-                throw new ServerException("参数键已存在");
+                throw new ServerException("Parameter key already exists");
             }
 
-            // 删除修改前的缓存
+            // Delete the cache before modification
             sysParamsCache.del(entity.getParamKey());
         }
 
-        // 修改数据
+        // Update data
         updateById(BeanUtil.copyProperties(vo, SysParamsEntity.class));
 
-        // 保存到缓存
+        // Save to cache
         sysParamsCache.save(vo.getParamKey(), vo.getParamValue());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> idList) {
-        // 查询列表
+        // Query list
         List<SysParamsEntity> list = baseMapper.selectBatchIds(idList);
 
-        // 删除数据
+        // Delete data
         removeByIds(idList);
 
-        // 删除缓存
+        // Delete cache
         String[] keys = list.stream().map(SysParamsEntity::getParamKey).toArray(String[]::new);
         sysParamsCache.del(keys);
     }
@@ -110,13 +110,13 @@ public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParam
             return value;
         }
 
-        // 如果缓存没有，则查询数据库
+        // If not in cache, query the database
         SysParamsEntity entity = baseMapper.get(paramKey);
         if (entity == null) {
-            throw new ServerException("参数值不存在，paramKey：" + paramKey);
+            throw new ServerException("Parameter value does not exist, paramKey:" + paramKey);
         }
 
-        // 保存到缓存
+        // Save to cache
         sysParamsCache.save(entity.getParamKey(), entity.getParamValue());
 
         return entity.getParamValue();

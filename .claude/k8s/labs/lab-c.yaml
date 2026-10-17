@@ -1,0 +1,17 @@
+# Lab C
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-c
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: lab-c }
+  template:
+    metadata:
+      labels: { app: lab-c }
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.36
+          command: ["sh", "-c", "echo 'Starting app...'; echo 'ERROR: required env DB_URL is not set' >&2; exit 1"]

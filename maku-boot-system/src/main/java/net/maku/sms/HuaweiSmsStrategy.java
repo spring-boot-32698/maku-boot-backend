@@ -21,15 +21,15 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * 华为云短信
+ * Huawei Cloud SMS
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class HuaweiSmsStrategy implements SmsStrategy {
-    // 无需修改，用于格式化鉴权头域，给"X-WSSE"参数赋值
+    // No modification needed, used to format the authentication header field, for"X-WSSE"Parameter assignment
     private static final String WSSE_HEADER_FORMAT = "UsernameToken Username=\"%s\",PasswordDigest=\"%s\",Nonce=\"%s\",Created=\"%s\"";
-    // 无需修改，用于格式化鉴权头域，给"Authorization"参数赋值
+    // No modification needed, used to format the authentication header field, for"Authorization"Parameter assignment
     private static final String AUTH_HEADER_VALUE = "WSSE realm=\"SDP\",profile=\"UsernameToken\",type=\"Appkey\"";
     private final SmsConfig smsConfig;
 
@@ -39,29 +39,29 @@ public class HuaweiSmsStrategy implements SmsStrategy {
 
     @Override
     public void send(String mobile, Map<String, String> params) {
-        // 有参数则设置
+        // Set if there are parameters
         String templateParas = null;
         if (MapUtil.isNotEmpty(params)) {
             templateParas = JsonUtils.toJsonString(params.values().toArray(new String[0]));
         }
 
-        // 请求Body,不携带签名名称时,signature请填null
+        // Request Body,When no signature name is carried,signaturePlease fill in null
         String body = buildRequestBody(smsConfig.getSenderId(), "+86" + mobile, smsConfig.getTemplateId(), templateParas, null, smsConfig.getSignName());
         if (StringUtils.isBlank(body)) {
             throw new ServerException("body is null.");
         }
 
-        // 请求Headers中的X-WSSE参数值
+        // X-WSSE parameter value in the request Headers
         String wsseHeader = buildWsseHeader(smsConfig.getAccessKey(), smsConfig.getSecretKey());
         if (StringUtils.isBlank(wsseHeader)) {
             throw new ServerException("wsse header is null.");
         }
 
         try {
-            // 使用 https
+            // Use https
             trustAllHttpsCertificates();
 
-            // 接入地址
+            // Access address
             String url = smsConfig.getUrl() + "/sms/batchSendSms/v1";
             URL realUrl = new URL(url);
             HttpsURLConnection connection = (HttpsURLConnection) realUrl.openConnection();
@@ -83,7 +83,7 @@ public class HuaweiSmsStrategy implements SmsStrategy {
                 String response = IoUtil.read(connection.getInputStream(), CharsetUtil.CHARSET_UTF_8);
                 HuaweiSmsResult result = JsonUtils.parseObject(response, HuaweiSmsResult.class);
 
-                // 短信是否发送成功
+                // Whether the SMS was sent successfully
                 assert result != null;
                 if (!"000000".equals(result.code)) {
                     throw new ServerException(result.description);
@@ -97,9 +97,9 @@ public class HuaweiSmsStrategy implements SmsStrategy {
     }
 
     /**
-     * 构造请求Body体
+     * Construct the request Body
      *
-     * @param signature | 签名名称,使用国内短信通用模板时填写
+     * @param signature | Signature name,Fill in when using the domestic SMS general template
      */
     static String buildRequestBody(String sender, String receiver, String templateId, String templateParas,
                                    String statusCallBack, String signature) {
@@ -138,7 +138,7 @@ public class HuaweiSmsStrategy implements SmsStrategy {
     }
 
     /**
-     * 构造X-WSSE参数值
+     * Construct the X-WSSE parameter value
      */
     static String buildWsseHeader(String appKey, String appSecret) {
         if (null == appKey || null == appSecret || appKey.isEmpty() || appSecret.isEmpty()) {
@@ -187,7 +187,7 @@ public class HuaweiSmsStrategy implements SmsStrategy {
 
     @Data
     static class HuaweiSmsResult {
-        // code为000000，表示成功
+        // codeIs 000000, meaning success
         private String code;
         private String description;
         private List<Object> result;

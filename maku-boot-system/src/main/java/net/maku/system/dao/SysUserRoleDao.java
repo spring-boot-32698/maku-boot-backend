@@ -8,27 +8,27 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 用户角色关系
+ * User-role relationship
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Mapper
 public interface SysUserRoleDao extends BaseDao<SysUserRoleEntity> {
 
     /**
-     * 角色ID列表
-     * @param userId  用户ID
+     * Role ID list
+     * @param userId  User ID
      *
-     * @return  返回角色ID列表
+     * @return  Return the role ID list
      */
     List<Long> getRoleIdList(@Param("userId") Long userId);
 
     /**
-     * 根据角色ID查询对应的用户ID列表
-     * @param roleId  角色ID
+     * Query the user ID list by role ID
+     * @param roleId  Role ID
      *
-     * @return  返回用户ID列表
+     * @return  Return the user ID list
      */
     List<Long> getExistsUserIdList(@Param("roleId") Long roleId);
 }

@@ -5,30 +5,30 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 第三方登录枚举
+ * Third-party login enum
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum ThirdLoginEnum {
     /**
-     * 企业微信
+     * WeCom
      */
     WECHAT_WORK("wechat_work"),
 
     /**
-     * 钉钉
+     * DingTalk
      */
     DING_TALK("dingtalk"),
     /**
-     * 飞书
+     * Feishu
      */
     FEI_SHU("feishu"),
 
     /**
-     * 微信开放平台
+     * WeChat Open Platform
      */
     WECHAT_OPEN("wechat_open");
 

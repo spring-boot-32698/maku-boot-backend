@@ -5,9 +5,9 @@ import net.maku.framework.common.cache.RedisCache;
 import org.springframework.stereotype.Service;
 
 /**
- * 短信发送 Cache
+ * SMS sending Cache
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -16,9 +16,9 @@ public class SmsSendCache {
     private final RedisCache redisCache;
 
     /**
-     * 获取发送手机短信验证码KEY
+     * Get the KEY for sending mobile SMS verification codes
      *
-     * @param mobile 手机号
+     * @param mobile Mobile number
      * @return KEY
      */
     private String getCodeKey(String mobile) {
@@ -28,7 +28,7 @@ public class SmsSendCache {
     public void saveCode(String mobile, String code) {
         String key = getCodeKey(mobile);
 
-        // 保存到Redis，有效期10分钟
+        // Save to Redis, valid for 10 minutes
         redisCache.set(key, code, 10 * 60);
     }
 

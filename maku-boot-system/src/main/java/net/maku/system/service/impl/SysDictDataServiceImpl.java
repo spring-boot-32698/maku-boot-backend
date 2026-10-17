@@ -20,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 数据字典
+ * Data dictionary
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -51,7 +51,7 @@ public class SysDictDataServiceImpl extends BaseServiceImpl<SysDictDataDao, SysD
                 .eq(SysDictDataEntity::getDictTypeId, vo.getDictTypeId())
                 .eq(SysDictDataEntity::getDictValue, vo.getDictValue()));
         if (sysDictData != null) {
-            throw new ServerException("字典值重复!");
+            throw new ServerException("Duplicate dictionary value!");
         }
 
         SysDictDataEntity entity = BeanUtil.copyProperties(vo, SysDictDataEntity.class);
@@ -67,7 +67,7 @@ public class SysDictDataServiceImpl extends BaseServiceImpl<SysDictDataDao, SysD
                 .eq(SysDictDataEntity::getDictValue, vo.getDictValue())
                 .ne(SysDictDataEntity::getId, vo.getId()));
         if (sysDictData != null) {
-            throw new ServerException("字典值重复!");
+            throw new ServerException("Duplicate dictionary value!");
         }
 
         SysDictDataEntity entity = BeanUtil.copyProperties(vo, SysDictDataEntity.class);

@@ -19,77 +19,77 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 用户
+ * User
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "用户")
+@Schema(description = "User")
 public class SysUserVO implements Serializable, TransPojo {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
     private Long id;
 
-    @Schema(description = "用户名", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "用户名不能为空")
+    @Schema(description = "Username", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Username cannot be empty")
     private String username;
 
-    @Schema(description = "密码")
+    @Schema(description = "Password")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @Schema(description = "姓名", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "姓名不能为空")
+    @Schema(description = "Name", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Name cannot be empty")
     private String realName;
 
-    @Schema(description = "头像")
+    @Schema(description = "Avatar")
     private String avatar;
 
-    @Schema(description = "签名")
+    @Schema(description = "Signature")
     private String signature;
 
-    @Schema(description = "性别 0：男   1：女   2：未知", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Range(min = 0, max = 2, message = "性别不正确")
+    @Schema(description = "Gender 0: male   1: female   2: unknown", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Range(min = 0, max = 2, message = "Gender is incorrect")
     private Integer gender;
 
-    @Schema(description = "邮箱")
-    @Email(message = "邮箱格式不正确")
+    @Schema(description = "Email")
+    @Email(message = "Email format is incorrect")
     private String email;
 
-    @Schema(description = "手机号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "手机号不能为空")
+    @Schema(description = "Mobile number", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Mobile number cannot be empty")
     private String mobile;
 
-    @Schema(description = "机构ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "机构ID不能为空")
+    @Schema(description = "Organization ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "Organization ID cannot be empty")
     @Trans(type = TransType.SIMPLE, target = SysOrgEntity.class, fields = "name", ref = "orgName")
     private Long orgId;
 
-    @Schema(description = "直属主管ID")
+    @Schema(description = "Direct supervisor ID")
     private Long leaderId;
 
-    @Schema(description = "状态 0：停用    1：正常", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Range(min = 0, max = 1, message = "用户状态不正确")
+    @Schema(description = "Status 0: disabled    1: normal", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Range(min = 0, max = 1, message = "User status is incorrect")
     private Integer status;
 
-    @Schema(description = "角色ID列表")
+    @Schema(description = "Role ID list")
     private List<Long> roleIdList;
 
-    @Schema(description = "岗位ID列表")
+    @Schema(description = "Post ID list")
     private List<Long> postIdList;
 
-    @Schema(description = "岗位名称列表")
+    @Schema(description = "Post name list")
     private List<String> postNameList;
 
-    @Schema(description = "超级管理员   0：否   1：是")
+    @Schema(description = "Super administrator   0: no   1: yes")
     private Integer superAdmin;
 
-    @Schema(description = "机构名称")
+    @Schema(description = "Organization name")
     private String orgName;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Creation time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime createTime;
 }

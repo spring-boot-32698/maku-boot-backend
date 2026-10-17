@@ -9,9 +9,9 @@ import net.maku.email.config.EmailConfig;
 import net.maku.framework.common.exception.ServerException;
 
 /**
- * 阿里云 邮件发送
+ * Alibaba Cloud mail sending
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Slf4j
@@ -30,89 +30,89 @@ public class EmailAliyunUtil {
     }
 
     /**
-     * 发送邮件
+     * Send mail
      *
-     * @param from      发件人邮箱
-     * @param formAlias 发件人昵称
-     * @param tos       收件人邮箱列表，多个收件人逗号隔开
-     * @param subject   邮件主题
-     * @param content   邮件内容
-     * @param isHtml    是否HTML格式
+     * @param from      Sender email
+     * @param formAlias Sender nickname
+     * @param tos       Recipient email list, separate multiple recipients with commas
+     * @param subject   Mail subject
+     * @param content   Mail content
+     * @param isHtml    Whether HTML format
      * @return env-id
      */
     public String sendEmail(String from, String formAlias, String tos, String subject, String content, boolean isHtml) {
         SingleSendMailRequest request = new SingleSendMailRequest();
 
-        // 发件人邮箱
+        // Sender email
         request.setAccountName(from);
 
-        // 发件人昵称
+        // Sender nickname
         request.setFromAlias(formAlias);
 
-        // 地址类型：0-为随机账号，1-为发信地址
+        // Address type: 0 - random account, 1 - sending address
         request.setAddressType(1);
 
-        // 使用管理台配置的回信地址
+        // Use the reply address configured in the admin console
         request.setReplyToAddress(true);
 
-        // 收件人邮箱
+        // Recipient email
         request.setToAddress(tos);
 
-        // 邮件主题
+        // Mail subject
         request.setSubject(subject);
 
-        // 是否HTML
+        // Whether HTML
         if (isHtml) {
             request.setHtmlBody(content);
         } else {
             request.setTextBody(content);
         }
 
-        // 是否开启追踪功能，开启需要备案，0关闭，1开启
+        // Whether to enable tracing, which requires filing; 0 off, 1 on
         request.setClickTrace("0");
 
         try {
             return client.singleSendMail(request).getBody().getEnvId();
         } catch (Exception e) {
-            log.error("发送邮件失败", e);
+            log.error("Failed to send mail", e);
             throw new ServerException(e.getMessage());
         }
     }
 
     /**
-     * 批量发送邮件
+     * Send mail in batch
      *
-     * @param from          发件人邮箱
-     * @param receiversName 收件人列表名称
-     * @param templateName  邮件模板
-     * @param tagName       邮件标签
+     * @param from          Sender email
+     * @param receiversName Recipient list name
+     * @param templateName  Mail template
+     * @param tagName       Mail tag
      * @return env-id
      */
     public String batchSendEmail(String from, String receiversName, String templateName, String tagName) {
         BatchSendMailRequest request = new BatchSendMailRequest();
 
-        // 发件人邮箱
+        // Sender email
         request.setAccountName(from);
 
-        // 收件人列表名称
+        // Recipient list name
         request.setReceiversName(receiversName);
 
-        // 邮件模板
+        // Mail template
         request.setTemplateName(templateName);
 
-        // 地址类型：0-为随机账号，1-为发信地址
+        // Address type: 0 - random account, 1 - sending address
         request.setAddressType(1);
 
-        // 标签
+        // Label
         request.setTagName(tagName);
 
-        // 是否开启追踪功能，开启需要备案，0关闭，1开启
+        // Whether to enable tracing, which requires filing; 0 off, 1 on
         request.setClickTrace("0");
 
         try {
             return client.batchSendMail(request).getBody().getEnvId();
         } catch (Exception e) {
-            log.error("发送邮件失败", e);
+            log.error("Failed to send mail", e);
             throw new ServerException(e.getMessage());
         }
     }

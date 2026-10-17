@@ -18,32 +18,32 @@ import java.util.List;
 public class Jvm {
 
     /**
-     * JVM 最大可用内存总数(G)
+     * JVM Total maximum available memory(G)
      */
     private double max;
 
     /**
-     * JVM 占用的内存总数(M)
+     * JVM Total memory used(M)
      */
     private double total;
 
     /**
-     * JVM 已用内存(M)
+     * JVM Used memory(M)
      */
     private double used;
 
     /**
-     * JVM 空闲内存(M)
+     * JVM Idle memory(M)
      */
     private double free;
 
     /**
-     * JVM 内存使用率
+     * JVM Memory usage
      */
     private double usage;
 
     /**
-     * JVM 名称
+     * JVM Name
      */
     private String name;
 
@@ -58,7 +58,7 @@ public class Jvm {
     private String vendor;
 
     /**
-     * JDK 路径
+     * JDK Path
      */
     private String home;
 
@@ -68,12 +68,12 @@ public class Jvm {
     private String userDir;
 
     /**
-     * JVM 启动时间
+     * JVM Start time
      */
     private String startTime;
 
     /**
-     * JVM 运行时间
+     * JVM Running time
      */
     private String runTime;
 

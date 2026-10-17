@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rebuild by Hand</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script src="../../assets/quiz.js" defer></script>
+<script src="../../assets/steps.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">K8s course</a><span>›</span><span>Lesson 09</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Rebuild maku by hand</h1>
+  <p class="subtitle">Delete everything. Then bring it back yourself, no script, reading every status on the way.</p>
+  <div class="meta"><span><b>Time</b> ~25 min</span><span><b>Prereq</b> lessons 01–08</span><span><b>Run from</b> <code>maku-boot-backend/</code></span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>maku running on a cluster you created from nothing, and you can explain every status each pod passed through.</p>
+  </div>
+
+  <p>This lesson is the milestone from your <a href="../MISSION.md">mission</a>: “bring maku up from zero, step by step”. It deliberately includes one classic mistake (installing before the images are in the cluster) so you can watch Kubernetes recover from it.</p>
+
+  <div class="callout warn"><span class="label">This deletes data</span>Deleting the cluster deletes its volumes: users you created, uploaded files, everything. Liquibase recreates the schema and demo accounts on the next start. Your Docker images stay.</div>
+
+  <h2>The plan</h2>
+  <ol class="flow">
+    <li><span class="tag k8s">k3d</span>Delete and recreate the cluster</li>
+    <li><span class="tag be">helm</span>Install the chart (too early, on purpose)</li>
+    <li><span class="tag k8s">k3d</span>Load the images and watch the pods recover</li>
+    <li><span class="tag be">verify</span>Watch the backend boot, then test it all</li>
+  </ol>
+
+  <h2>Hands-on</h2>
+  <ol class="steps" data-id="k8s-l9">
+    <li><p>Tear down. Nodes are containers, so watch them disappear.</p>
+      <pre><code>k3d cluster delete maku
+docker ps --filter name=k3d-maku
+kubectl config get-contexts</code></pre>
+      <details class="expect"><summary>What to notice</summary><p>No containers, and the <code>k3d-maku</code> context is gone. <code>kubectl</code> may now point at <code>k3d-ecommerce</code> or nothing. That's exactly why you always check the context first.</p></details></li>
+    <li><p>Create the cluster from its config file and confirm it's yours.</p>
+      <pre><code>cat deploy/k3d/cluster.yaml
+k3d cluster create --config deploy/k3d/cluster.yaml
+kubectl config current-context
+kubectl get nodes
+kubectl get pods -n kube-system</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>k3d-maku
+NAME                STATUS   ROLES                  VERSION
+k3d-maku-agent-0    Ready    &lt;none&gt;                 v1.31.5+k3s1
+k3d-maku-server-0   Ready    control-plane,master   v1.31.5+k3s1</pre><p>Wait until <code>traefik</code> is Running in kube-system (about a minute) before relying on the ingress.</p></details></li>
+    <li><p>Your images still exist in <em>Docker</em>. Check them; rebuild only if missing (the UI must be built with the cluster's API URL).</p>
+      <pre><code>docker images | grep -E '^maku-(boot|admin) '
+# only if missing:
+# docker build -t maku-boot:5.0.0 .
+# docker build -t maku-admin:5.0.0 --build-arg VITE_API_URL=http://api.maku.localhost:8088 ../maku-admin-frontend</code></pre></li>
+    <li><p><strong>Predict, then install too early.</strong> The images are in Docker, but have we told the cluster about them? Open a watcher first: <code>kubectl -n maku get pods -w</code> (re-run once the namespace exists).</p>
+      <pre><code>helm upgrade --install maku deploy/helm/maku -n maku --create-namespace -f deploy/helm/maku/values-k3d.yaml
+kubectl -n maku get pods</code></pre>
+      <details class="expect"><summary>What you'll see</summary><pre>maku-mysql-0                0/1   Running            ← pulled mysql:8.0 from Docker Hub
+maku-redis-…                1/1   Running            ← pulled redis:7-alpine from Docker Hub
+maku-frontend-…             0/1   ImagePullBackOff   ← maku-admin:5.0.0 isn't on any registry
+maku-backend-…              0/1   Init:0/1           ← init container waiting for MySQL…
+                                                       …then ErrImagePull / ImagePullBackOff</pre>
+      <p><code>kubectl -n maku describe pod -l app.kubernetes.io/component=frontend | tail -3</code> shows <code>Failed to pull image "maku-admin:5.0.0" … docker.io/library/maku-admin:5.0.0 … not found</code>. The cluster's nodes run their own containerd; your laptop's Docker image store is invisible to them.</p></details></li>
+    <li><p>Fix it by copying the images into every node, then watch the pods recover <em>by themselves</em>. The kubelet retries pulls with growing back-off; when I tested this it recovered about 10 s after the import. If one seems stuck, deleting the pod skips the wait.</p>
+      <pre><code>k3d image import maku-boot:5.0.0 maku-admin:5.0.0 -c maku
+kubectl -n maku get pods -w</code></pre></li>
+    <li><p>Follow the backend's boot sequence. Each status means something:</p>
+      <pre><code>kubectl -n maku logs deploy/maku-backend -c wait-for-mysql
+kubectl -n maku logs deploy/maku-backend -c backend -f | grep -E 'liquibase.*(Running|Run:)|Started ServerApplication'</code></pre>
+      <details class="expect"><summary>The sequence</summary><pre>Init:0/1         wait-for-mysql loops "waiting for mysql" until port 3306 answers
+PodInitializing  init finished, main container starting
+Running 0/1      JVM up, Liquibase applying changesets; startup probe not yet passing
+Running 1/1      startup passed → readiness passed (db + redis UP) → endpoint ready
+logs: Running Changeset: …0001-baseline-core … Run: 6 … Started ServerApplication in ~15 s</pre></details></li>
+    <li><p>Verify like you would at work: release status, smoke test, real requests, real login.</p>
+      <pre><code>helm list -n maku
+helm test maku -n maku
+curl -s http://api.maku.localhost:8088/actuator/health; echo</code></pre>
+      <p>Open <a href="http://maku.localhost:8088">http://maku.localhost:8088</a> and log in as <code>admin</code>/<code>admin</code>. <code>helm history maku -n maku</code> starts again at revision 1, because the release history lived in the old cluster (as Secrets in the namespace).</p></li>
+  </ol>
+
+  <h2>Practice</h2>
+
+  <div class="quiz">
+    <p class="q">1. <code>maku-admin:5.0.0</code> exists in <code>docker images</code>, yet the pod shows <code>ImagePullBackOff</code>. Why?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Nodes have their own image store, separate from Docker's</button>
+      <button class="opt">The image tag must be latest for local images</button>
+      <button class="opt">Helm only deploys images that are signed by registries</button>
+      <button class="opt">The namespace needs an imagePullSecret for local Docker images</button>
+    </div>
+    <div class="why">Each node's containerd only sees images pulled from a registry or imported into it. <code>k3d image import</code> copies them in; real clusters pull from a registry (lesson 12).</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. Why did MySQL and Redis start fine at the same moment?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Their images are public on Docker Hub</button>
+      <button class="opt">StatefulSets skip the image pull step entirely</button>
+      <button class="opt">They were cached from the deleted cluster</button>
+      <button class="opt">Helm installs dependencies before the app images</button>
+    </div>
+    <div class="why">An unqualified image name like <code>mysql:8.0</code> means <code>docker.io/library/mysql:8.0</code>. The cache died with the old cluster; they were pulled fresh.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. The backend sits at <code>Init:0/1</code>. What is it doing?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Its init container waits for MySQL's port</button>
+      <button class="opt">The JVM is running the Liquibase changesets</button>
+      <button class="opt">The scheduler is still choosing a node</button>
+      <button class="opt">Helm is waiting for the test hook</button>
+    </div>
+    <div class="why"><code>Init:0/1</code> = zero of one init containers completed. Ours loops on <code>nc -z maku-mysql 3306</code>; its logs are under <code>-c wait-for-mysql</code>. Liquibase runs later, during <code>Running 0/1</code>.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. Why is it <code>Running 0/1</code> for a while before <code>1/1</code>?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Probes haven't passed, so it gets no traffic</button>
+      <button class="opt">One of two containers in the pod crashed</button>
+      <button class="opt">The pod waits for its PVC to bind</button>
+      <button class="opt">Kubernetes limits brand new pods to half capacity</button>
+    </div>
+    <div class="why">READY counts containers passing readiness. Until startup and then readiness succeed, the endpoint is <code>ready=false</code> and the ingress won't route to it.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. In step 4 we ran <code>helm upgrade --install</code> without <code>--wait</code>. With <code>--wait</code> and a 5-minute timeout, what would Helm have done?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Blocked, then marked the release failed at timeout</button>
+      <button class="opt">Imported the missing images into the cluster itself</button>
+      <button class="opt">Skipped the frontend and then installed everything else</button>
+      <button class="opt">Automatically rolled back to a previous release revision</button>
+    </div>
+    <div class="why"><code>--wait</code> blocks until resources are ready. Pods stuck in ImagePullBackOff never are, so you'd get a failed revision (without <code>--rollback-on-failure</code>, nothing is undone, and there was no previous revision anyway).</div>
+  </div>
+
+  <details class="recall"><summary>Recall: list every command, in order, to go from no cluster to a working maku. Write them down, then open.</summary>
+    <pre><code>k3d cluster create --config deploy/k3d/cluster.yaml
+kubectl config current-context
+docker build -t maku-boot:5.0.0 .
+docker build -t maku-admin:5.0.0 --build-arg VITE_API_URL=http://api.maku.localhost:8088 ../maku-admin-frontend
+k3d image import maku-boot:5.0.0 maku-admin:5.0.0 -c maku
+helm upgrade --install maku deploy/helm/maku -n maku --create-namespace -f deploy/helm/maku/values-k3d.yaml --wait --timeout 10m
+helm test maku -n maku</code></pre>
+    <p>That's <code>deploy/k3d/up.sh</code>. You can now read every line of it and know why it's there.</p>
+  </details>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://helm.sh/docs/intro/using_helm/">Using Helm</a> (install/upgrade/status/test) and the <a href="https://k3d.io/stable/">k3d docs</a> for <code>cluster create</code> and <code>image import</code>.</div>
+  <div class="ask"><span class="label">Questions?</span>Tell your agent “lesson 09 done” and anything that surprised you. If something didn't recover, paste the <code>describe</code> output and debug it together.</div>
+
+  <div class="score" data-lesson="k8s-0009"></div>
+  <div class="pager"><a href="0008-helm-charts.html">← Lesson 08</a><a href="0010-ship-and-rollback.html">Lesson 10: Ship &amp; roll back →</a></div>
+</main>
+</body>
+</html>

@@ -7,9 +7,9 @@ import org.springframework.util.Assert;
 import java.util.Collection;
 
 /**
- * 手机短信登录 AuthenticationToken
+ * SMS login AuthenticationToken
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class MobileAuthenticationToken extends AbstractAuthenticationToken {

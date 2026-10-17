@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ingress</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script src="../../assets/quiz.js" defer></script>
+<script src="../../assets/steps.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">K8s course</a><span>›</span><span>Lesson 07</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Ingress</h1>
+  <p class="subtitle">One door into the cluster, and a set of rules saying which room each request goes to.</p>
+  <div class="meta"><span><b>Time</b> ~12 min</span><span><b>Prereq</b> <a href="0003-services-and-dns.html">Lesson 03</a></span><span><b>Namespaces</b> maku, play</span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>You can trace <code>http://maku.localhost:8088</code> hop by hop to a pod, and expose a new app on its own hostname.</p>
+  </div>
+
+  <h2>The whole path</h2>
+  <pre><code>browser  http://maku.localhost:8088/
+  │  *.localhost resolves to 127.0.0.1 (no /etc/hosts edits needed)
+  ▼
+Docker   k3d-maku-serverlb   0.0.0.0:8088 → node port 80          (deploy/k3d/cluster.yaml: ports 8088:80)
+  ▼
+Service  kube-system/traefik  type LoadBalancer, 80:32011          (k3s ServiceLB exposes it on the nodes)
+  ▼
+Pod      traefik  = the INGRESS CONTROLLER: reads Host header, matches Ingress rules
+  │  rule  host maku.localhost, path /  → Service maku-frontend:http
+  ▼
+Service  maku/maku-frontend → EndpointSlice → Pod maku-frontend-…   (nginx serving the Vue app)</code></pre>
+  <p class="sidenote">On a cloud cluster, the first hops are a cloud load balancer instead of k3d's Docker port. From the Traefik pod onward it's identical. k3s ships Traefik pre-installed: <a href="https://docs.k3s.io/networking/networking-services">k3s networking</a>.</p>
+  <ul>
+    <li>An <a href="../reference/glossary.html#ingress">Ingress</a> object is only <em>rules</em> (host + path → Service). Without an <b>ingress controller</b> running in the cluster, nothing reads them.</li>
+    <li><code>ingressClassName: traefik</code> says <em>which</em> controller should implement this Ingress. A cluster can run several (<code>kubectl get ingressclass</code>).</li>
+    <li>Routing is by <b>Host header</b>, which is why one port (8088) serves two sites.</li>
+  </ul>
+
+  <h2>Why maku uses two hostnames</h2>
+  <p>The UI lives at <code>maku.localhost</code>, the API at <code>api.maku.localhost</code>. The obvious alternative, one host with <code>/api → backend</code>, doesn't work here: maku-boot serves its routes from <code>/</code> (<code>/sys/…</code>, <code>/actuator/…</code>), with no prefix to route on. Two hosts need no app changes. CORS already allows any origin, and the UI image was built with <code>VITE_API_URL=http://api.maku.localhost:8088</code>.</p>
+
+  <div class="callout warn"><span class="label">What's current (2026)</span>The Ingress API still works and isn't going away, but it's <em>feature-frozen</em>. The community <b>ingress-nginx</b> controller, long the most common choice, was <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">retired in March 2026</a> (no more fixes or security patches). New platforms are moving to <a href="https://kubernetes.io/docs/concepts/services-networking/gateway/">Gateway API</a> (<code>Gateway</code> + <code>HTTPRoute</code>), which Traefik and most controllers support. At work, find out which your platform uses. Interviewers like this question.</div>
+
+  <h2>Hands-on</h2>
+  <ol class="steps" data-id="k8s-l7">
+    <li><p>Hop 1: the Docker port k3d published.</p>
+      <pre><code>docker ps --filter name=k3d-maku-serverlb --format '{{.Ports}}'</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>0.0.0.0:8088->80/tcp, [::]:8088->80/tcp, 0.0.0.0:45685->6443/tcp   ← 6443 = the API server for kubectl</pre></details></li>
+    <li><p>Hops 2–3: the controller and its class.</p>
+      <pre><code>kubectl -n kube-system get svc traefik
+kubectl get ingressclass</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>NAME      TYPE           CLUSTER-IP   EXTERNAL-IP             PORT(S)
+traefik   LoadBalancer   10.43.25.6   172.18.0.2,172.18.0.3   80:32011/TCP,443:30955/TCP
+NAME      CONTROLLER                      PARAMETERS
+traefik   traefik.io/ingress-controller   &lt;none&gt;</pre></details></li>
+    <li><p>Hop 4: maku's rules, resolved to live endpoints.</p>
+      <pre><code>kubectl -n maku describe ingress maku</code></pre>
+      <details class="expect"><summary>Expected output (trimmed)</summary><pre>Rules:
+  Host                Path  Backends
+  maku.localhost      /   maku-frontend:http (10.42.1.22:80)
+  api.maku.localhost  /   maku-backend:http (10.42.1.20:8080)</pre></details></li>
+    <li><p>Prove routing is by Host header: same IP and port, three different answers.</p>
+      <pre><code>curl -s -o /dev/null -w '%{http_code}\n' -H 'Host: maku.localhost' http://127.0.0.1:8088/
+curl -s -H 'Host: api.maku.localhost' http://127.0.0.1:8088/actuator/health; echo
+curl -s -H 'Host: nope.localhost' http://127.0.0.1:8088/</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>200
+{"groups":["liveness","readiness"],"status":"UP"}
+404 page not found                     ← Traefik's own reply: no rule matched</pre></details></li>
+    <li><p>Expose your own app on <code>web.localhost</code>.</p>
+      <pre><code>kubectl create namespace play        # if it doesn't exist
+kubectl -n play create deployment web --image=nginx:1.27-alpine
+kubectl -n play expose deployment web --port=80
+kubectl -n play create ingress web --class=traefik --rule="web.localhost/*=web:80"
+curl -s http://web.localhost:8088/ | grep title</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>&lt;title&gt;Welcome to nginx!&lt;/title&gt;</pre><p>Now read what you made: <code>kubectl -n play get ingress web -o yaml</code>. It's the same shape as <code>deploy/helm/maku/templates/ingress.yaml</code>.</p></details></li>
+    <li><p>Clean up. If you re-create <code>play</code> immediately afterwards you may hit “namespace is being terminated”; wait for it with <code>kubectl wait --for=delete ns/play</code>.</p>
+      <pre><code>kubectl delete namespace play</code></pre></li>
+  </ol>
+
+  <h2>TLS, briefly</h2>
+  <p>HTTPS is configured on the Ingress: <code>spec.tls</code> lists hosts and a Secret holding the certificate. In practice, <b>cert-manager</b> creates and renews that Secret automatically from Let's Encrypt when you add an annotation. Our chart supports it through <code>ingress.tls</code> and <code>ingress.annotations</code> (see <code>values-production.example.yaml</code>). The controller terminates TLS, so pods keep speaking plain HTTP.</p>
+
+  <h2>Practice</h2>
+
+  <div class="quiz">
+    <p class="q">1. You create an Ingress in a cluster with <em>no</em> ingress controller. What happens?</p>
+    <div class="opts">
+      <button class="opt" data-correct>The object is stored, but nothing routes traffic</button>
+      <button class="opt">The API server rejects it as invalid YAML</button>
+      <button class="opt">Kubernetes installs a default controller for you automatically</button>
+      <button class="opt">The Service becomes reachable on node port 80</button>
+    </div>
+    <div class="why">Ingress is data. A controller (Traefik here) watches Ingress objects and configures itself. No controller, no routing. That's why k3s bundling Traefik matters.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. <code>curl -H 'Host: nope.localhost' 127.0.0.1:8088</code> returns “404 page not found”. Who replied?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Traefik, since no Ingress rule matched that host</button>
+      <button class="opt">The backend, since that URL path doesn't exist</button>
+      <button class="opt">CoreDNS, since the hostname could not be resolved</button>
+      <button class="opt">Docker, since nothing is mapped behind port 8088</button>
+    </div>
+    <div class="why">The app returns JSON, never that plain text. Traefik also gives the same 404 when a rule matches but the Service has no ready endpoints, as you saw in lessons 03 and 06.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. Why does maku use two hostnames instead of <code>/api</code> path routing on one host?</p>
+    <div class="opts">
+      <button class="opt" data-correct>The API serves from root, no prefix</button>
+      <button class="opt">Traefik cannot route by path on k3d</button>
+      <button class="opt">Browsers block requests to paths named api</button>
+      <button class="opt">Ingress objects allow only one path each</button>
+    </div>
+    <div class="why">maku-boot's endpoints are <code>/sys/…</code>, <code>/actuator/…</code> at the root. Path routing would need a prefix-strip middleware or app changes; two hosts need neither.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. What does <code>ingressClassName: traefik</code> do?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Picks which controller should implement this Ingress</button>
+      <button class="opt">Installs Traefik into the namespace if missing</button>
+      <button class="opt">Names the Service that receives the traffic</button>
+      <button class="opt">Enables HTTPS using Traefik's built-in default certificate</button>
+    </div>
+    <div class="why">Clusters can run several controllers (say, internal and public). The class binds each Ingress to one. <code>kubectl get ingressclass</code> lists them.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. Which API is the Kubernetes project's successor to Ingress?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Gateway API</button>
+      <button class="opt">Service Mesh</button>
+      <button class="opt">NodePort Services</button>
+      <button class="opt">Traefik IngressRoute</button>
+    </div>
+    <div class="why"><a href="https://gateway-api.sigs.k8s.io/">Gateway API</a> splits concerns (infrastructure owns <code>Gateway</code>, app teams own <code>HTTPRoute</code>) and covers more protocols. IngressRoute is Traefik's own CRD, not a standard.</div>
+  </div>
+
+  <details class="recall"><summary>Recall (interview): “A user types our URL. Walk me through how the request reaches a pod.”</summary>
+    <p>DNS → external load balancer (cloud LB / k3d serverlb) → node port of the ingress controller's LoadBalancer Service → ingress controller pod (Traefik) → matches Host/path against Ingress rules → target Service → kube-proxy/EndpointSlice picks a <em>ready</em> pod IP → container port. Bonus points: TLS terminates at the controller; readiness decides which pods are eligible.</p>
+  </details>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://kubernetes.io/docs/concepts/services-networking/ingress/">Ingress (kubernetes.io)</a>, then <a href="https://kubernetes.io/docs/concepts/services-networking/gateway/">Gateway API</a> on the same site, then the <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">ingress-nginx retirement post</a> for context.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “rewrite maku's Ingress as Gateway API HTTPRoutes” or “add HTTPS to k3d with a self-signed certificate”.</div>
+
+  <div class="score" data-lesson="k8s-0007"></div>
+  <div class="pager"><a href="0006-probes-and-resources.html">← Lesson 06</a><a href="0008-helm-charts.html">Lesson 08: Helm charts →</a></div>
+</main>
+</body>
+</html>

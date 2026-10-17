@@ -11,9 +11,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 
 /**
- * 本地存储
+ * Local storage
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class LocalStorageService extends StorageService {
@@ -34,15 +34,15 @@ public class LocalStorageService extends StorageService {
         try {
             File file = new File(properties.getLocal().getPath() + File.separator + path);
 
-            // 没有目录，则自动创建目录
+            // If the directory does not exist, create it automatically
             File parent = file.getParentFile();
             if (parent != null && !parent.mkdirs() && !parent.isDirectory()) {
-                throw new IOException("目录 '" + parent + "' 创建失败");
+                throw new IOException("Directory '" + parent + "' Creation failed");
             }
 
             FileCopyUtils.copy(inputStream, Files.newOutputStream(file.toPath()));
         } catch (Exception e) {
-            throw new ServerException("上传文件失败：", e);
+            throw new ServerException("File upload failed:", e);
         }
 
         return properties.getConfig().getDomain() + "/" + properties.getLocal().getUrl() + "/" + path;

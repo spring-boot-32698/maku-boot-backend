@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Services and DNS</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script src="../../assets/quiz.js" defer></script>
+<script src="../../assets/steps.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">K8s course</a><span>›</span><span>Lesson 03</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Services and DNS</h1>
+  <p class="subtitle">Pods come and go with new IPs. A Service is the address that stays put.</p>
+  <div class="meta"><span><b>Time</b> ~15 min</span><span><b>Prereq</b> <a href="0002-pods-and-deployments.html">Lesson 02</a></span><span><b>Namespaces</b> maku, play</span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>You can explain how <code>jdbc:mysql://maku-mysql:3306</code> reaches the MySQL pod, and debug a Service with no endpoints.</p>
+  </div>
+
+  <h2>The problem</h2>
+  <p>In lesson 01 you saw a deleted pod come back with a new name. It also gets a new IP. If the backend connected to MySQL's pod IP, every MySQL restart would break it. Compose solved this with service-name DNS on its network; Kubernetes solves it with a <a href="../reference/glossary.html#service">Service</a>.</p>
+
+  <h2>How a Service works</h2>
+  <pre><code>Service maku-mysql   ClusterIP 10.43.200.245:3306   selector: component=mysql, instance=maku
+        │  (kube-proxy routes the virtual IP to…)
+        ▼
+EndpointSlice        10.42.0.11:3306 ready=true   ← pods matching the selector, updated live
+        ▼
+Pod maku-mysql-0     10.42.0.11</code></pre>
+  <ul>
+    <li><b>Selector</b>: same label mechanism as ReplicaSets. The Service never names pods.</li>
+    <li><b><a href="../reference/glossary.html#endpoints">EndpointSlice</a></b>: lists the pods matching the selector, each with a <code>ready</code> condition. Traffic goes only to <em>ready</em> ones, so a failing readiness probe removes a pod from traffic without killing it (lesson 06).</li>
+    <li><b>DNS</b>: CoreDNS gives every Service the name <code>&lt;service&gt;.&lt;namespace&gt;.svc.cluster.local</code>. Inside the same namespace the short name <code>maku-mysql</code> works, thanks to the pod's DNS search list.</li>
+    <li><b>port / targetPort</b>: <code>maku-backend</code> listens on <code>port: 8080</code> and forwards to the container port <em>named</em> <code>http</code>.</li>
+  </ul>
+  <p class="sidenote">Sources: <a href="https://kubernetes.io/docs/concepts/services-networking/service/">Service</a>, <a href="https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/">DNS for Services and Pods</a>.</p>
+
+  <div class="table-wrap"><table>
+    <tr><th>Type</th><th>Reachable from</th><th>In maku</th></tr>
+    <tr><td><b>ClusterIP</b> (default)</td><td>inside the cluster only</td><td>all our Services; outside traffic enters via Ingress</td></tr>
+    <tr><td><b>Headless</b> (<code>clusterIP: None</code>)</td><td>DNS returns pod IPs directly</td><td><code>maku-mysql-headless</code>, required by the StatefulSet</td></tr>
+    <tr><td><b>NodePort</b></td><td>every node's IP on a port 30000–32767</td><td>—</td></tr>
+    <tr><td><b>LoadBalancer</b></td><td>an external IP from the cloud/provider</td><td>Traefik's own Service (k3s ServiceLB)</td></tr>
+  </table></div>
+
+  <h2>Hands-on</h2>
+  <ol class="steps" data-id="k8s-l3">
+    <li><p>List maku's Services. Note <code>CLUSTER-IP</code>; the headless one has <code>None</code>.</p>
+      <pre><code>kubectl -n maku get svc</code></pre></li>
+    <li><p>Match a Service to its pod: the endpoint IP should equal the pod IP.</p>
+      <pre><code>kubectl -n maku get endpointslices -l kubernetes.io/service-name=maku-backend
+kubectl -n maku get pods -l app.kubernetes.io/component=backend -o wide</code></pre></li>
+    <li><p>Ask cluster DNS from a throwaway pod. Watch the resolver try the <em>search domains</em> before finding the full name.</p>
+      <pre><code>kubectl -n maku run dns-test --rm -it --image=busybox:1.36 --restart=Never -- \
+  sh -c 'cat /etc/resolv.conf; nslookup maku-mysql; nslookup maku-mysql-headless'</code></pre>
+      <details class="expect"><summary>Expected output (trimmed)</summary><pre>search maku.svc.cluster.local svc.cluster.local cluster.local
+nameserver 10.43.0.10                         ← CoreDNS's own Service IP
+options ndots:5
+** server can't find maku-mysql.svc.cluster.local: NXDOMAIN   ← search list being tried
+Name:    maku-mysql.maku.svc.cluster.local
+Address: 10.43.200.245                         ← the ClusterIP (virtual)
+Name:    maku-mysql-headless.maku.svc.cluster.local
+Address: 10.42.0.11                            ← the POD's IP (headless)</pre></details></li>
+    <li><p>See where the backend gets the name from.</p>
+      <pre><code>kubectl -n maku get configmap maku-backend -o yaml | grep -E 'URL|HOST'</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_URL: jdbc:mysql://maku-mysql:3306/maku_boot?…
+SPRING_DATA_REDIS_HOST: maku-redis</pre></details></li>
+    <li><p>Reach a ClusterIP Service from your laptop with a tunnel (debugging only). Leave it running, then use a second terminal.</p>
+      <pre><code>kubectl -n maku port-forward svc/maku-backend 18080:8080</code></pre>
+      <pre><code>curl -s localhost:18080/actuator/health</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>{"groups":["liveness","readiness"],"status":"UP"}</pre></details></li>
+    <li><p><strong>Break it on purpose</strong> in <code>play</code>: expose your web Deployment (recreate it if you deleted it in lesson 02), then scale it to zero.</p>
+      <pre><code>kubectl -n play create deployment web --image=nginx:1.27-alpine --replicas=2   # if needed
+kubectl -n play expose deployment web --port=80
+kubectl -n play get endpointslices -l kubernetes.io/service-name=web
+kubectl -n play scale deploy/web --replicas=0
+kubectl -n play get endpointslices -l kubernetes.io/service-name=web</code></pre>
+      <details class="expect"><summary>What to notice</summary><p>Endpoints go from two IPs to <code>&lt;unset&gt;</code>. The Service still exists and its DNS name still resolves, but connections fail: nothing is behind it. That's the #1 “my Service doesn't work” cause: no ready pods match the selector.</p></details></li>
+  </ol>
+  <p>Earlier, when we deleted maku's backend pod, the ingress returned <em>404 page not found</em> for about 3 s until the new pod became ready and its IP reached the EndpointSlice. That gap is exactly what readiness and endpoint propagation look like.</p>
+
+  <h2>Practice</h2>
+
+  <div class="quiz">
+    <p class="q">1. Why does the backend connect to <code>maku-mysql</code> instead of the MySQL pod's IP?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Pod IPs change; Service name stays stable</button>
+      <button class="opt">Pod IPs are not reachable inside clusters</button>
+      <button class="opt">MySQL refuses connections that use IP addresses</button>
+      <button class="opt">Service names are faster than direct IPs</button>
+    </div>
+    <div class="why">Pods are replaced with new IPs; the Service's name and ClusterIP stay fixed while its endpoints follow the pods.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. A pod in namespace <code>play</code> needs maku's MySQL. Which hostname works?</p>
+    <div class="opts">
+      <button class="opt" data-correct><code>maku-mysql.maku</code></button>
+      <button class="opt"><code>maku-mysql.play</code></button>
+      <button class="opt"><code>mysql.maku-mysql</code></button>
+      <button class="opt"><code>maku.maku-mysql</code></button>
+    </div>
+    <div class="why">The format is <code>service.namespace</code> (full: <code>maku-mysql.maku.svc.cluster.local</code>). The short name <code>maku-mysql</code> only resolves inside namespace <code>maku</code>, because the search list starts with <em>your own</em> namespace.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. A Service exists but has no endpoints. Most likely cause?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Selector matches no ready pod labels</button>
+      <button class="opt">The Service type is not LoadBalancer</button>
+      <button class="opt">The Ingress for it is missing</button>
+      <button class="opt">CoreDNS has not cached the name</button>
+    </div>
+    <div class="why">No endpoints at all means the selector matches no pods: check labels (<code>--show-labels</code>) and replicas &gt; 0. (Endpoints that exist but show <code>ready=false</code> mean the pods are failing readiness; lesson 11, lab E.)</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. maku-backend's Service has <code>port: 8080</code>, <code>targetPort: http</code>. What does that mean?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Service listens on 8080, forwards to container's http port</button>
+      <button class="opt">Container listens on 8080, Service forwards to port 80</button>
+      <button class="opt">Node listens on 8080, forwards to the Ingress http</button>
+      <button class="opt">Service listens on http, forwards to node port 8080</button>
+    </div>
+    <div class="why"><code>targetPort</code> can be a <em>name</em>: the Deployment declares <code>containerPort: 8080, name: http</code>. Naming ports lets you change numbers in one place.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. All of maku's Services are ClusterIP. Why is that enough for browser traffic?</p>
+    <div class="opts">
+      <button class="opt" data-correct>The Ingress controller receives outside traffic first</button>
+      <button class="opt">k3d automatically exposes every ClusterIP to localhost</button>
+      <button class="opt">Browsers can resolve cluster DNS names directly</button>
+      <button class="opt">ClusterIP Services also open ports on nodes</button>
+    </div>
+    <div class="why">Traefik (itself behind a LoadBalancer Service that k3d maps to :8088) receives requests and forwards them to our ClusterIP Services by host name. Lesson 07 goes deeper.</div>
+  </div>
+
+  <details class="recall"><summary>Recall (interview): “Explain the four Service types and when you'd use each.”</summary>
+    <p><b>ClusterIP</b>: internal service-to-service (default; DBs, APIs behind an ingress). <b>NodePort</b>: quick external access on every node's IP at a high port (demos, bare metal behind your own LB). <b>LoadBalancer</b>: cloud provider gives an external IP/LB (exposing an ingress controller or a TCP service). <b>Headless</b>: no virtual IP; DNS returns pod IPs, used with StatefulSets so clients can address specific pods (<code>maku-mysql-0.maku-mysql-headless</code>).</p>
+  </details>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://kubernetes.io/docs/concepts/services-networking/service/">Service (kubernetes.io)</a> — sections “Defining a Service” and “Service type”. Then the first screen of <a href="https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/">DNS for Services and Pods</a>.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “what does kube-proxy actually do with iptables?” or “why does ndots:5 matter for performance?”.</div>
+
+  <div class="score" data-lesson="k8s-0003"></div>
+  <div class="pager"><a href="0002-pods-and-deployments.html">← Lesson 02</a><a href="0004-config-and-secrets.html">Lesson 04: Config &amp; Secrets →</a></div>
+</main>
+</body>
+</html>

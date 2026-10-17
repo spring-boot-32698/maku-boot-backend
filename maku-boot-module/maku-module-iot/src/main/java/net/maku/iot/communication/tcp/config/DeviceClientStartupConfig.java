@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 /**
- *  Netty启动顺序配置
+ *  NettyStartup order settings
  *
  * @author LSF maku_lsf@163.com
  */
@@ -27,7 +27,7 @@ public class DeviceClientStartupConfig implements ApplicationListener<ContextRef
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
-            Thread.sleep(5000); // 延迟5秒以确保服务器启动
+            Thread.sleep(5000); // Delay 5 seconds to make sure the server has started
             Bootstrap deviceClientBootstrap = deviceClientProvider.getIfAvailable();
             if (deviceClientBootstrap != null) {
                 deviceEmulatorConfig.configureBootstrap(deviceClientBootstrap);

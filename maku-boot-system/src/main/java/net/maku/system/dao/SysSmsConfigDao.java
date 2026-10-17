@@ -5,9 +5,9 @@ import net.maku.system.entity.SysSmsConfigEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 短信配置
+ * SMS settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Mapper
 public interface SysSmsConfigDao extends BaseDao<SysSmsConfigEntity> {

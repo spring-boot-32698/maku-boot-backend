@@ -1,0 +1,19 @@
+# Non-secret backend settings, injected as environment variables (Spring relaxed binding:
+# SPRING_DATA_REDIS_HOST == spring.data.redis.host).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "maku.fullname" . }}-backend
+  labels:
+    {{- include "maku.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+data:
+  SPRING_PROFILES_ACTIVE: {{ .Values.backend.springProfile | quote }}
+  TZ: {{ .Values.backend.timezone | quote }}
+  SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_URL: {{ printf "jdbc:mysql://%s:%s/%s?useUnicode=true&characterEncoding=UTF-8&serverTimezone=%s&nullCatalogMeansCurrent=true" (include "maku.mysqlHost" .) (include "maku.mysqlPort" .) .Values.database.name .Values.backend.timezone | quote }}
+  SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_USERNAME: {{ .Values.database.username | quote }}
+  SPRING_DATA_REDIS_HOST: {{ include "maku.redisHost" . | quote }}
+  SPRING_DATA_REDIS_PORT: {{ include "maku.redisPort" . | quote }}
+  SPRING_DATA_REDIS_DATABASE: {{ .Values.redis.database | quote }}
+  STORAGE_LOCAL_PATH: /app/upload
+  STORAGE_CONFIG_DOMAIN: {{ .Values.backend.publicUrl | quote }}

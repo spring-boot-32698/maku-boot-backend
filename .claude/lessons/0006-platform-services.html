@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platform Services</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">Course</a><span>›</span><span>Lesson 06</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Reuse the platform services</h1>
+  <p class="subtitle">Most “new” requirements are already solved somewhere in maku-boot-system or a module.</p>
+  <div class="meta"><span><b>Time</b> ~10 min</span><span><b>Prereq</b> <a href="0005-crud-end-to-end.html">Lesson 05</a></span><span><b>Deep dive</b> <a href="../docs/03-business-flows.md">docs/03 §6–13</a></span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>Given a requirement, you pick the existing service that solves it instead of writing a new one.</p>
+  </div>
+
+  <h2>The toolbox</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Need</th><th>Reach for</th><th>Gotcha</th></tr>
+    <tr><td>Enumerated values with labels (status, gender…)</td><td><b>Dictionary</b>: <code>sys_dict_type</code>/<code>sys_dict_data</code>; FE <code>&lt;ma-dict-select dict-type="…"&gt;</code>; BE <code>@Trans(type = DICTIONARY, key, ref)</code></td><td>Loaded once at boot — reload browser; refresh BE cache via <code>/sys/dict/type/refreshTransCache</code></td></tr>
+    <tr><td>Show a related name (orgId → org name)</td><td><code>@Trans(type = SIMPLE, target = SysOrgEntity.class, fields = "name", ref = "orgName")</code></td><td>VO must implement <code>TransPojo</code>; automatic only for JSON responses — call <code>transService.transBatch()</code> for Excel</td></tr>
+    <tr><td>Runtime-tunable setting</td><td><b>Params</b>: <code>sys_params</code> + <code>SysParamsService.getBoolean/getInt/getString/getJSONObject</code></td><td>Cached in Redis</td></tr>
+    <tr><td>Store a file</td><td><code>StorageService</code> / <code>StorageApi</code>; FE <code>ma-upload-*</code></td><td>Backend chosen by <code>storage.config.type</code></td></tr>
+    <tr><td>Send SMS / email</td><td><code>SmsApi</code> / <code>EmailService</code></td><td>Platforms are DB rows, round-robin</td></tr>
+    <tr><td>Audit trail</td><td><code>@OperateLog(type = …)</code> on the controller method</td><td>Queued in Redis, flushed every 10 s</td></tr>
+    <tr><td>Recurring job</td><td>Bean with <code>public void x(String params)</code> + <code>schedule_job</code> row</td><td>RAM job store: N replicas ⇒ N runs</td></tr>
+    <tr><td>Push to a browser now</td><td>WebSocket <code>/ws?access_token=…</code>; <code>WebSocketSessionManager.getSessionList(userId)</code></td><td>Demo page: <code>views/demo/websocket</code></td></tr>
+    <tr><td>Current user</td><td><code>SecurityUser.getUser()/getUserId()/getOrgId()</code></td><td>Null outside a request (jobs!)</td></tr>
+  </table></div>
+  <p class="sidenote">Why <code>maku-boot-api</code> exists: a module like <code>maku-boot-new</code> can depend on the tiny <code>SmsApi</code>/<code>StorageApi</code> interfaces instead of all of <code>maku-boot-system</code>.</p>
+
+  <h2>How a Quartz job finds your code</h2>
+  <pre><code>schedule_job: bean_name = "testTask", method = "run", params = "hello", cron = "0 0 2 * * ?"
+AbstractScheduleJob → SpringUtil.getBean("testTask").getClass()
+                     .getDeclaredMethod("run", String.class).invoke(bean, "hello")
+                     → schedule_job_log (duration, status, error)</code></pre>
+  <p>No annotation, no registration code — the DB row <em>is</em> the registration, and admins can change the cron in the UI. See <code>maku-module-quartz/…/task/TestTask.java</code>.</p>
+  <p class="sidenote">Quartz concepts (jobs, triggers, cron): <a href="https://www.quartz-scheduler.org/documentation/">Quartz documentation</a>.</p>
+
+  <h2>Practice</h2>
+  <p class="practice-intro">Pick the idiomatic tool for each requirement.</p>
+
+  <div class="quiz">
+    <p class="q">1. The Excel export of products must show “Enabled/Disabled” instead of 1/0.</p>
+    <div class="opts">
+      <button class="opt" data-correct>@Trans with DICTIONARY type</button>
+      <button class="opt">Join sys_dict_data via XML</button>
+      <button class="opt">Switch statement inside VO</button>
+      <button class="opt">Use frontend ma-dict-column component</button>
+    </div>
+    <div class="why">Exactly what <code>SysUserExcelVO</code> does: <code>@Trans(type = TransType.DICTIONARY, key = "user_status", ref = "statusLabel")</code>. The export is generated server-side, so a frontend component can't help. Note: JSON responses are translated automatically by <code>TransResponseBodyAdvice</code>, but for Excel you call <code>transService.transBatch(list)</code> yourself (see <code>SysUserServiceImpl</code> export).</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. Purge expired carts every night at 02:00; ops must be able to change the time without a deploy.</p>
+    <div class="opts">
+      <button class="opt" data-correct>Bean method plus schedule_job row</button>
+      <button class="opt">@Scheduled cron annotation on bean</button>
+      <button class="opt">Linux crontab calling an endpoint</button>
+      <button class="opt">Browser timer calling the backend</button>
+    </div>
+    <div class="why">A <code>schedule_job</code> row is editable in <em>Scheduled Tasks</em>, logged in <code>schedule_job_log</code>, and can be paused or run on demand. <code>@Scheduled</code> hard-codes the cron.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. Admins need to switch “allow self-registration” on and off at runtime.</p>
+    <div class="opts">
+      <button class="opt" data-correct>sys_params key read via SysParamsService</button>
+      <button class="opt">New property in application.yml file</button>
+      <button class="opt">Environment variable on the container</button>
+      <button class="opt">Constant inside a Java enum</button>
+    </div>
+    <div class="why">Same pattern as <code>LOGIN_CAPTCHA</code>: <code>sysParamsService.getBoolean("…")</code>, editable under <em>Parameter Management</em>. YAML and env vars need a restart.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. You added <code>@OperateLog</code> to <code>save()</code>, saved a product, and the row isn't in <code>sys_log_operate</code> yet. Why?</p>
+    <div class="opts">
+      <button class="opt" data-correct>It's queued in Redis, flushed every ten seconds</button>
+      <button class="opt">Only failed operations are ever written to it</button>
+      <button class="opt">Requires a restart so the aspect gets woven</button>
+      <button class="opt">Super admin actions are never logged in there</button>
+    </div>
+    <div class="why"><code>OperateLogAspect</code> → <code>OperateLogService.saveLog</code> pushes onto Redis list <code>sys:log</code>; <code>SysLogOperateServiceImpl</code> drains it every 10 s, 10 entries at a time.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. Show an in-app toast to one specific logged-in user the moment their export finishes.</p>
+    <div class="opts">
+      <button class="opt" data-correct>Push via their WebSocket session</button>
+      <button class="opt">Send an SMS through SmsApi</button>
+      <button class="opt">Poll an endpoint every second</button>
+      <button class="opt">Email them via SMTP config</button>
+    </div>
+    <div class="why"><code>WebSocketSessionManager.getSessionList(userId)</code> gives that user's open sockets; <code>POST /ws/message/send</code> is the existing example.</div>
+  </div>
+
+  <details class="recall"><summary>Recall: your Quartz job calls <code>SecurityUser.getUserId()</code> and gets <code>null</code>. Why, and what follows for <code>creator</code> on rows it inserts?</summary>
+    <p>Jobs run on a Quartz thread with no HTTP request and no <code>SecurityContext</code>. <code>FieldMetaObjectHandler</code> skips the user fields, so <code>creator</code>/<code>updater</code>/<code>org_id</code> stay null — and those rows are invisible to <code>SELF</code>-scoped users.</p>
+  </details>
+
+  <h2>What's next</h2>
+  <p>You've covered the core. Good follow-ups, in rough priority: read <a href="../docs/08-gotchas.md">docs/08 Gotchas</a>; pair on a real ticket; then ask for a lesson on whichever module your team owns (code generator, member, monitor).</p>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://maku.net/docs/maku-boot">maku-boot documentation</a> — the sections on dictionaries, file storage, SMS and scheduled tasks, read with this repo's code open.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “add an @Trans field to ProductVO with me” or “write a Quartz task that purges old login logs”.</div>
+
+  <div class="score" data-lesson="0006"></div>
+  <div class="pager"><a href="0005-crud-end-to-end.html">← Lesson 05: First CRUD</a><a href="index.html">Course home →</a></div>
+</main>
+</body>
+</html>

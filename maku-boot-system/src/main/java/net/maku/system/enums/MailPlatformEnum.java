@@ -4,20 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 邮件平台枚举
+ * Mail platform enum
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum MailPlatformEnum {
     /**
-     * 本地
+     * Local
      */
     LOCAL(-1),
     /**
-     * 阿里云
+     * Alibaba Cloud
      */
     ALIYUN(0);
 

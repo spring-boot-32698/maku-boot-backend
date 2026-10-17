@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cluster and Desired State</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script src="../../assets/quiz.js" defer></script>
+<script src="../../assets/steps.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">K8s course</a><span>›</span><span>Lesson 01</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>The cluster and desired state</h1>
+  <p class="subtitle">Docker Compose does what you say, once. Kubernetes keeps making it true, forever.</p>
+  <div class="meta"><span><b>Time</b> ~12 min</span><span><b>Prereq</b> Docker Compose</span><span><b>Cluster</b> k3d-maku</span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>You can name the parts of a cluster, point at them on your own machine, and explain why a pod you delete comes back.</p>
+  </div>
+
+  <h2>From “run this” to “keep this true”</h2>
+  <p>With Compose, <code>docker compose up</code> starts containers on <em>one</em> machine and then walks away. Kubernetes works differently: you store a description of what you want — “one backend pod, one MySQL with 5 GiB of disk” — and <a href="../reference/glossary.html#desired-state">controllers</a> keep comparing that <strong>desired state</strong> with what's actually running, fixing any difference. Every object you create has a <code>spec</code> (what you want) and a <code>status</code> (what is).</p>
+  <p class="sidenote">Kubernetes docs: <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/">Objects in Kubernetes</a> — the “spec and status” section is the core idea of the whole system.</p>
+
+  <h2>Who does what</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Part</th><th>Job</th></tr>
+    <tr><td colspan="2"><b>Control plane</b> (the brain)</td></tr>
+    <tr><td><code>kube-apiserver</code></td><td>The only front door. <code>kubectl</code>, controllers and nodes all talk to it.</td></tr>
+    <tr><td><code>etcd</code></td><td>Database holding every object.</td></tr>
+    <tr><td><code>kube-scheduler</code></td><td>Picks a node for each new pod.</td></tr>
+    <tr><td><code>kube-controller-manager</code></td><td>Runs the reconcile loops (Deployments, ReplicaSets, …).</td></tr>
+    <tr><td colspan="2"><b>Every node</b> (the muscle)</td></tr>
+    <tr><td><code>kubelet</code></td><td>Starts the pods assigned to its node, runs their probes, reports status.</td></tr>
+    <tr><td>container runtime</td><td>containerd — actually runs containers.</td></tr>
+    <tr><td><code>kube-proxy</code></td><td>Makes Service IPs route to pods (lesson 03).</td></tr>
+  </table></div>
+  <p class="sidenote">Source: <a href="https://kubernetes.io/docs/concepts/overview/components/">Kubernetes Components</a>. k3s packs all of these into one binary; <a href="https://k3d.io/stable/">k3d</a> runs k3s inside Docker containers.</p>
+  <p>On your machine, <strong>k3d</strong> fakes the machines: each <a href="../reference/glossary.html#node">node</a> is a Docker container running k3s. Our cluster (<code>deploy/k3d/cluster.yaml</code>) has one <em>server</em> (control plane, can also run pods) and one <em>agent</em> (worker).</p>
+
+  <h2>Hands-on: look around</h2>
+  <ol class="steps" data-id="k8s-l1">
+    <li><p>Which cluster is <code>kubectl</code> pointed at? (You also have an old <code>k3d-ecommerce</code> context — always check.)</p>
+      <pre><code>kubectl config current-context</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>k3d-maku</pre></details></li>
+    <li><p>The nodes, as Kubernetes sees them…</p>
+      <pre><code>kubectl get nodes</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>NAME                STATUS   ROLES                  AGE   VERSION
+k3d-maku-agent-0    Ready    &lt;none&gt;                 7m    v1.31.5+k3s1
+k3d-maku-server-0   Ready    control-plane,master   7m    v1.31.5+k3s1</pre></details></li>
+    <li><p>…and as Docker sees them. Same names: the “machines” are containers. (The extra <code>serverlb</code> is k3d's load balancer that owns port 8088.)</p>
+      <pre><code>docker ps --filter name=k3d-maku --format '{{.Names}}\t{{.Ports}}'</code></pre></li>
+    <li><p>Every pod in every <a href="../reference/glossary.html#namespace">namespace</a>. <code>kube-system</code> holds the cluster's own add-ons; <code>maku</code> holds our app.</p>
+      <pre><code>kubectl get pods -A</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>NAMESPACE     NAME                                      READY   STATUS      RESTARTS
+kube-system   coredns-ccb96694c-s7msh                   1/1     Running     0     ← cluster DNS (lesson 03)
+kube-system   helm-install-traefik-vg7pf                0/1     Completed   1     ← k3s installs Traefik with Helm!
+kube-system   local-path-provisioner-5cf85fd84d-bvv2k   1/1     Running     0     ← creates disks (lesson 05)
+kube-system   metrics-server-5985cbc9d7-gjj49           1/1     Running     0     ← powers `kubectl top`
+kube-system   traefik-5d45fc8cc9-snmw5                  1/1     Running     0     ← ingress controller (lesson 07)
+maku          maku-backend-779d8657fd-pvnnc             1/1     Running     0
+maku          maku-frontend-594dc88588-94dmm            1/1     Running     0
+maku          maku-mysql-0                              1/1     Running     0
+maku          maku-redis-5897945945-65md4               1/1     Running     0</pre></details></li>
+    <li><p>Which node did the scheduler pick for each maku pod?</p>
+      <pre><code>kubectl -n maku get pods -o wide</code></pre>
+      <details class="expect"><summary>What to notice</summary><p>The <code>NODE</code> column: pods are spread across <code>k3d-maku-server-0</code> and <code>k3d-maku-agent-0</code>. You never chose — the scheduler did.</p></details></li>
+    <li><p><strong>Desired state in action.</strong> Open a second terminal and watch; then delete the frontend pod in the first.</p>
+      <pre><code>kubectl -n maku get pods -w</code></pre>
+      <pre><code>kubectl -n maku delete pod -l app.kubernetes.io/component=frontend</code></pre>
+      <details class="expect"><summary>What to notice</summary><p>The old pod goes <code>Terminating</code> and, within a second, a new pod with a <em>different name</em> appears and becomes <code>Running</code>. Nobody restarted it: a controller saw “want 1, have 0” and created a replacement. http://maku.localhost:8088 keeps working.</p></details></li>
+    <li><p>Peek at spec vs status of that new pod (scroll: <code>spec:</code> near the top, <code>status:</code> at the bottom).</p>
+      <pre><code>kubectl -n maku get pod -l app.kubernetes.io/component=frontend -o yaml | less</code></pre></li>
+  </ol>
+
+  <h2>Practice</h2>
+  <p class="practice-intro">Answer from memory.</p>
+
+  <div class="quiz">
+    <p class="q">1. You run <code>kubectl apply</code>. Which component does kubectl actually talk to?</p>
+    <div class="opts">
+      <button class="opt" data-correct>The API server</button>
+      <button class="opt">The kubelet directly</button>
+      <button class="opt">The etcd database</button>
+      <button class="opt">The scheduler process</button>
+    </div>
+    <div class="why">Everything goes through <code>kube-apiserver</code>; it validates the object and stores it in etcd. The scheduler and kubelets then react to what's stored.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. Who decides which node a new pod runs on?</p>
+    <div class="opts">
+      <button class="opt" data-correct>The kube-scheduler component</button>
+      <button class="opt">The kubelet agent</button>
+      <button class="opt">The container runtime</button>
+      <button class="opt">The Ingress controller</button>
+    </div>
+    <div class="why">The scheduler assigns a node; then that node's kubelet starts the pod through the container runtime.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. You deleted the frontend pod and a new one appeared. Why?</p>
+    <div class="opts">
+      <button class="opt" data-correct>A controller restores the declared replica count</button>
+      <button class="opt">Docker restart policy restarts the same container</button>
+      <button class="opt">Helm reinstalls the chart every few minutes</button>
+      <button class="opt">The kubelet undoes any kubectl delete command</button>
+    </div>
+    <div class="why">The pod belongs to a ReplicaSet (owned by the Deployment) whose spec says <code>replicas: 1</code>. The ReplicaSet controller saw 0 and created one — a <em>new</em> pod, hence the new name. Helm only acts when you run it.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. In our k3d setup, what is a “node”?</p>
+    <div class="opts">
+      <button class="opt" data-correct>A Docker container running k3s</button>
+      <button class="opt">A virtual machine in cloud</button>
+      <button class="opt">A process inside a pod</button>
+      <button class="opt">A namespace holding system pods</button>
+    </div>
+    <div class="why"><code>docker ps</code> showed <code>k3d-maku-server-0</code> and <code>k3d-maku-agent-0</code>. In production a node is usually a VM or physical machine; Kubernetes doesn't care which.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. In an object's YAML, which part do you write and which does Kubernetes fill in?</p>
+    <div class="opts">
+      <button class="opt" data-correct>You write spec; Kubernetes reports status</button>
+      <button class="opt">You write status; Kubernetes reports spec</button>
+      <button class="opt">You write both; Kubernetes validates them</button>
+      <button class="opt">Helm writes spec; kubectl writes status</button>
+    </div>
+    <div class="why"><code>spec</code> = desired state (yours, usually via Helm). <code>status</code> = observed state, written by controllers and kubelets.</div>
+  </div>
+
+  <details class="recall"><summary>Recall (interview classic): “What happens when you run <code>kubectl create deployment</code>?” Answer out loud, then open.</summary>
+    <p>kubectl sends the Deployment to the <b>API server</b> → stored in <b>etcd</b> → the Deployment controller creates a <b>ReplicaSet</b> → the ReplicaSet controller creates <b>Pod</b> objects → the <b>scheduler</b> assigns each pod a node → that node's <b>kubelet</b> sees it, pulls the image via the <b>container runtime</b>, starts it, and reports <code>status</code> back to the API server.</p>
+  </details>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://kubernetes.io/docs/concepts/overview/components/">Kubernetes Components (kubernetes.io)</a> — 5 minutes, with the official diagram. Then skim <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/">Objects in Kubernetes</a>.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “what would happen if the agent node died?” or “show me the controller that recreated my pod”. Tell it when you're done so it can log your progress.</div>
+
+  <div class="score" data-lesson="k8s-0001"></div>
+  <div class="pager"><a href="index.html">← Course</a><a href="0002-pods-and-deployments.html">Lesson 02: Pods &amp; Deployments →</a></div>
+</main>
+</body>
+</html>

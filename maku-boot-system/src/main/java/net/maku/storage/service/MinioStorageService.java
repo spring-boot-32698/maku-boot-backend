@@ -14,9 +14,9 @@ import java.io.InputStream;
 import java.util.Optional;
 
 /**
- * Minio存储
+ * MinioStorage
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class MinioStorageService extends StorageService {
@@ -37,7 +37,7 @@ public class MinioStorageService extends StorageService {
     @Override
     public String upload(InputStream inputStream, String path) {
         try {
-            //如果BucketName不存在，则创建
+            //If the BucketName does not exist, create it
             boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(properties.getMinio().getBucketName()).build());
             if (!found) {
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(properties.getMinio().getBucketName()).build());
@@ -59,7 +59,7 @@ public class MinioStorageService extends StorageService {
             );
 
         } catch (Exception e) {
-            throw new ServerException("上传文件失败：", e);
+            throw new ServerException("File upload failed:", e);
         }
 
         return properties.getMinio().getEndPoint() + "/" + properties.getMinio().getBucketName() + "/" + path;

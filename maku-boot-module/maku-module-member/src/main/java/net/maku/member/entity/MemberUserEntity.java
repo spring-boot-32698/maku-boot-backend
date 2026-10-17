@@ -7,9 +7,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 会员管理
+ * Member management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 
 @Data
@@ -22,72 +22,72 @@ public class MemberUserEntity {
     private Long id;
 
     /**
-     * 昵称
+     * Nickname
      */
     private String nickName;
 
     /**
-     * 手机号
+     * Mobile number
      */
     private String mobile;
 
     /**
-     * 头像
+     * Avatar
      */
     private String avatar;
 
     /**
-     * 出生日期
+     * Date of birth
      */
     private LocalDateTime birthday;
 
     /**
-     * 性别
+     * Gender
      */
     private Integer gender;
 
     /**
-     * 第三方平台，唯一标识
+     * Third-party platform, unique identifier
      */
     private String openid;
 
     /**
-     * 最后登录IP
+     * Last login IP
      */
     private String lastLoginIp;
 
     /**
-     * 最后登录时间
+     * Last login time
      */
     private LocalDateTime lastLoginTime;
 
     /**
-     * 备注
+     * Remarks
      */
     private String remark;
 
     /**
-     * 状态
+     * Status
      */
     private Integer status;
 
     /**
-     * 租户ID
+     * Tenant ID
      */
     private Long tenantId;
 
     /**
-     * 版本号
+     * Version number
      */
     private Integer version;
 
     /**
-     * 删除标识
+     * Delete flag
      */
     private Integer deleted;
 
     /**
-     * 创建时间
+     * Creation time
      */
     private LocalDateTime createTime;
 

@@ -4,20 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 定时任务状态枚举
+ * Scheduled task status enum
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum ScheduleStatusEnum {
     /**
-     * 暂停
+     * Pause
      */
     PAUSE(0),
     /**
-     * 正常
+     * Normal
      */
     NORMAL(1);
 

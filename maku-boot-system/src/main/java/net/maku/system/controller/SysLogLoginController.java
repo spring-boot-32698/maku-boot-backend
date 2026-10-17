@@ -18,20 +18,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 登录日志
+ * Login log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/log/login")
-@Tag(name = "登录日志")
+@Tag(name = "Login log")
 @AllArgsConstructor
 public class SysLogLoginController {
     private final SysLogLoginService sysLogLoginService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('sys:log:login')")
     public Result<PageResult<SysLogLoginVO>> page(@ParameterObject @Valid SysLogLoginQuery query) {
         PageResult<SysLogLoginVO> page = sysLogLoginService.page(query);
@@ -40,7 +40,7 @@ public class SysLogLoginController {
     }
 
     @GetMapping("export")
-    @Operation(summary = "导出excel")
+    @Operation(summary = "Export excel")
     @OperateLog(type = OperateTypeEnum.EXPORT)
     @PreAuthorize("hasAuthority('sys:log:login')")
     public void export() {

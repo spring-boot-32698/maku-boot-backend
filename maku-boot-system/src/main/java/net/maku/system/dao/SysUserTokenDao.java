@@ -9,28 +9,28 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 用户Token
+ * User Token
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Mapper
 public interface SysUserTokenDao extends BaseDao<SysUserTokenEntity> {
 
     /**
-     * 根据角色ID，查询在线用户 access_token 列表
+     * Query the access_token list of online users by role ID
      *
-     * @param roleId 角色ID
-     * @param time   当前时间
-     * @return 返回 access_token 列表
+     * @param roleId Role ID
+     * @param time   Current time
+     * @return Return the access_token list
      */
     List<String> getOnlineAccessTokenListByRoleId(@Param("roleId") Long roleId, @Param("time") LocalDateTime time);
 
     /**
-     * 根据用户ID，查询在线用户 access_token 列表
+     * Query the access_token list of online users by user ID
      *
-     * @param userId 用户ID
-     * @param time   当前时间
-     * @return 返回 access_token 列表
+     * @param userId User ID
+     * @param time   Current time
+     * @return Return the access_token list
      */
     List<String> getOnlineAccessTokenListByUserId(@Param("userId") Long userId, @Param("time") LocalDateTime time);
 

@@ -1,0 +1,18 @@
+# Local k3d cluster "maku" (deploy/k3d/cluster.yaml): Traefik ingress on host port 8088.
+# Images are built locally and loaded with `k3d image import` (no registry needed).
+#   UI   http://maku.localhost:8088
+#   API  http://api.maku.localhost:8088
+# *.localhost resolves to 127.0.0.1 in browsers and curl, no /etc/hosts edits needed.
+
+backend:
+  springProfile: dev                            # includes the demo accounts
+  publicUrl: http://api.maku.localhost:8088
+
+frontend:
+  publicUrl: http://maku.localhost:8088
+
+ingress:
+  enabled: true
+  className: traefik
+  frontendHost: maku.localhost
+  backendHost: api.maku.localhost

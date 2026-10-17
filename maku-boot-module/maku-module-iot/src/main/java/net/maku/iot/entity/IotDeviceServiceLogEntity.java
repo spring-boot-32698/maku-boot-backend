@@ -8,7 +8,7 @@ import net.maku.framework.mybatis.entity.BaseEntity;
 import java.time.LocalDateTime;
 
 /**
- * 设备服务日志
+ * Device service log
  *
  * @author LSF maku_lsf@163.com
  */
@@ -18,32 +18,32 @@ import java.time.LocalDateTime;
 public class IotDeviceServiceLogEntity extends BaseEntity {
 
     /**
-     * 设备id
+     * Device id
      */
     private Long deviceId;
 
     /**
-     * 服务类型
+     * Service type
      */
     private Integer serviceType;
 
     /**
-     * 服务标识id
+     * Service identifier id
      */
     private String serviceUid;
 
     /**
-     * 服务数据
+     * Service data
      */
     private String servicePayload;
 
     /**
-     * 服务时间
+     * Service time
      */
     private LocalDateTime serviceTime;
 
     /**
-     * 租户ID
+     * Tenant ID
      */
     private Long tenantId;
 

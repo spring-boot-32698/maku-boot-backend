@@ -5,7 +5,7 @@ import org.springframework.integration.mqtt.inbound.AbstractMqttMessageDrivenCha
 import org.springframework.stereotype.Component;
 
 /**
- * Mqtt工具类
+ * MqttUtility class
  *
  * @author LSF maku_lsf@163.com
  */
@@ -15,7 +15,7 @@ public class MqttUtils {
     private final AbstractMqttMessageDrivenChannelAdapter mqttMessageAdapter;
 
     /**
-     * 动态订阅主题，默认使用qos 1
+     * Dynamically subscribe to a topic, qos 1 by default
      *
      * @param topics
      */
@@ -24,7 +24,7 @@ public class MqttUtils {
     }
 
     /**
-     * 动态订阅主题
+     * Dynamically subscribe to a topic
      *
      * @param topic
      * @param qos
@@ -34,7 +34,7 @@ public class MqttUtils {
     }
 
     /**
-     * 动态取消主题订阅
+     * Dynamically unsubscribe from a topic
      *
      * @param topics
      */

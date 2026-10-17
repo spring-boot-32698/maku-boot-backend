@@ -6,46 +6,46 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 邮件发送
+ * Mail sending
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Data
-@Schema(description = "邮件发送")
+@Schema(description = "Mail sending")
 public class SysMailSendVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
     private Long id;
 
-    @Schema(description = "平台")
+    @Schema(description = "Platform")
     private Integer platform;
 
-    @Schema(description = "邮件格式")
+    @Schema(description = "Mail format")
     private String mailFormat;
 
-    @Schema(description = "发件人邮箱")
+    @Schema(description = "Sender email")
     private String mailFrom;
 
-    @Schema(description = "发件人昵称")
+    @Schema(description = "Sender nickname")
     private String formAlias;
 
-    @Schema(description = "接收人邮箱")
+    @Schema(description = "Recipient email")
     private String mailTos;
 
-    @Schema(description = "收件人列表")
+    @Schema(description = "Recipient list")
     private String receiversName;
 
-    @Schema(description = "模板名")
+    @Schema(description = "Template name")
     private String templateName;
 
-    @Schema(description = "标签名")
+    @Schema(description = "Label name")
     private String tagName;
 
-    @Schema(description = "邮件主题")
+    @Schema(description = "Mail subject")
     private String subject;
 
-    @Schema(description = "邮件正文")
+    @Schema(description = "Mail body")
     private String content;
 
 }

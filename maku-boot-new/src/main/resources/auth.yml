@@ -1,4 +1,4 @@
-# 配置忽略认证的URL地址
+# Configure URLs that skip authentication
 auth:
   ignore_urls:
     - /new/**

@@ -14,9 +14,9 @@ import net.maku.sms.config.SmsConfig;
 import java.util.Map;
 
 /**
- * 阿里云短信
+ * Alibaba Cloud SMS
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Slf4j
@@ -51,10 +51,10 @@ public class AliyunSmsStrategy implements SmsStrategy {
         }
 
         try {
-            // 发送短信
+            // Send SMS
             SendSmsResponse response = client.sendSms(request);
 
-            // 发送失败
+            // Send failed
             if (!Constant.OK.equalsIgnoreCase(response.getBody().getCode())) {
                 throw new ServerException(response.getBody().getMessage());
             }

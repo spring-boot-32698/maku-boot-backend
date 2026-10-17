@@ -4,28 +4,28 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 登录信息
+ * Login info
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum LoginOperationEnum {
     /**
-     * 登录成功
+     * Login succeeded
      */
     LOGIN_SUCCESS(0),
     /**
-     * 退出成功
+     * Logout succeeded
      */
     LOGOUT_SUCCESS(1),
     /**
-     * 验证码错误
+     * Wrong captcha
      */
     CAPTCHA_FAIL(2),
     /**
-     * 账号密码错误
+     * Wrong account or password
      */
     ACCOUNT_FAIL(3);
 

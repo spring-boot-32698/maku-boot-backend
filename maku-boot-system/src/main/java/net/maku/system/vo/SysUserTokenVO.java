@@ -11,14 +11,14 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 用户Token
+ * User Token
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @AllArgsConstructor
-@Schema(description = "用户Token")
+@Schema(description = "User Token")
 public class SysUserTokenVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -30,11 +30,11 @@ public class SysUserTokenVO implements Serializable {
     @JsonProperty(value = "refresh_token")
     private String refreshToken;
 
-    @Schema(description = "access_token 过期时间")
+    @Schema(description = "access_token Expiration time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime accessTokenExpire;
 
-    @Schema(description = "refresh_token 过期时间")
+    @Schema(description = "refresh_token Expiration time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime refreshTokenExpire;
 }

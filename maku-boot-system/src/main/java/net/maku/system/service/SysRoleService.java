@@ -10,9 +10,9 @@ import net.maku.system.vo.SysRoleVO;
 import java.util.List;
 
 /**
- * 角色
+ * Role
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysRoleService extends BaseService<SysRoleEntity> {
@@ -30,10 +30,10 @@ public interface SysRoleService extends BaseService<SysRoleEntity> {
     void delete(List<Long> idList);
 
     /**
-     * 获取角色名称列表
+     * Get role name list
      *
-     * @param idList 角色ID列表
-     * @return 角色名称列表
+     * @param idList Role ID list
+     * @return Role name list
      */
     List<String> getNameList(List<Long> idList);
 }
