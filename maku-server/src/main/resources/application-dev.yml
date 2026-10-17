@@ -29,3 +29,9 @@ spring:
     password: maku
     clientId: maku_boot_service_dev
     default-topic: topic_default
+
+# Local file storage when running from the IDE (application.yml defaults to D://upload, Windows only).
+# Docker overrides it with STORAGE_LOCAL_PATH=/app/upload.
+storage:
+  local:
+    path: ${user.home}/maku/upload

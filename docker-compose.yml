@@ -1,6 +1,23 @@
-# Backend stack: MySQL + Redis + maku-boot API (http://localhost:8080)
-# Start with: docker compose up -d --build
-# The database schema is created/migrated by Liquibase on application start-up.
+# Backend stack: MySQL + Redis (+ the maku-boot API on http://localhost:8080)
+#
+# Two ways to use this file:
+#
+# 1) Debug the backend in IntelliJ, dependencies in Docker (default):
+#      docker compose up -d
+#    → only mysql (localhost:3306) and redis (localhost:6379) start.
+#    Then run net.maku.ServerApplication from IntelliJ (run config ".run/ServerApplication (dev).run.xml",
+#    profile dev). application-dev.yml already points at localhost:3306 / localhost:6379.
+#
+# 2) Run the whole backend in Docker:
+#      docker compose --profile app up -d --build
+#    → mysql + redis + maku-boot. (Or set COMPOSE_PROFILES=app once in your shell.)
+#    The container also listens for a debugger on localhost:5005 (IntelliJ "Remote JVM Debug").
+#
+# Don't run both at once: the IntelliJ app and the maku-boot container both want port 8080.
+# Stop only the app container:   docker compose --profile app stop maku-boot
+# Stop everything:               docker compose --profile app down     (add -v to wipe the database)
+#
+# The database schema is created/migrated by Liquibase when the backend starts (either way).
 services:
   mysql:
     image: mysql:8.0
@@ -36,6 +53,8 @@ services:
       retries: 20
 
   maku-boot:
+    # Only started with --profile app (or COMPOSE_PROFILES=app)
+    profiles: ["app"]
     build: .
     container_name: maku-boot
     depends_on:
@@ -45,6 +64,8 @@ services:
         condition: service_healthy
     ports:
       - "8080:8080"
+      # Remote debugging (IntelliJ: Run > Edit Configurations > + Remote JVM Debug, host localhost, port 5005)
+      - "127.0.0.1:5005:5005"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATA_REDIS_HOST: redis
@@ -52,6 +73,8 @@ services:
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_USERNAME: maku
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_PASSWORD: "123456"
       STORAGE_LOCAL_PATH: /app/upload
+      # Picked up by the JVM automatically; suspend=n so startup doesn't wait for a debugger
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     volumes:
       - upload-data:/app/upload
 

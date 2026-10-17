@@ -64,6 +64,6 @@ Or log in through the UI and copy `maToken` from DevTools → Application → Lo
 
 ## Resetting
 
-- Reset everything: `docker compose down -v && docker compose up -d --build` (Liquibase recreates the baseline and the demo accounts).
+- Reset everything: `docker compose --profile app down -v`, then start again with either option from [06 — Local setup](06-local-setup.md) (Liquibase recreates the baseline and the demo accounts).
 - Forgot a changed password: as `admin`, *User Management → Edit → password*. Or set `sys_user.password` to `207cf410532f92a47dee245ce9b11ff71f578ebd763eb3bbea44ebd043d018fb` (= SM3 of `123456`).
 - Adding more demo users: create a **new** changeset file in `db/changelog/changes/` with `context:dev`. Don't edit `0006`; Liquibase checksums would fail.
