@@ -26,9 +26,9 @@ public enum DeviceCommandEnum {
     UNLOCK(2, "Remote unlock", DeviceEventTypeEnum.UNLOCK),
 
     /**
-     * OTAUpgrade
+     * OTA upgrade
      */
-    OTA_UPGRADE(3, "OTAUpgrade", DeviceEventTypeEnum.OTA_UPGRADE);
+    OTA_UPGRADE(3, "OTA upgrade", DeviceEventTypeEnum.OTA_UPGRADE);
 
     /**
      * Type value

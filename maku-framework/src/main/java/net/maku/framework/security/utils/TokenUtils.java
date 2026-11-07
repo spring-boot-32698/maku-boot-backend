@@ -15,9 +15,11 @@ public class TokenUtils {
 
     /**
      * Generate AccessToken
+     * <p>
+     * Uses UUID.randomUUID() (SecureRandom): tokens are bearer credentials, so they must not be predictable.
      */
     public static String generator() {
-        return UUID.fastUUID().toString(true);
+        return UUID.randomUUID().toString(true);
     }
 
     /**

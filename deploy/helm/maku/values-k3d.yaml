@@ -5,7 +5,8 @@
 # *.localhost resolves to 127.0.0.1 in browsers and curl, no /etc/hosts edits needed.
 
 backend:
-  springProfile: dev                            # includes the demo accounts
+  springProfile: dev
+  demoAccounts: true                            # seed manager/staff/auditor (local cluster only)
   publicUrl: http://api.maku.localhost:8088
 
 frontend:

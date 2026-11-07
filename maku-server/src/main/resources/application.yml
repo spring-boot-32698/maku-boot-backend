@@ -55,8 +55,10 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
-    # Context = active profile, so changesets tagged context:dev (demo accounts) never run in test/prod
-    contexts: ${spring.profiles.active}
+    # Changesets tagged context:dev (demo accounts with known passwords) run ONLY when explicitly enabled
+    # with SPRING_LIQUIBASE_CONTEXTS=dev (set by docker-compose, the IntelliJ run config and values-k3d.yaml).
+    # Not tied to the Spring profile: the profile defaults to dev, so a forgotten setting must not seed them.
+    contexts: none
     url: ${spring.datasource.dynamic.datasource.master.url}
     user: ${spring.datasource.dynamic.datasource.master.username}
     password: ${spring.datasource.dynamic.datasource.master.password}

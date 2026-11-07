@@ -68,6 +68,7 @@ services:
       - "127.0.0.1:5005:5005"
     environment:
       SPRING_PROFILES_ACTIVE: dev
+      SPRING_LIQUIBASE_CONTEXTS: dev    # seed the demo accounts (local only)
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_URL: jdbc:mysql://mysql:3306/maku_boot?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&nullCatalogMeansCurrent=true
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_USERNAME: maku

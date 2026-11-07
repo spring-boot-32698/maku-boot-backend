@@ -100,7 +100,7 @@ First install takes ~1–2 min: MySQL initialises, the backend's init container 
 | **`checksum/config` annotation** | Changing the ConfigMap rolls the backend pods; env vars are only read at start. |
 | **Secret with `existingSecret` escape hatch** | Dev defaults just work; production should supply its own Secret (Sealed Secrets, External Secrets, Vault…). |
 | **`helm.sh/resource-policy: keep` on uploads PVC** | `helm uninstall` shouldn't delete user files. |
-| **Liquibase context = Spring profile** | `dev` installs the demo accounts; `prod` doesn't. |
+| **Demo accounts are opt-in** (`backend.demoAccounts`) | Sets `SPRING_LIQUIBASE_CONTEXTS=dev` only when true (`values-k3d.yaml`). The default is `false`, so a forgotten setting never seeds known passwords. |
 
 ## Production checklist (not done for you)
 

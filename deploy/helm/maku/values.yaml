@@ -13,8 +13,11 @@ backend:
     repository: maku-boot
     tag: ""                # defaults to .Chart.AppVersion
     pullPolicy: IfNotPresent
-  # Spring profile. Also selects Liquibase contexts: "dev" adds the demo accounts (manager/staff/auditor).
+  # Spring profile
   springProfile: dev
+  # Seed the demo accounts manager/staff/auditor (password 123456) via Liquibase context "dev".
+  # Local/test clusters only — never enable against a real database.
+  demoAccounts: false
   timezone: Asia/Shanghai
   # Public base URL of the API as the browser sees it. Used for URLs of uploaded files (storage.config.domain).
   publicUrl: http://localhost:8080

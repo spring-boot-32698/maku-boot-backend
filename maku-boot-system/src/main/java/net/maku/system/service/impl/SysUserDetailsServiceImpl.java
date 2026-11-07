@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -33,7 +34,7 @@ public class SysUserDetailsServiceImpl implements SysUserDetailsService {
     @Override
     public UserDetails getUserDetails(UserDetail userDetail) {
         // Account unavailable
-        if (userDetail.getStatus() == UserStatusEnum.DISABLE.getValue()) {
+        if (Objects.equals(userDetail.getStatus(), UserStatusEnum.DISABLE.getValue())) {
             userDetail.setEnabled(false);
         }
 

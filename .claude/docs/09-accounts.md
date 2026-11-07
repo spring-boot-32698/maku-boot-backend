@@ -2,8 +2,10 @@
 
 > **Dev only.** The demo accounts are created by the Liquibase changeset
 > `maku-server/src/main/resources/db/changelog/changes/0006-dev-demo-accounts.sql`, tagged `context:dev`.
-> `spring.liquibase.contexts` = the active profile, so they exist **only when running with the `dev` profile**
-> (the default, and what `docker-compose.yml` uses). Never reuse these passwords anywhere real.
+> They are created **only when `SPRING_LIQUIBASE_CONTEXTS=dev` is set explicitly**. `application.yml` defaults to
+> `contexts: none`, so a forgotten setting never seeds them. It is set for you by `docker-compose.yml`, the IntelliJ
+> run config `.run/ServerApplication (dev)` and Helm `values-k3d.yaml` (`backend.demoAccounts: true`).
+> Never enable it against a real database, and never reuse these passwords anywhere real.
 
 Admin UI: http://localhost:3000 · API: http://localhost:8080
 

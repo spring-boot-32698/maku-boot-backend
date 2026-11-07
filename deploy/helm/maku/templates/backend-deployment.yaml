@@ -22,6 +22,8 @@ spec:
       annotations:
         # Roll the pods when config changes (env vars are only read at container start)
         checksum/config: {{ include (print $.Template.BasePath "/backend-configmap.yaml") . | sha256sum }}
+        # …and when the DB password Secret changes (env from secretKeyRef is also read only at start)
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
       {{- if .Values.backend.waitForDatabase }}
       initContainers:

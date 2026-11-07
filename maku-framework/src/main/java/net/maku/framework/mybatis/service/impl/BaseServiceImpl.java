@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import net.maku.framework.common.constant.Constant;
+import net.maku.framework.common.exception.ServerException;
 import net.maku.framework.common.query.Query;
 import net.maku.framework.mybatis.interceptor.DataScope;
 import net.maku.framework.mybatis.service.BaseService;
@@ -16,6 +17,7 @@ import net.maku.framework.security.user.SecurityUser;
 import net.maku.framework.security.user.UserDetail;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 /**
@@ -25,6 +27,7 @@ import java.util.List;
  * <a href="https://maku.net">MAKU</a>
  */
 public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M, T> implements BaseService<T> {
+    private static final Pattern ORDER_COLUMN = Pattern.compile("^[A-Za-z][A-Za-z0-9_]{0,63}$");
 
     /**
      * Get the pagination object
@@ -36,14 +39,27 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M, 
 
         // Sort
         if (StringUtils.isNotBlank(query.getOrder())) {
+            String column = toOrderColumn(query.getOrder());
             if (query.isAsc()) {
-                return page.addOrder(OrderItem.asc(query.getOrder()));
+                return page.addOrder(OrderItem.asc(column));
             } else {
-                return page.addOrder(OrderItem.desc(query.getOrder()));
+                return page.addOrder(OrderItem.desc(column));
             }
         }
 
         return page;
+    }
+
+    /**
+     * Sort column from the request, accepted only as a plain identifier (it is concatenated into ORDER BY).
+     * Field names are converted to column names, e.g. createTime -> create_time.
+     */
+    private String toOrderColumn(String order) {
+        if (!ORDER_COLUMN.matcher(order).matches()) {
+            throw new ServerException("Invalid sort field");
+        }
+
+        return StrUtil.toUnderlineCase(order);
     }
 
     /**

@@ -40,7 +40,8 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
 
         // Get logged-in user info
         UserDetail user = tokenStoreCache.getUser(accessToken);
-        if (user == null) {
+        // Unknown token, or the account was disabled while logged in: treat as not logged in
+        if (user == null || !user.isEnabled()) {
             chain.doFilter(request, response);
             return;
         }

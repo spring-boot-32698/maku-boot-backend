@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import net.maku.api.module.system.UserTokenApi;
 import net.maku.framework.common.cache.RedisCache;
 import net.maku.framework.common.cache.RedisKeys;
 import net.maku.framework.common.query.Query;
@@ -28,6 +29,7 @@ import java.util.List;
 public class UserOnlineController {
     private final TokenStoreCache tokenStoreCache;
     private final RedisCache redisCache;
+    private final UserTokenApi userTokenApi;
 
     @GetMapping("page")
     @Operation(summary = "Pagination")
@@ -39,9 +41,13 @@ public class UserOnlineController {
         // Logical pagination
         List<String> keyList = ListUtil.page(query.getPage() - 1, query.getLimit(), keys);
 
+        // One MGET for the whole page instead of one GET per key
+        List<Object> values = keyList.isEmpty() ? List.of() : redisCache.multiGet(keyList);
+
         List<UserOnlineVO> userOnlineList = new ArrayList<>();
-        keyList.forEach(key -> {
-            UserDetail user = (UserDetail) redisCache.get(key);
+        for (int i = 0; i < keyList.size(); i++) {
+            String key = keyList.get(i);
+            UserDetail user = (UserDetail) values.get(i);
             if (user != null) {
                 UserOnlineVO userOnlineVO = new UserOnlineVO();
                 userOnlineVO.setId(user.getId());
@@ -53,8 +59,7 @@ public class UserOnlineController {
 
                 userOnlineList.add(userOnlineVO);
             }
-
-        });
+        }
 
         return Result.ok(new PageResult<>(userOnlineList, keys.size()));
     }
@@ -63,13 +68,13 @@ public class UserOnlineController {
     @Operation(summary = "Force logout")
     @PreAuthorize("hasAuthority('monitor:user:all')")
     public Result<String> forceLogout(@PathVariable("accessToken") String accessToken) {
-        // tokenCannot be empty
+        // Token cannot be empty
         if (StrUtil.isBlank(accessToken)) {
-            Result.error("tokenCannot be empty");
+            return Result.error("Token cannot be empty");
         }
 
-        // Delete user info
-        tokenStoreCache.deleteUser(accessToken);
+        // End the session and expire the refresh token, so the client cannot simply refresh back in
+        userTokenApi.forceLogout(accessToken);
 
         return Result.ok();
     }

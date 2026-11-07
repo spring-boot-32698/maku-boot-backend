@@ -6,6 +6,7 @@
     <module name="maku-server" />
     <envs>
       <env name="SPRING_PROFILES_ACTIVE" value="dev" />
+      <env name="SPRING_LIQUIBASE_CONTEXTS" value="dev" />
     </envs>
     <method v="2">
       <option name="Make" enabled="true" />

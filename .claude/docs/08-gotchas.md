@@ -11,7 +11,7 @@ Things that surprise new joiners, each verified in the code on 2026-10-11.
 ## Security notes (raise with the team before relying on them)
 5. **Passwords are unsalted SM3** (`Sm3PasswordEncoder`). Identical passwords → identical hashes.
 6. **SM2 key pair is hard-coded** in source on both sides; anyone with the repo can decrypt captured login payloads. Rotate per environment if this matters.
-7. **Old access tokens survive re-login** until their 8 h TTL: `createToken` overwrites the DB row but doesn't delete the previous Redis key.
+7. **One session per user.** Logging in again ends the previous session (its access token is removed from Redis), because `sys_user_token` holds one row per user. Logging in on a second device logs out the first. (Fixed 2026-11-07; before that the old token silently stayed valid for 8 h.)
 8. `DataScope.sqlFilter` is concatenated SQL. It's built only from numeric IDs today — keep it that way.
 9. WebSocket allows any origin (`setAllowedOriginPatterns("*")`).
 

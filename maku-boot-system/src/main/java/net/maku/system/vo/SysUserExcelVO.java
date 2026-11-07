@@ -13,7 +13,10 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * excelUser table
+ * Excel user table
+ * <p>
+ * Columns are bound by position (index), not header text, so import accepts both the current
+ * English template and older files with Chinese headers (用户名, 姓名, 性别, ...).
  *
  * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
@@ -29,43 +32,43 @@ public class SysUserExcelVO implements Serializable, TransPojo {
     @ExcelIgnore
     private Long id;
 
-    @ExcelProperty("Username")
+    @ExcelProperty(value = "Username", index = 0)
     private String username;
 
-    @ExcelProperty("Name")
+    @ExcelProperty(value = "Name", index = 1)
     private String realName;
 
     @ExcelIgnore
     @Trans(type = TransType.DICTIONARY, key = "user_gender", ref = "genderLabel")
     private Integer gender;
 
-    @ExcelProperty(value = "Gender")
+    @ExcelProperty(value = "Gender", index = 2)
     private String genderLabel;
 
-    @ExcelProperty("Email")
+    @ExcelProperty(value = "Email", index = 3)
     private String email;
 
-    @ExcelProperty("Mobile number")
+    @ExcelProperty(value = "Mobile number", index = 4)
     private String mobile;
 
-    @ExcelProperty("Organization ID")
+    @ExcelProperty(value = "Organization ID", index = 5)
     private Long orgId;
 
     @ExcelIgnore
     @Trans(type = TransType.DICTIONARY, key = "user_status", ref = "statusLabel")
     private Integer status;
 
-    @ExcelProperty(value = "Status")
+    @ExcelProperty(value = "Status", index = 6)
     private String statusLabel;
 
     @ExcelIgnore
     @Trans(type = TransType.DICTIONARY, key = "user_super_admin", ref = "superAdminLabel")
     private Integer superAdmin;
 
-    @ExcelProperty(value = "Super administrator")
+    @ExcelProperty(value = "Super administrator", index = 7)
     private String superAdminLabel;
 
-    @ExcelProperty(value = "Creation time", converter = LocalDateTimeConverter.class)
+    @ExcelProperty(value = "Creation time", index = 8, converter = LocalDateTimeConverter.class)
     private LocalDateTime createTime;
 
 }

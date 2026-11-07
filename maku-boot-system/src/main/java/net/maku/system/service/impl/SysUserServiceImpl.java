@@ -20,6 +20,7 @@ import net.maku.framework.security.utils.TokenUtils;
 import net.maku.system.dao.SysUserDao;
 import net.maku.system.entity.SysUserEntity;
 import net.maku.system.enums.SuperAdminEnum;
+import net.maku.system.enums.UserStatusEnum;
 import net.maku.system.query.SysRoleUserQuery;
 import net.maku.system.query.SysUserQuery;
 import net.maku.system.service.SysUserPostService;
@@ -35,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * User management
@@ -137,8 +139,13 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntit
         // Update user-post relationship
         sysUserPostService.saveOrUpdate(entity.getId(), vo.getPostIdList());
 
-        // Update user cached permissions
-        sysUserTokenService.updateCacheAuthByUserId(entity.getId());
+        if (Objects.equals(entity.getStatus(), UserStatusEnum.DISABLE.getValue())) {
+            // Disabled: end the user's sessions now (cached sessions don't track status changes)
+            sysUserTokenService.logoutByUserId(entity.getId());
+        } else {
+            // Update user cached permissions
+            sysUserTokenService.updateCacheAuthByUserId(entity.getId());
+        }
     }
 
     @Override
@@ -207,6 +214,9 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntit
 
         // Delete user-post relationship
         sysUserPostService.deleteByUserIdList(idList);
+
+        // End the deleted users' sessions
+        idList.forEach(sysUserTokenService::logoutByUserId);
     }
 
     @Override

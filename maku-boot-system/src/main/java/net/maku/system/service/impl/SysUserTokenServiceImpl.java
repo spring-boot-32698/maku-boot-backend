@@ -60,6 +60,9 @@ public class SysUserTokenServiceImpl extends BaseServiceImpl<SysUserTokenDao, Sy
         if (tokenEntity == null) {
             baseMapper.insert(entity);
         } else {
+            // One session per user: the row is overwritten, so also end the previous session in the cache
+            tokenStoreCache.deleteUser(tokenEntity.getAccessToken());
+
             entity.setId(tokenEntity.getId());
             baseMapper.updateById(entity);
         }
@@ -82,6 +85,17 @@ public class SysUserTokenServiceImpl extends BaseServiceImpl<SysUserTokenDao, Sy
         // Delete cache info
         tokenStoreCache.deleteUser(entity.getAccessToken());
 
+        // The user must still exist (deleted users are filtered by logic delete) and be enabled
+        SysUserEntity user = sysUserDao.selectById(entity.getUserId());
+        UserDetail userDetail = user == null ? null : BeanUtil.copyProperties(user, UserDetail.class);
+        if (userDetail != null) {
+            sysUserDetailsService.getUserDetails(userDetail);
+        }
+        if (userDetail == null || !userDetail.isEnabled()) {
+            expireToken(entity.getUserId());
+            throw new ServerException(ErrorCode.REFRESH_TOKEN_INVALID);
+        }
+
         // Generate a new accessToken
         String accessToken = TokenUtils.generator();
         entity.setAccessToken(accessToken);
@@ -89,11 +103,6 @@ public class SysUserTokenServiceImpl extends BaseServiceImpl<SysUserTokenDao, Sy
 
         // Update
         baseMapper.updateById(entity);
-
-        // Set user permission info
-        SysUserEntity user = sysUserDao.selectById(entity.getUserId());
-        UserDetail userDetail = BeanUtil.copyProperties(user, UserDetail.class);
-        sysUserDetailsService.getUserDetails(userDetail);
 
         // Save user info to cache
         tokenStoreCache.saveUser(accessToken, userDetail);
@@ -109,6 +118,26 @@ public class SysUserTokenServiceImpl extends BaseServiceImpl<SysUserTokenDao, Sy
         entity.setRefreshTokenExpire(now);
 
         baseMapper.update(entity, new LambdaQueryWrapper<SysUserTokenEntity>().eq(SysUserTokenEntity::getUserId, userId));
+    }
+
+    @Override
+    public void forceLogout(String accessToken) {
+        tokenStoreCache.deleteUser(accessToken);
+
+        // Expire the stored tokens too, otherwise the client simply refreshes and is back in
+        SysUserTokenEntity entity = new SysUserTokenEntity();
+        LocalDateTime now = LocalDateTime.now();
+        entity.setAccessTokenExpire(now);
+        entity.setRefreshTokenExpire(now);
+
+        baseMapper.update(entity, new LambdaQueryWrapper<SysUserTokenEntity>().eq(SysUserTokenEntity::getAccessToken, accessToken));
+    }
+
+    @Override
+    public void logoutByUserId(Long userId) {
+        baseMapper.getOnlineAccessTokenListByUserId(userId, LocalDateTime.now()).forEach(tokenStoreCache::deleteUser);
+
+        expireToken(userId);
     }
 
     @Async

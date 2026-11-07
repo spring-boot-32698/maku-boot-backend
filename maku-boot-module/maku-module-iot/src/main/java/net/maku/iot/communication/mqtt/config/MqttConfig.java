@@ -47,7 +47,7 @@ public class MqttConfig {
     // Client ID
     private String clientId;
 
-    // Default theme
+    // Default topic
     private String defaultTopic;
 
     // Factory for handling MQTT messages
@@ -56,7 +56,7 @@ public class MqttConfig {
 
     @PostConstruct
     public void init() {
-        log.info("MQTT Host: {} Client ID: {} Default theme:{}", this.host, this.clientId, this.defaultTopic);
+        log.info("MQTT Host: {} Client ID: {} Default topic: {}", this.host, this.clientId, this.defaultTopic);
     }
 
     /**

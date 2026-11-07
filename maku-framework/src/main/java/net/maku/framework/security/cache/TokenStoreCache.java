@@ -1,6 +1,5 @@
 package net.maku.framework.security.cache;
 
-import cn.hutool.core.collection.ListUtil;
 import lombok.AllArgsConstructor;
 import net.maku.framework.common.cache.RedisCache;
 import net.maku.framework.common.cache.RedisKeys;
@@ -9,7 +8,6 @@ import net.maku.framework.security.user.UserDetail;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Authentication Cache
@@ -57,8 +55,8 @@ public class TokenStoreCache {
 
     public List<String> getUserKeyList() {
         String pattern = RedisKeys.getAccessTokenKey("*");
-        Set<String> sets = redisCache.keys(pattern);
 
-        return ListUtil.toList(sets);
+        // SCAN, not KEYS: KEYS blocks Redis for every client while it walks the whole keyspace
+        return redisCache.scan(pattern);
     }
 }

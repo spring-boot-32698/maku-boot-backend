@@ -56,7 +56,7 @@ Hand-written XML queries **must add `deleted = 0` themselves** (MP only auto-add
 - **Menus**: 52 `sys_menu` rows in the core script (more in module scripts). Example: id 2 "Menu Management" url `sys/menu/index`, children are buttons with codes `sys:menu:list`, `sys:menu:save`, `sys:menu:update,sys:menu:info`, `sys:menu:delete`.
 - **Dictionaries**: `post_status`, `user_gender`, `user_status`, `role_data_scope`, `enable_disable`, `success_fail`, `login_operation`, `params_type`, `user_super_admin`, `log_operate_type`, `sms_platform`, `mail_platform`, …
 - **Params**: `LOGIN_CAPTCHA = false` (captcha off in dev).
-- No roles or orgs are in the baseline. In the **dev** profile, changeset `0006-dev-demo-accounts` (context `dev`) adds an org tree, 3 roles and 4 demo users. See [09 — Login accounts](09-accounts.md).
+- No roles or orgs are in the baseline. When `SPRING_LIQUIBASE_CONTEXTS=dev` is set (local setups do this; the default is `none`), changeset `0006-dev-demo-accounts` (context `dev`) adds an org tree, 3 roles and 4 demo users. See [09 — Login accounts](09-accounts.md).
 
 ## Useful queries while debugging
 

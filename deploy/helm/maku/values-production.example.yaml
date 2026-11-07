@@ -8,7 +8,8 @@ backend:
   image:
     repository: registry.example.com/maku/maku-boot
     tag: "5.0.0"
-  springProfile: prod                   # Liquibase context "prod": no demo accounts
+  springProfile: prod
+  demoAccounts: false                   # never seed demo accounts in production
   publicUrl: https://api.maku.example.com
   resources:
     requests: { cpu: 500m, memory: 1Gi }

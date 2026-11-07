@@ -36,6 +36,20 @@ public interface SysUserTokenService extends BaseService<SysUserTokenEntity> {
     void expireToken(Long userId);
 
     /**
+     * Force logout: remove the session from the cache and expire both access and refresh token
+     *
+     * @param accessToken access_token
+     */
+    void forceLogout(String accessToken);
+
+    /**
+     * End every session of a user (used when the user is disabled or deleted)
+     *
+     * @param userId User ID
+     */
+    void logoutByUserId(Long userId);
+
+    /**
      * Update the user cached permissions by role ID
      *
      * @param roleId Role ID

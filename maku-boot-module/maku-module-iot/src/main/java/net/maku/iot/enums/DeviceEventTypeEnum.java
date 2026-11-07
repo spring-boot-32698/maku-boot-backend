@@ -34,9 +34,9 @@ public enum DeviceEventTypeEnum {
      */
     SIGN_OFF(3, "Logout event"),
     /**
-     * OTAUpgrade
+     * OTA upgrade
      */
-    OTA_UPGRADE(4, "OTAUpgrade event"),
+    OTA_UPGRADE(4, "OTA upgrade event"),
 
     /**
      * Device remote lock

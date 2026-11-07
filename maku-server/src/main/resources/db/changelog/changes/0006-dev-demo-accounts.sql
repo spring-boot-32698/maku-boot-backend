@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 -- Demo organisations, roles and users for local development.
--- context:dev => only applied when spring.liquibase.contexts includes "dev" (the dev profile).
+-- context:dev => only applied when spring.liquibase.contexts includes "dev" (SPRING_LIQUIBASE_CONTEXTS=dev).
 -- All demo users have password 123456 (SM3: 207cf410…d018fb). Documented in .claude/docs/09-accounts.md.
 
 --changeset maku:0006-dev-demo-accounts context:dev
