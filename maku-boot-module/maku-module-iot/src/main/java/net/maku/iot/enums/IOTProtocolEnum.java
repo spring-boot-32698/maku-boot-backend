@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Arrays;
 
 /**
- * IOT常用的通信协议
+ * IOTCommon communication protocols
  *
  * @author LSF maku_lsf@163.com
  */

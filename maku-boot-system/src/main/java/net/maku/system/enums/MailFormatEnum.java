@@ -4,16 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 邮件格式枚举
+ * Mail format enum
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum MailFormatEnum {
     /**
-     * 纯文本
+     * Plain text
      */
     TEXT,
     /**
@@ -21,7 +21,7 @@ public enum MailFormatEnum {
      */
     HTML,
     /**
-     * 模板
+     * Template
      */
     TEMPLATE;
 }

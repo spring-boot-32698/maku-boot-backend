@@ -12,9 +12,9 @@ import java.util.Map;
 
 
 /**
- * webSocket 握手拦截器
+ * webSocket Handshake interceptor
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Component
@@ -22,7 +22,7 @@ public class UserHandshakeInterceptor implements HandshakeInterceptor {
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
-        // 当前连接的用户
+        // Currently connected users
         SessionUserUtil.setUser(SecurityUser.getUser(), attributes);
 
         return true;

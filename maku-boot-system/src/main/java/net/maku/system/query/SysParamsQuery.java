@@ -6,22 +6,22 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
- * 参数管理查询
+ * Parameter management query
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "参数管理查询")
+@Schema(description = "Parameter management query")
 public class SysParamsQuery extends Query {
-    @Schema(description = "系统参数")
+    @Schema(description = "System parameters")
     private Integer paramType;
 
-    @Schema(description = "参数键")
+    @Schema(description = "Parameter key")
     private String paramKey;
 
-    @Schema(description = "参数值")
+    @Schema(description = "Parameter value")
     private String paramValue;
 
 }

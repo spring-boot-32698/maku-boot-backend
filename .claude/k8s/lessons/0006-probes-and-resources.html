@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probes and Resources</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script src="../../assets/quiz.js" defer></script>
+<script src="../../assets/steps.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">K8s course</a><span>›</span><span>Lesson 06</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Probes and resources</h1>
+  <p class="subtitle">Kubernetes can only keep your app healthy if it can tell when it isn't, and how much it needs.</p>
+  <div class="meta"><span><b>Time</b> ~15 min</span><span><b>Prereq</b> <a href="0005-storage-and-statefulsets.html">Lesson 05</a></span><span><b>Run from</b> <code>maku-boot-backend/</code></span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>You can explain which probe should fail when a dependency is down, read an OOMKilled pod, and say why a pod is stuck Pending on resources.</p>
+  </div>
+
+  <h2>Three probes, three different consequences</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Probe</th><th>Question</th><th>When it fails</th><th>maku-backend</th></tr>
+    <tr><td><b>startup</b></td><td>Has it finished booting?</td><td>Keeps waiting; the other probes are paused until it succeeds. If it never succeeds → restart.</td><td><code>/actuator/health/liveness</code>, every 5 s, up to 60 tries (5 min) for Liquibase + JVM start</td></tr>
+    <tr><td><b>readiness</b></td><td>Should it receive traffic <em>right now</em>?</td><td>Pod marked <code>0/1</code>, its endpoint becomes <code>ready=false</code>. <strong>No restart.</strong></td><td><code>/actuator/health/readiness</code>, includes <code>db</code> and <code>redis</code></td></tr>
+    <tr><td><b>liveness</b></td><td>Is it stuck beyond repair?</td><td>The kubelet <strong>kills and restarts</strong> the container.</td><td><code>/actuator/health/liveness</code>, the app's own state only</td></tr>
+  </table></div>
+  <p class="sidenote">Sources: <a href="https://kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/">Liveness, Readiness and Startup Probes</a> (concepts) and <a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/">how to configure them</a>. Spring's side: <a href="https://docs.spring.io/spring-boot/reference/actuator/endpoints.html">Actuator endpoints</a>; we configured groups in <code>application.yml</code> → <code>management.endpoint.health.group.readiness</code>.</p>
+  <p><strong>The design rule:</strong> put dependencies (DB, Redis) in <em>readiness</em>, never in <em>liveness</em>. If Redis is down, restarting every backend pod can't fix Redis. It just turns one outage into a restart storm.</p>
+  <p>Each probe also has <code>timeoutSeconds</code>, which defaults to <strong>1 second</strong>. When I tested this lesson, the readiness check timed out (“context deadline exceeded”) while Redis was down, and a long JVM garbage-collection pause could do the same to liveness. The chart now sets 3 s (<code>backend.probes.*.timeoutSeconds</code>).</p>
+
+  <h2>Requests and limits</h2>
+  <pre><code>resources:
+  requests: { cpu: 250m, memory: 768Mi }   # scheduler RESERVES this on a node; pods only land where it fits
+  limits:   { memory: 1536Mi }             # hard ceiling: exceed memory → container OOMKilled (exit 137)</code></pre>
+  <ul>
+    <li><b>Requests</b> drive <em>scheduling</em>. A pod whose requests fit on no node stays <code>Pending</code>.</li>
+    <li><b>Memory limit</b> is enforced by killing the container. <b>CPU limit</b> is enforced by <em>throttling</em> (it slows down, but isn't killed). Many teams set no CPU limit for latency-sensitive apps; we don't set one.</li>
+    <li><b>JVM trap:</b> the image starts Java with <code>-Xmx1024M</code>. Heap isn't everything (metaspace, threads, buffers), so the limit must leave headroom: 1536Mi. <code>kubectl top</code> showed the backend using ~640Mi at rest.</li>
+  </ul>
+  <p class="sidenote"><code>250m</code> = 0.25 CPU (milli-cores). <code>Mi</code> = mebibytes. See <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Resource management for pods</a> and <a href="https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/">Assign memory resources</a>.</p>
+
+  <h2>Hands-on</h2>
+  <ol class="steps" data-id="k8s-l6">
+    <li><p>See the probes as the kubelet runs them.</p>
+      <pre><code>kubectl -n maku describe pod -l app.kubernetes.io/component=backend | grep -E 'Liveness|Readiness|Startup'</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>Liveness:   http-get http://:http/actuator/health/liveness delay=0s timeout=3s period=20s #success=1 #failure=3
+Readiness:  http-get http://:http/actuator/health/readiness delay=0s timeout=3s period=10s #success=1 #failure=3
+Startup:    http-get http://:http/actuator/health/liveness delay=0s timeout=3s period=5s #success=1 #failure=60</pre></details></li>
+    <li><p>Ask the app the same questions the kubelet asks.</p>
+      <pre><code>curl -s http://api.maku.localhost:8088/actuator/health/liveness; echo
+curl -s http://api.maku.localhost:8088/actuator/health/readiness; echo</code></pre></li>
+    <li><p><strong>Predict, then break Redis.</strong> Will the backend pod restart? What will the ingress return? Watch in a second terminal: <code>kubectl -n maku get pods -w</code>.</p>
+      <pre><code>kubectl -n maku scale deploy/maku-redis --replicas=0
+sleep 40
+kubectl -n maku get pods -l app.kubernetes.io/component=backend
+curl -s -w ' (%{http_code})\n' http://api.maku.localhost:8088/actuator/health/readiness
+kubectl -n maku exec deploy/maku-backend -c backend -- curl -s localhost:8080/actuator/health/liveness; echo</code></pre>
+      <details class="expect"><summary>What happened when I ran it</summary><pre>NAME                            READY   STATUS    RESTARTS   AGE
+maku-backend-779d8657fd-m9pl6   0/1     Running   0          21m      ← not ready, NOT restarted
+404 page not found (404)                                             ← Traefik: no ready endpoint
+{"status":"UP"}                                                      ← liveness still fine</pre>
+      <p>Events (<code>describe pod</code>) show <code>Readiness probe failed: … context deadline exceeded</code>. If <code>curl</code> isn't in the image, use <code>wget -qO-</code> instead.</p></details></li>
+    <li><p>Heal it and watch the pod return to <code>1/1</code> by itself.</p>
+      <pre><code>kubectl -n maku scale deploy/maku-redis --replicas=1
+kubectl -n maku get pods -w</code></pre>
+      <p>Side effect: everyone is logged out (tokens lived in the old Redis; lesson 05).</p></li>
+    <li><p>Requests and limits vs reality.</p>
+      <pre><code>kubectl -n maku get deploy maku-backend -o jsonpath='{.spec.template.spec.containers[0].resources}'; echo
+kubectl top pods -n maku</code></pre></li>
+    <li><p><strong>OOMKilled on purpose.</strong> Lab D grows memory forever under a 32Mi limit.</p>
+      <pre><code>kubectl create namespace play
+kubectl -n play apply -f .claude/k8s/labs/lab-d.yaml
+kubectl -n play get pods -w          # Ctrl-C after a few restarts
+kubectl -n play describe pod -l app=lab-d | grep -A3 'Last State'</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>lab-d-6f57c4696c-hlg2p   0/1   OOMKilled          3 (38s ago)
+lab-d-6f57c4696c-hlg2p   0/1   CrashLoopBackOff   3
+    Last State:     Terminated
+      Reason:       OOMKilled
+      Exit Code:    137                ← 128 + 9 (SIGKILL)</pre></details></li>
+    <li><p><strong>Pending on purpose.</strong> Lab A requests 64 CPUs.</p>
+      <pre><code>kubectl -n play apply -f .claude/k8s/labs/lab-a.yaml
+kubectl -n play describe pod -l app=lab-a | tail -3
+kubectl -n play delete -f .claude/k8s/labs/lab-a.yaml -f .claude/k8s/labs/lab-d.yaml</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>Warning  FailedScheduling  default-scheduler  0/2 nodes are available: 2 Insufficient cpu. …</pre></details></li>
+  </ol>
+
+  <h2>Practice</h2>
+
+  <div class="quiz">
+    <p class="q">1. Redis goes down. Which backend probe <em>should</em> fail?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Readiness, so traffic stops but no restart</button>
+      <button class="opt">Liveness, so the container restarts and reconnects</button>
+      <button class="opt">Startup, so the pod returns to booting</button>
+      <button class="opt">None; probes only check the JVM process</button>
+    </div>
+    <div class="why">You saw it: <code>0/1 Running</code>, 0 restarts, Traefik stopped routing to it. When Redis came back, readiness passed and traffic resumed with no restart needed.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. Why keep DB and Redis checks <em>out</em> of the liveness probe?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Restarts can't fix an outage; they'd cascade</button>
+      <button class="opt">Liveness probes cannot call any HTTP endpoints</button>
+      <button class="opt">Actuator forbids dependencies inside the liveness group</button>
+      <button class="opt">Kubernetes runs liveness only before startup completes</button>
+    </div>
+    <div class="why">A shared dependency failing would make <em>every</em> replica fail liveness and restart together, piling slow JVM boots onto an incident. Liveness answers only “is this process wedged?”.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. A pod shows <code>OOMKilled</code>, exit code 137. What happened?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Container exceeded its memory limit and was killed</button>
+      <button class="opt">Node ran out of disk for container logs</button>
+      <button class="opt">The application caught OutOfMemoryError and exited by itself</button>
+      <button class="opt">Kubelet killed it for using too much CPU</button>
+    </div>
+    <div class="why">The kernel's OOM killer sends SIGKILL (9) when the cgroup memory limit is hit: exit 128+9 = 137. CPU over limit is throttled, never killed. A Java <code>OutOfMemoryError</code> is a different thing: the JVM ran out of <em>heap</em> within its <code>-Xmx</code>.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. Lab A stays <code>Pending</code> with “2 Insufficient cpu”. What did the scheduler compare?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Pod CPU requests against node allocatable capacity</button>
+      <button class="opt">Pod CPU limits against current node usage</button>
+      <button class="opt">Live CPU usage reported by metrics-server pods</button>
+      <button class="opt">Container CPU usage against the namespace quota</button>
+    </div>
+    <div class="why">Scheduling is bookkeeping on <em>requests</em>, not live usage. Requests too high wastes capacity; too low and nodes get overcommitted.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. Why does the backend have a startup probe allowing 5 minutes?</p>
+    <div class="opts">
+      <button class="opt" data-correct>So slow first boots aren't killed by liveness</button>
+      <button class="opt">So Kubernetes waits for MySQL before scheduling it</button>
+      <button class="opt">So readiness can stay disabled for five minutes</button>
+      <button class="opt">So Helm waits five minutes before applying templates</button>
+    </div>
+    <div class="why">Without it, liveness (3 × 20 s) could kill a JVM still running Liquibase on first install, over and over. The startup probe pauses liveness and readiness until the app is up, then gets out of the way.</div>
+  </div>
+
+  <details class="recall"><summary>Recall (interview): “Readiness vs liveness: what's the difference, and give an example of getting it wrong.”</summary>
+    <p>Readiness gates <b>traffic</b> (fail = removed from Service endpoints, no restart). Liveness gates <b>life</b> (fail = container restarted). Getting it wrong: putting a database check in liveness, so a DB blip restarts every pod at once; or having no readiness probe, so traffic hits a JVM that's still booting and users see errors during every deploy.</p>
+  </details>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/">Liveness, Readiness, and Startup Probes (kubernetes.io)</a>, then the “Requests and limits” section of <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Resource Management for Pods and Containers</a>.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “what are QoS classes (Guaranteed / Burstable / BestEffort)?” or “how should I size JVM memory in containers? -Xmx vs MaxRAMPercentage”.</div>
+
+  <div class="score" data-lesson="k8s-0006"></div>
+  <div class="pager"><a href="0005-storage-and-statefulsets.html">← Lesson 05</a><a href="0007-ingress.html">Lesson 07: Ingress →</a></div>
+</main>
+</body>
+</html>

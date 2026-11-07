@@ -13,9 +13,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * excel用户表
+ * Excel user table
+ * <p>
+ * Columns are bound by position (index), not header text, so import accepts both the current
+ * English template and older files with Chinese headers (用户名, 姓名, 性别, ...).
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -24,48 +27,48 @@ public class SysUserExcelVO implements Serializable, TransPojo {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 本属性对于导出无用，只是用于翻译
+     * This property is useless for export and is only used for translation
      */
     @ExcelIgnore
     private Long id;
 
-    @ExcelProperty("用户名")
+    @ExcelProperty(value = "Username", index = 0)
     private String username;
 
-    @ExcelProperty("姓名")
+    @ExcelProperty(value = "Name", index = 1)
     private String realName;
 
     @ExcelIgnore
     @Trans(type = TransType.DICTIONARY, key = "user_gender", ref = "genderLabel")
     private Integer gender;
 
-    @ExcelProperty(value = "性别")
+    @ExcelProperty(value = "Gender", index = 2)
     private String genderLabel;
 
-    @ExcelProperty("邮箱")
+    @ExcelProperty(value = "Email", index = 3)
     private String email;
 
-    @ExcelProperty("手机号")
+    @ExcelProperty(value = "Mobile number", index = 4)
     private String mobile;
 
-    @ExcelProperty("机构ID")
+    @ExcelProperty(value = "Organization ID", index = 5)
     private Long orgId;
 
     @ExcelIgnore
     @Trans(type = TransType.DICTIONARY, key = "user_status", ref = "statusLabel")
     private Integer status;
 
-    @ExcelProperty(value = "状态")
+    @ExcelProperty(value = "Status", index = 6)
     private String statusLabel;
 
     @ExcelIgnore
     @Trans(type = TransType.DICTIONARY, key = "user_super_admin", ref = "superAdminLabel")
     private Integer superAdmin;
 
-    @ExcelProperty(value = "超级管理员")
+    @ExcelProperty(value = "Super administrator", index = 7)
     private String superAdminLabel;
 
-    @ExcelProperty(value = "创建时间", converter = LocalDateTimeConverter.class)
+    @ExcelProperty(value = "Creation time", index = 8, converter = LocalDateTimeConverter.class)
     private LocalDateTime createTime;
 
 }

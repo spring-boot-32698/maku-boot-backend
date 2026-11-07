@@ -9,9 +9,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 登录日志
+ * Login log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -24,17 +24,17 @@ public class SysLogLoginEntity {
     private Long id;
 
     /**
-     * 用户名
+     * Username
      */
     private String username;
 
     /**
-     * 登录IP
+     * Login IP
      */
     private String ip;
 
     /**
-     * 登录地点
+     * Login location
      */
     private String address;
 
@@ -44,23 +44,23 @@ public class SysLogLoginEntity {
     private String userAgent;
 
     /**
-     * 登录状态  0：失败   1：成功
+     * Login status  0: failed   1: succeeded
      */
     private Integer status;
 
     /**
-     * 操作信息   0：登录成功   1：退出成功  2：验证码错误  3：账号密码错误
+     * Operation info   0: login succeeded   1: logout succeeded  2: wrong captcha  3: wrong account or password
      */
     private Integer operation;
 
     /**
-     * 创建时间
+     * Creation time
      */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
-     * 租户ID
+     * Tenant ID
      */
     private Long tenantId;
 

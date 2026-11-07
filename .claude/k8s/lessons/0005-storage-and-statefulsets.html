@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storage and StatefulSets</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script src="../../assets/quiz.js" defer></script>
+<script src="../../assets/steps.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">K8s course</a><span>›</span><span>Lesson 05</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Storage and StatefulSets</h1>
+  <p class="subtitle">Pods are cattle. Their data shouldn't be.</p>
+  <div class="meta"><span><b>Time</b> ~15 min</span><span><b>Prereq</b> <a href="0004-config-and-secrets.html">Lesson 04</a></span><span><b>Namespace</b> maku</span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>You can prove that MySQL's data survives its pod being deleted, explain why Redis's doesn't, and read a StorageClass to predict how volumes behave.</p>
+  </div>
+
+  <h2>Three objects</h2>
+  <pre><code>Pod maku-mysql-0 ── mounts ──► PVC data-maku-mysql-0   "I need 5Gi, ReadWriteOnce"     (namespaced, yours)
+                                   │ bound to
+                                   ▼
+                               PV pvc-9dd1…            the actual disk                  (cluster-wide)
+                                   ▲ created on demand by
+                               StorageClass local-path  "how to make disks": a directory on the node</code></pre>
+  <ul>
+    <li><b>PVC</b> = a request, <b>PV</b> = the storage, <b>StorageClass</b> = the recipe. With <em>dynamic provisioning</em> you only write the PVC. <a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">docs</a></li>
+    <li>k3s's <code>local-path</code> class makes a folder on whichever node the pod first lands on (<code>WaitForFirstConsumer</code>). From then on, the volume — and so the pod — is <strong>tied to that node</strong>.</li>
+    <li><b><a href="../reference/glossary.html#access-modes">Access modes</a></b>: <code>RWO</code> (one node at a time) is what most disks offer; <code>RWX</code> (many nodes) needs network storage such as NFS or CephFS.</li>
+    <li><b>Reclaim policy</b> <code>Delete</code>: deleting the PVC deletes the PV and the data.</li>
+  </ul>
+  <p class="sidenote">Compose equivalent: the named volume <code>mysql-data:</code>. Kubernetes splits that into request (PVC) and supply (PV/StorageClass) so the same chart works on any infrastructure.</p>
+
+  <h2>Why MySQL is a StatefulSet</h2>
+  <p>A Deployment's pods are interchangeable: random names, and if they share one PVC they share one disk. A <a href="../reference/glossary.html#statefulset">StatefulSet</a> gives each replica:</p>
+  <ul>
+    <li>a <strong>stable name</strong>: <code>maku-mysql-0</code>, always, even after deletion;</li>
+    <li>its <strong>own PVC</strong> from <code>volumeClaimTemplates</code>: <code>data-maku-mysql-0</code> (then <code>-1</code>, <code>-2</code>…), re-attached to the same-named pod;</li>
+    <li><strong>ordered</strong> start/stop, plus a stable DNS name through the headless Service (<code>maku-mysql-0.maku-mysql-headless</code>).</li>
+  </ul>
+  <p>It does <em>not</em> make MySQL highly available. Replication and failover are MySQL's job (or an operator's). Our StatefulSet runs one instance.</p>
+  <p class="sidenote">Source: <a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/">StatefulSets</a>. Note: PVCs created from <code>volumeClaimTemplates</code> are kept when the StatefulSet is deleted (default retention policy).</p>
+
+  <h2>Hands-on</h2>
+  <ol class="steps" data-id="k8s-l5">
+    <li><p>The claims, the volumes behind them, and the recipe.</p>
+      <pre><code>kubectl -n maku get pvc
+kubectl get pv
+kubectl get storageclass</code></pre>
+      <details class="expect"><summary>Expected output (trimmed)</summary><pre>NAME                STATUS   CAPACITY   ACCESS MODES   STORAGECLASS
+data-maku-mysql-0   Bound    5Gi        RWO            local-path
+maku-uploads        Bound    2Gi        RWO            local-path
+
+NAME                   PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE
+local-path (default)   rancher.io/local-path   Delete          WaitForFirstConsumer</pre></details></li>
+    <li><p>Which node holds MySQL's disk?</p>
+      <pre><code>kubectl -n maku get pod maku-mysql-0 -o wide</code></pre>
+      <details class="expect"><summary>What to notice</summary><p>On the reference run it's <code>k3d-maku-server-0</code>. Delete the pod as often as you like: it always comes back on that node, because its local-path volume lives there.</p></details></li>
+    <li><p>Write something to MySQL.</p>
+      <pre><code>kubectl -n maku exec maku-mysql-0 -- sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" maku_boot -e \
+  "create table if not exists k8s_lesson(t datetime); insert into k8s_lesson values(now()); select * from k8s_lesson"'</code></pre></li>
+    <li><p><strong>Predict:</strong> will the row survive? Then delete the pod and wait for its replacement.</p>
+      <pre><code>kubectl -n maku delete pod maku-mysql-0
+kubectl -n maku wait --for=condition=ready pod/maku-mysql-0 --timeout=180s
+kubectl -n maku exec maku-mysql-0 -- sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" maku_boot -e "select * from k8s_lesson"'</code></pre>
+      <details class="expect"><summary>What happens</summary><p>Same pod name, same row. The PVC <code>data-maku-mysql-0</code> was re-attached. While MySQL was down, the backend's readiness (which includes <code>db</code>) failed briefly; check <code>kubectl -n maku get pods</code>.</p></details></li>
+    <li><p>Now Redis, which has <em>no</em> volume. Write a key, kill the pod, look again.</p>
+      <pre><code>kubectl -n maku exec deploy/maku-redis -- redis-cli -n 1 set lesson hello
+kubectl -n maku delete pod -l app.kubernetes.io/component=redis
+kubectl -n maku rollout status deploy/maku-redis
+kubectl -n maku exec deploy/maku-redis -- redis-cli -n 1 get lesson</code></pre>
+      <details class="expect"><summary>What happens</summary><p>An empty line (interactive <code>redis-cli</code> would say <code>(nil)</code>): the data died with the container. Since login tokens live in Redis (<code>sys:token:*</code>), everyone logged into http://maku.localhost:8088 is now logged out. Try it.</p></details></li>
+    <li><p>Clean up the lesson table.</p>
+      <pre><code>kubectl -n maku exec maku-mysql-0 -- sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" maku_boot -e "drop table k8s_lesson"'</code></pre></li>
+  </ol>
+
+  <div class="callout warn"><span class="label">Uninstall ≠ delete data</span><code>helm uninstall maku</code> removes the StatefulSet but <strong>keeps</strong> <code>data-maku-mysql-0</code> (StatefulSet PVC retention) and <code>maku-uploads</code> (<code>helm.sh/resource-policy: keep</code>). Reinstalling picks the old data back up. To really wipe: <code>kubectl -n maku delete pvc --all</code>.</div>
+
+  <h2>Practice</h2>
+
+  <div class="quiz">
+    <p class="q">1. The MySQL pod is deleted and recreated. Why is the data still there?</p>
+    <div class="opts">
+      <button class="opt" data-correct>The PVC outlives the pod and reattaches</button>
+      <button class="opt">MySQL replicates data to the backend pod</button>
+      <button class="opt">Kubernetes snapshots every container before deleting it</button>
+      <button class="opt">Helm restores the database from its backup</button>
+    </div>
+    <div class="why">The pod is disposable; the claim <code>data-maku-mysql-0</code> isn't. The StatefulSet mounts the same claim into the new <code>maku-mysql-0</code>.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. What does a StatefulSet give MySQL that a Deployment wouldn't?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Stable pod name and its own volume</button>
+      <button class="opt">Faster startup plus automatic daily database backups</button>
+      <button class="opt">Multiple replicas sharing one single writable volume</button>
+      <button class="opt">Built-in MySQL primary and replica failover support</button>
+    </div>
+    <div class="why">Identity and per-replica storage. Backups and failover are still your job (or a database operator's).</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. Access mode <code>ReadWriteOnce</code> means the volume is…</p>
+    <div class="opts">
+      <button class="opt" data-correct>mountable read-write by one node at once</button>
+      <button class="opt">writable only once, then read-only after that</button>
+      <button class="opt">readable by only one container, ever, anywhere</button>
+      <button class="opt">flushed to disk once per pod lifetime</button>
+    </div>
+    <div class="why">“Once” = one <em>node</em>. Several pods on the same node can share an RWO volume; pods on different nodes can't. That's why maku-backend uses <code>Recreate</code> (lesson 02).</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. The Redis pod is deleted. What do users notice?</p>
+    <div class="opts">
+      <button class="opt" data-correct>They're logged out; their tokens lived in Redis</button>
+      <button class="opt">Nothing at all; Redis data lives in MySQL</button>
+      <button class="opt">Uploaded files disappear from the attachment list page</button>
+      <button class="opt">The UI shows a permanent 404 error page</button>
+    </div>
+    <div class="why">Redis has no PVC in our chart, a deliberate choice since it holds only sessions, caches and a log queue. Files are on <code>maku-uploads</code>; rows are in MySQL.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. You <code>helm uninstall maku</code>, then install again. The old users are still there. Why?</p>
+    <div class="opts">
+      <button class="opt" data-correct>StatefulSet PVCs aren't deleted along with the StatefulSet</button>
+      <button class="opt">Helm backs up databases before uninstalling a release</button>
+      <button class="opt">MySQL writes its data into the container image</button>
+      <button class="opt">The ConfigMap keeps a copy of every table</button>
+    </div>
+    <div class="why">Default <code>persistentVolumeClaimRetentionPolicy</code> is Retain. The new StatefulSet finds <code>data-maku-mysql-0</code> by name and mounts it, and Liquibase sees its changesets already applied.</div>
+  </div>
+
+  <details class="recall"><summary>Recall (interview): “Deployment vs StatefulSet — when would you use each?”</summary>
+    <p><b>Deployment</b>: stateless, interchangeable replicas (APIs, web frontends; maku-backend, maku-frontend). Random names, shared template, rolling updates. <b>StatefulSet</b>: each replica needs a stable identity and its own persistent storage (databases, Kafka, ZooKeeper; maku-mysql). Stable names and DNS, per-replica PVCs, ordered rollout. Many teams avoid running databases in-cluster at all and use managed services instead (see <code>values-production.example.yaml</code>).</p>
+  </details>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">Persistent Volumes (kubernetes.io)</a> — “Lifecycle of a volume and claim”, “Access Modes”, “Reclaim Policy”. Then the “Components” and “Stable Storage” parts of <a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/">StatefulSets</a>.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “how would I back up the MySQL PVC?” or “what would it take to run 2 backend replicas?”. Then say “lesson 05 done” so it can prepare lesson 06.</div>
+
+  <div class="score" data-lesson="k8s-0005"></div>
+  <div class="pager"><a href="0004-config-and-secrets.html">← Lesson 04</a><a href="index.html">Course home →</a></div>
+</main>
+</body>
+</html>

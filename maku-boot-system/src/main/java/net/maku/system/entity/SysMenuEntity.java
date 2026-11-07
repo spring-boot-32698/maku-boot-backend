@@ -8,9 +8,9 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.mybatis.entity.BaseEntity;
 
 /**
- * 菜单管理
+ * Menu management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -18,37 +18,37 @@ import net.maku.framework.mybatis.entity.BaseEntity;
 @TableName("sys_menu")
 public class SysMenuEntity extends BaseEntity {
     /**
-     * 上级ID
+     * Parent ID
      */
     @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Long pid;
     /**
-     * 菜单名称
+     * Menu name
      */
     private String name;
     /**
-     * 菜单URL
+     * Menu URL
      */
     private String url;
     /**
-     * 授权标识(多个用逗号分隔，如：sys:menu:list,sys:menu:save)
+     * Authorization identifier(Separate multiple values with commas, e.g.: sys:menu:list,sys:menu:save)
      */
     private String authority;
     /**
-     * 类型   0：菜单   1：按钮   2：接口
+     * Type   0: menu   1: button   2: API
      */
     private Integer type;
     /**
-     * 打开方式   0：内部   1：外部
+     * Open mode   0: internal   1: external
      */
     private Integer openStyle;
     /**
-     * 菜单图标
+     * Menu icon
      */
     @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String icon;
     /**
-     * 排序
+     * Sort
      */
     private Integer sort;
 

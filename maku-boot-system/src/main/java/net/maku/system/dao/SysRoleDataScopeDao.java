@@ -8,21 +8,21 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 角色数据权限
+ * Role data permission
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Mapper
 public interface SysRoleDataScopeDao extends BaseDao<SysRoleDataScopeEntity> {
 
     /**
-     * 根据角色ID，获取机构ID列表
+     * Get the organization ID list by role ID
      */
     List<Long> getOrgIdList(@Param("roleId") Long roleId);
 
     /**
-     * 获取用户的数据权限列表
+     * Get the user data permission list
      */
     List<Long> getDataScopeList(@Param("userId") Long userId);
 

@@ -6,22 +6,22 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
- * 岗位管理
+ * Post management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "岗位管理查询")
+@Schema(description = "Post management query")
 public class SysPostQuery extends Query {
-    @Schema(description = "岗位编码")
+    @Schema(description = "Post code")
     private String postCode;
 
-    @Schema(description = "岗位名称")
+    @Schema(description = "Post name")
     private String postName;
 
-    @Schema(description = "状态  0：停用   1：正常")
+    @Schema(description = "Status  0: disabled   1: normal")
     private Integer status;
 
 }

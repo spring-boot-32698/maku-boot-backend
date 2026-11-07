@@ -1,0 +1,21 @@
+# Teaching notes — Kubernetes & Helm
+
+- Learner: brand new to Kubernetes (stated 2026-10-11). Knows Docker + Compose from running maku locally. Goals: work deployments + interviews (CKAD not a target unless they say so).
+- A k3d cluster `ecommerce` exists on the machine but the learner says it isn't theirs / doesn't remember it — don't use it.
+- Workspace lives in `maku-boot-backend/.claude/k8s/`; it reuses the shared course assets in `../assets/` (style.css, quiz.js, steps.js).
+- Code under study: `maku-boot-backend/deploy/helm/maku` (chart), `deploy/k3d/` (cluster config + up/down scripts), guide `deploy/helm/README.md`. Generated and verified 2026-10-11: 4 pods Running, helm test passed, data + uploads survived pod deletion. All hands-on commands in lessons 1–5 were dry-run against the cluster (release now at revision 4; namespace play deleted afterwards).
+- The cluster was created and maku deployed by `up.sh` before lesson 1 so lessons can explore a working system first ("explore, then rebuild"). Lesson 9 has the learner tear it down and rebuild by hand.
+- Observed teaching moments to reuse:
+  - After deleting the backend pod, Traefik returned "404 page not found" for ~3 s until the new endpoint propagated (readiness/endpoints lesson).
+  - local-path StorageClass: RWO, reclaimPolicy Delete, WaitForFirstConsumer; mysql-0 pinned to k3d-maku-server-0 by its volume.
+  - Backend logs are in Asia/Shanghai time (TZ env) while the host isn't — explains "wrong" timestamps.
+- 2026-10-11: learner asked for all remaining lessons at once → lessons 06–12 written (plus labs/, reference/interview.html). Not yet adapted to learning records (none beyond 0001) — revise when the learner reports progress/confusion.
+- Verified facts used in lessons 06–12 (all run on this cluster):
+  - Redis down → backend 0/1, 0 restarts, Traefik 404, liveness UP; readiness probe failed by *timeout* → chart now sets probe timeoutSeconds: 3.
+  - Labs A–H reproduce: Pending (cpu), ImagePullBackOff, Error/CrashLoop exit 1, OOMKilled 137, readiness 404 (endpoints ready=false — EndpointSlices DO list not-ready endpoints), selector typo → instant "Connection refused" (not timeout), Init:0/1 bad address, PVC Pending StorageClass not found.
+  - Helm 4: --rollback-on-failure works (failed rev → auto "Rollback to N"); frontend stayed up during broken rollout (RollingUpdate). `helm upgrade --dry-run=server` did NOT catch replicas: two; `kubectl apply --dry-run=server` did.
+  - kubectl 1.31 autoscale flag is --cpu-percent (not --cpu). HPA reached 500% → desired 4 after ~40 s.
+  - ImagePullBackOff recovers ~10 s after `k3d image import`.
+  - Namespace deletion takes a while; re-creating immediately fails with "being terminated".
+- Image maku-admin:5.0.1 (title "MAKU on Kubernetes") exists in Docker and the cluster from rehearsing lesson 10; harmless.
+- Ingress-nginx retired (Mar 2026) → production example uses traefik className + Gateway API note.

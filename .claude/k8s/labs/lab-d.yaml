@@ -1,0 +1,23 @@
+# Lab D
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-d
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: lab-d }
+  template:
+    metadata:
+      labels: { app: lab-d }
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.36
+          # `tail /dev/zero` never sees a newline, so it buffers forever and keeps allocating memory
+          command: ["sh", "-c", "echo 'loading cache...'; tail /dev/zero"]
+          resources:
+            requests:
+              memory: 16Mi
+            limits:
+              memory: 32Mi

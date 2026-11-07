@@ -7,9 +7,9 @@ import net.maku.framework.common.trans.TransPojo;
 import java.time.LocalDateTime;
 
 /**
- * Entity基类
+ * EntityBase class
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -21,38 +21,38 @@ public abstract class BaseEntity implements TransPojo {
     private Long id;
 
     /**
-     * 创建者
+     * Creator
      */
     @TableField(fill = FieldFill.INSERT)
     private Long creator;
 
     /**
-     * 创建时间
+     * Creation time
      */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
-     * 更新者
+     * Updater
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updater;
 
     /**
-     * 更新时间
+     * Update time
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     /**
-     * 版本号
+     * Version number
      */
     @Version
     @TableField(fill = FieldFill.INSERT)
     private Integer version;
 
     /**
-     * 删除标记
+     * Delete flag
      */
     @TableLogic
     @TableField(fill = FieldFill.INSERT)

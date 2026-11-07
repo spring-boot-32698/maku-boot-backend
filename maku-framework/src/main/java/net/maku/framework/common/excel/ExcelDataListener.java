@@ -7,22 +7,22 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * excel读取监听器
+ * excelRead listener
  *
  * @author eden
  */
 public class ExcelDataListener<T> extends AnalysisEventListener<T> {
     /**
-     * 定义一个保存Excel所有记录的集合
+     * Define a collection that holds all Excel records
      */
     private final List<T> list = new LinkedList<>();
     /**
-     * 回调接口
+     * Callback interface
      */
     private final ExcelFinishCallBack<T> callBack;
 
     /**
-     * 构造 ExcelFinishCallBack
+     * Construct ExcelFinishCallBack
      *
      * @param callBack ExcelFinishCallBack
      */
@@ -32,8 +32,8 @@ public class ExcelDataListener<T> extends AnalysisEventListener<T> {
 
 
     /**
-     * 这个每一条数据解析都会来调用
-     * 在这里可以做一些其他的操作（过滤，分批入库...）  就考自己去拓展了
+     * This is called for every row of data parsed
+     * Other operations can be done here (filtering, batch inserting...), extend it yourself
      *
      * @param data    one row value. is same as {@link AnalysisContext#readRowHolder()}
      * @param context context
@@ -48,8 +48,8 @@ public class ExcelDataListener<T> extends AnalysisEventListener<T> {
     }
 
     /**
-     * 所有数据解析完成了 都会来调用
-     * 解析完成之后将所有数据存入回调接口中
+     * Called after all data has been parsed
+     * After parsing is complete, store all data in the callback interface
      *
      * @param context context
      */

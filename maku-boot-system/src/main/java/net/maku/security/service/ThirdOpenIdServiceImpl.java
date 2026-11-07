@@ -12,9 +12,9 @@ import net.maku.system.service.SysThirdLoginConfigService;
 import org.springframework.stereotype.Service;
 
 /**
- * 第三方登录，通过code，获取开放平台用户唯一标识
+ * Third-party login, get the open platform user unique identifier by code
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -27,12 +27,12 @@ public class ThirdOpenIdServiceImpl implements ThirdOpenIdService {
         AuthRequest authRequest = sysThirdLoginConfigService.getAuthRequest(login.getOpenType());
         AuthCallback callback = AuthCallback.builder().code(login.getCode()).state(login.getState()).build();
 
-        // 根据code，获取用户信息
+        // Get user info by code
         AuthResponse<AuthUser> response = authRequest.login(callback);
 
-        // 判断是否成功
+        // Check whether it succeeded
         if (!response.ok()) {
-            throw new ServerException("第三方登录失败");
+            throw new ServerException("Third-party login failed");
         }
 
         return response.getData().getUuid();

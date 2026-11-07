@@ -7,18 +7,18 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 用户签名
+ * User signature
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "用户签名")
+@Schema(description = "User signature")
 public class SysUserSignatureVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @NotBlank(message = "签名不能为空")
-    @Schema(description = "签名")
+    @NotBlank(message = "Signature cannot be empty")
+    @Schema(description = "Signature")
     private String signature;
 
 }

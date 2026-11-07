@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 设备事件日志
+ * Device event log
  *
  * @author LSF maku_lsf@163.com
  */

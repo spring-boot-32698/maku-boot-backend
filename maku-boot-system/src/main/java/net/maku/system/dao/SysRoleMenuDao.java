@@ -8,16 +8,16 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 角色与菜单对应关系
+ * Role-menu mapping
  * 
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Mapper
 public interface SysRoleMenuDao extends BaseDao<SysRoleMenuEntity> {
 
 	/**
-	 * 根据角色ID，获取菜单ID列表
+	 * Get the menu ID list by role ID
 	 */
 	List<Long> getMenuIdList(@Param("roleId") Long roleId);
 }

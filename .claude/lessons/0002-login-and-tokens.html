@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login and Tokens</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">Course</a><span>›</span><span>Lesson 02</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Login, tokens and refresh</h1>
+  <p class="subtitle">The token here is not a JWT. That one fact explains most of the design.</p>
+  <div class="meta"><span><b>Time</b> ~10 min</span><span><b>Prereq</b> <a href="0001-the-map.html">Lesson 01</a></span><span><b>Deep dive</b> <a href="../docs/03-business-flows.md">docs/03 §1–2</a></span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>You can explain what happens on login, on every request, and when the token expires — and find a logged-in user's session in Redis.</p>
+  </div>
+
+  <h2>The token is a key, not a passport</h2>
+  <p>On login the server generates two random UUIDs — an <a href="../reference/glossary.html#access-token">access token</a> and a <a href="../reference/glossary.html#refresh-token">refresh token</a>. The access token is just a <strong>Redis key</strong>:</p>
+  <pre><code>sys:token:&lt;accessToken&gt;  →  UserDetail { id, username, orgId, superAdmin,
+                                         authoritySet: ["sys:user:save", "ROLE_hr", …],
+                                         dataScopeList: [2, 3] }        TTL 8 h</code></pre>
+  <p>On every request <code>AuthenticationTokenFilter</code> reads the <code>Authorization</code> header (raw token, <em>no</em> “Bearer”), fetches that key, and puts the <code>UserDetail</code> into Spring's <code>SecurityContextHolder</code>. No key → the request is anonymous → protected URLs get <code>{"code":401}</code>.</p>
+  <p class="sidenote">Spring Security's <a href="https://docs.spring.io/spring-security/reference/servlet/architecture.html">Servlet Architecture</a> page explains filters and <code>SecurityContextHolder</code>. Files: <code>maku-framework/…/security/filter/AuthenticationTokenFilter.java</code>, <code>…/cache/TokenStoreCache.java</code>.</p>
+  <p><strong>Why not JWT?</strong> Because the server owns the session, it can revoke it (logout, “kick user” in Monitor) and <em>rewrite the user's permissions while they're logged in</em> — something a signed JWT can't do.</p>
+
+  <h2>Login, step by step</h2>
+  <ol class="flow">
+    <li class="fe"><span class="tag fe">FE</span><code>account.vue</code> SM2-encrypts the password with a public key in <code>src/utils/smCrypto.ts</code>.</li>
+    <li><span class="tag be">BE</span><code>POST /sys/auth/login</code> → captcha check (off by default: param <code>LOGIN_CAPTCHA=false</code>).</li>
+    <li><span class="tag be">BE</span><code>AuthenticationManager</code> → <code>DaoAuthenticationProvider</code> loads the user, computes authorities + data scope, compares SM3 hashes.</li>
+    <li><span class="tag be">BE</span><code>createToken()</code> upserts <code>sys_user_token</code> (one row per user); <code>saveUser()</code> writes Redis.</li>
+    <li class="fe"><span class="tag fe">FE</span>Stores <code>access_token</code>/<code>refresh_token</code> in localStorage (<code>maToken</code>, <code>maRefreshToken</code>), then the router guard loads user info, permissions, dictionaries and menus.</li>
+  </ol>
+  <p class="sidenote">The <code>AuthenticationManager</code> is a <code>ProviderManager</code> with three providers — password, SMS code, third-party — see <a href="https://docs.spring.io/spring-security/reference/servlet/authentication/architecture.html">Authentication Architecture</a> and <code>maku-boot-system/…/security/config/SecurityConfig.java</code>.</p>
+
+  <h2>Expiry: the silent refresh</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Token</th><th>Lives</th><th>Stored</th></tr>
+    <tr><td>access</td><td>8 h (<code>maku.security.access-token-expire</code>)</td><td>Redis + <code>sys_user_token</code></td></tr>
+    <tr><td>refresh</td><td>14 days</td><td><code>sys_user_token</code> only</td></tr>
+  </table></div>
+  <p>When the Redis key expires, the next call returns <code>code 401</code>. <code>src/utils/request.ts</code> then calls <code>POST /sys/auth/token?refreshToken=…</code>, gets a new access token (the backend <em>reloads permissions from the DB</em> while doing so), and replays the failed request plus any that queued up meanwhile. If the refresh token is also dead the backend answers <code>code 400</code> and the UI shows “Login timed out”.</p>
+  <p class="sidenote">Axios <a href="https://axios-http.com/docs/interceptors">interceptors</a> are what make this invisible to page code.</p>
+
+  <h2>Live permission updates</h2>
+  <p>When an admin edits a role or user, <code>SysUserTokenServiceImpl.updateCacheAuthByRoleId/UserId</code> finds that user's still-valid access tokens in <code>sys_user_token</code> and rebuilds each cached <code>UserDetail</code>, keeping its TTL. The backend enforces the change at once; the browser only shows new menus/buttons after a reload.</p>
+
+  <h2>Practice</h2>
+  <p class="practice-intro">Answer from memory first.</p>
+
+  <div class="quiz">
+    <p class="q">1. On each authenticated request, where does the backend find out who you are?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Redis key sys:token:&lt;token&gt; lookup</button>
+      <button class="opt">Decoding a JWT payload</button>
+      <button class="opt">HTTP session cookie lookup</button>
+      <button class="opt">Querying sys_user every request</button>
+    </div>
+    <div class="why"><code>TokenStoreCache.getUser(accessToken)</code> reads <code>sys:token:&lt;token&gt;</code>. Sessions are <code>STATELESS</code> in <code>SecurityFilterConfig</code>, and the token is a random UUID, not a JWT.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. A user's access token expired an hour ago; their refresh token is still valid. They click “Save”. What do they see?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Nothing unusual; the save simply succeeds</button>
+      <button class="opt">Login page with a timeout dialog</button>
+      <button class="opt">A red toast saying not authorized</button>
+      <button class="opt">A browser error page showing 401</button>
+    </div>
+    <div class="why">The <code>code 401</code> is caught by the axios response interceptor, which refreshes the token and replays the request. The user never notices.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. The refresh token has expired too (15 days idle). What does <code>POST /sys/auth/token</code> return?</p>
+    <div class="opts">
+      <button class="opt" data-correct>code 400, forcing re-login</button>
+      <button class="opt">code 401, retrying refresh</button>
+      <button class="opt">code 403, showing forbidden</button>
+      <button class="opt">HTTP 500, showing error</button>
+    </div>
+    <div class="why"><code>refreshToken()</code> throws <code>ServerException(ErrorCode.REFRESH_TOKEN_INVALID)</code> = 400. <code>request.ts</code> maps 400 to <code>handleAuthorized()</code> → “Login timed out” → back to <code>/login</code>.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. An admin removes a permission from role R. User U (role R) is logged in right now. When does the <em>backend</em> start rejecting U?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Immediately, Redis UserDetail gets rebuilt</button>
+      <button class="opt">Once their access token expires</button>
+      <button class="opt">Only after a fresh login</button>
+      <button class="opt">After the nightly cache flush</button>
+    </div>
+    <div class="why"><code>SysRoleServiceImpl.update</code> calls <code>updateCacheAuthByRoleId</code>, which rewrites each online user's cached authorities. (U's browser keeps showing the button until a reload — but clicking it now returns 403.)</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. Why does <code>curl -d '{"username":"admin","password":"admin"}' …/sys/auth/login</code> fail?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Password must be SM2-encrypted first</button>
+      <button class="opt">Password must be SM3-hashed first</button>
+      <button class="opt">Captcha is always required there</button>
+      <button class="opt">Endpoint only accepts form data</button>
+    </div>
+    <div class="why">The server calls <code>Sm2Util.decrypt(login.getPassword())</code> before authenticating. SM3 is how the password is <em>stored</em>, hashed server-side. Captcha is off by default.</div>
+  </div>
+
+  <details class="recall"><summary>Recall: name the two places a valid access token is recorded, and which one the request filter actually reads.</summary>
+    <p>Redis (<code>sys:token:&lt;token&gt;</code> → <code>UserDetail</code>) and the <code>sys_user_token</code> table. The filter reads only Redis; the table is used for refresh, logout and finding a user's online tokens.</p>
+  </details>
+
+  <h2>Try it</h2>
+  <p>Log in via the UI, then run <code>redis-cli -n 1 --scan --pattern 'sys:token:*'</code> (dev Redis uses database 1). Copy your token from DevTools → Local Storage → <code>maToken</code> and call <code>curl -H "Authorization: $TOKEN" localhost:8080/sys/user/info</code>. Then delete the key and watch the UI refresh it on the next click (Network tab).</p>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://docs.spring.io/spring-security/reference/servlet/architecture.html">Spring Security reference — Servlet Architecture</a>. Read “SecurityFilterChain” and “SecurityContextHolder”; then reread <code>AuthenticationTokenFilter</code> — it'll be obvious.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “walk me through SMS-code login” or “what would it take to switch this to JWT?”.</div>
+
+  <div class="score" data-lesson="0002"></div>
+  <div class="pager"><a href="0001-the-map.html">← Lesson 01: The map</a><a href="0003-permissions.html">Lesson 03: Permissions →</a></div>
+</main>
+</body>
+</html>

@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * 设备属性枚举
+ * Device property enum
  *
  * @author LSF maku_lsf@163.com
  */
@@ -13,27 +13,27 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum DevicePropertyEnum {
     /**
-     * 运行状态
+     * Running status
      */
     RUNNING_STATUS(1),
 
     /**
-     * APP版本
+     * APPVersion
      */
     APP_VERSION(2),
 
     /**
-     * 电池电量百分比
+     * Battery level percentage
      */
     BATTERY_PERCENT(3),
 
     /**
-     * 温度
+     * Temperature
      */
     TEMPERATURE(4);
 
     /**
-     * 类型值
+     * Type value
      */
     private final Integer value;
 

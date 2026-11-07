@@ -6,21 +6,21 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
-* 定时任务查询
+* Scheduled task query
 *
-* @author 阿沐 babamu@126.com
+* @author Amu babamu@126.com
 */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "定时任务查询")
+@Schema(description = "Scheduled task query")
 public class ScheduleJobQuery extends Query {
-    @Schema(description = "任务名称")
+    @Schema(description = "Task name")
     private String jobName;
 
-    @Schema(description = "任务组名")
+    @Schema(description = "Task group name")
     private String jobGroup;
 
-    @Schema(description = "状态")
+    @Schema(description = "Status")
     private Integer status;
 
 }

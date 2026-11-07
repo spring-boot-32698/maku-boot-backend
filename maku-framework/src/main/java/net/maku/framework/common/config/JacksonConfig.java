@@ -28,10 +28,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
 /**
- * Jackson 配置
+ * Jackson Settings
  * <p>
- * Spring Boot 4 推荐使用 SimpleModule Bean + JsonMapperBuilderCustomizer，
- * 框架会自动将 Module 注册到内置的 JsonMapper 中，避免多个 ObjectMapper Bean 冲突。
+ * Spring Boot 4 SimpleModule Bean is recommended + JsonMapperBuilderCustomizer,
+ * The framework automatically registers the Module into the built-in JsonMapper to avoid conflicts between multiple ObjectMapper Beans.
  */
 @Configuration
 public class JacksonConfig {
@@ -77,13 +77,13 @@ public class JacksonConfig {
     }
 
     /**
-     * 自定义序列化/反序列化模块，Spring Boot 会自动注册到 JsonMapper
+     * Custom serialization/deserialization module, which Spring Boot registers into JsonMapper automatically
      */
     @Bean
     public SimpleModule customSerializerModule() {
         SimpleModule module = new SimpleModule("CustomSerializerModule");
 
-        // 日期时间序列化
+        // Date-time serialization
         module.addSerializer(Timestamp.class, new TimestampSerializer());
         module.addSerializer(Date.class, new DateSerializer());
         module.addSerializer(LocalDateTime.class,
@@ -93,7 +93,7 @@ public class JacksonConfig {
         module.addSerializer(LocalTime.class,
                 new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
 
-        // 日期时间反序列化
+        // Date-time deserialization
         module.addDeserializer(LocalDateTime.class,
                 new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         module.addDeserializer(LocalDate.class,
@@ -101,7 +101,7 @@ public class JacksonConfig {
         module.addDeserializer(LocalTime.class,
                 new LocalTimeDeserializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
 
-        // Long 类型序列化为 String，解决前端 js 精度丢失问题
+        // Long Serialize the type as String to solve the js precision loss problem on the frontend
         module.addSerializer(Long.class, BigNumberSerializer.INSTANCE);
         module.addSerializer(Long.TYPE, BigNumberSerializer.INSTANCE);
         module.addSerializer(BigDecimal.class, new BigDecimalSerializer());
@@ -110,7 +110,7 @@ public class JacksonConfig {
     }
 
     /**
-     * 自定义 JsonMapper 构建器配置
+     * Custom JsonMapper builder configuration
      */
     @Bean
     public JsonMapperBuilderCustomizer jsonMapperBuilderCustomizer() {

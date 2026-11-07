@@ -4,28 +4,28 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 短信平台枚举
+ * SMS platform enum
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum SmsPlatformEnum {
     /**
-     * 阿里云
+     * Alibaba Cloud
      */
     ALIYUN(0),
     /**
-     * 腾讯云
+     * Tencent Cloud
      */
     TENCENT(1),
     /**
-     * 七牛云
+     * Qiniu Cloud
      */
     QINIU(2),
     /**
-     * 华为云
+     * Huawei Cloud
      */
     HUAWEI(3);
 

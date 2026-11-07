@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 /**
- * TCP协议服务类
+ * TCPProtocol service class
  *
  * @author LSF maku_lsf@163.com
  */
@@ -34,7 +34,7 @@ public class TCPService implements BaseCommunication {
 
     @Override
     public String asyncSendCommand(IotDeviceEntity device, DeviceCommandEnum command, String payload) {
-        // 构建命令对象
+        // Build command object
         String commandId = StrUtil.replaceChars(UUID.randomUUID().toString(), "-", "");
         DeviceCommandDTO commandDTO = new DeviceCommandDTO();
         commandDTO.setCommand(command);
@@ -43,94 +43,94 @@ public class TCPService implements BaseCommunication {
         commandDTO.setPayload(payload);
         String commandTopic = DeviceTopicEnum.COMMAND.buildTopic(DeviceClientDTO.from(device));
 
-        // 发送命令到设备命令主题
+        // Send command to device command topic
         try {
             tcpGateway.sendCommandToDevice(device.getId(),commandTopic, JSONUtil.toJsonStr(commandDTO));
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new ServerException(StrUtil.format("发送'{}'命令:{} 到设备:{}-{}, Topic:{} 失败,原因:{}",
+            throw new ServerException(StrUtil.format("Send'{}'Command:{} To device:{}-{}, Topic:{} Failed,Reason:{}",
                     command.getTitle(), commandId, device.getCode(), device.getName(), commandTopic,e.getMessage()));
         }
-        log.info("发送'{}'命令:{} 到设备:{}-{}, Topic:{} 成功", command.getTitle(), commandId, device.getCode(), device.getName(), commandTopic);
+        log.info("Send'{}'Command:{} To device:{}-{}, Topic:{} Success", command.getTitle(), commandId, device.getCode(), device.getName(), commandTopic);
         iotDeviceEventLogService.createAndSaveDeviceServiceLog(device.getId(), device.getTenantId(), command, commandId, payload);
         return commandId;
     }
 
     @Override
     public DeviceCommandResponseDTO syncSendCommand(IotDeviceEntity device, DeviceCommandEnum command, String payload) {
-        // 构建并发送命令
+        // Build and send command
         String commandId = asyncSendCommand(device, command, payload);
-        // 等待返回结果
+        // Wait for the result
         Object receiver = CommandResponseChan.getInstance(commandId, true).get(commandId);
         if (receiver == null) {
-            throw new ServerException(StrUtil.format("{}设备没有回复", device.getName()));
+            throw new ServerException(StrUtil.format("{}Device did not reply", device.getName()));
         }
         return (DeviceCommandResponseDTO) receiver;
     }
 
     @Override
     public DeviceCommandResponseDTO syncSendCommandDebug(IotDeviceEntity device, DeviceCommandEnum command, String payload) {
-        // 构建并发送命令
+        // Build and send command
         String commandId = asyncSendCommand(device, command, payload);
 
-        // 2秒后模拟设备响应
+        // 2 seconds later simulate the device response
         new Thread(() -> {
             try {
-                //模拟设备正常响应
+                //Simulate normal device response
                 Thread.sleep(2000);
-                //模拟设备超时响应
+                //Simulate device timeout response
                 //Thread.sleep(15000);
                 DeviceCommandResponseDTO simulateResponseDto = new DeviceCommandResponseDTO();
                 simulateResponseDto.setCommandId(commandId);
-                simulateResponseDto.setResponsePayload(command.getTitle() + ",设备执行成功！");
+                simulateResponseDto.setResponsePayload(command.getTitle() + ",Device executed successfully!");
                 simulateResponseDto.setDeviceId(String.valueOf(device.getId()));
                 simulateResponseDto.setCommand(command);
                 simulateDeviceCommandResponseAttributeData(device, JSONUtil.toJsonStr(simulateResponseDto));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                log.error("模拟设备响应线程被中断", e);
+                log.error("Simulated device response thread was interrupted", e);
             }
         }).start();
 
-        // 等待返回结果
+        // Wait for the result
         Object receiver = CommandResponseChan.getInstance(commandId, true).get(commandId);
         if (receiver == null) {
-            throw new ServerException(StrUtil.format("{}设备没有回复", device.getName()));
+            throw new ServerException(StrUtil.format("{}Device did not reply", device.getName()));
         }
         return (DeviceCommandResponseDTO) receiver;
     }
 
     @Override
     public void simulateDeviceReportAttributeData(IotDeviceEntity device,  String payload) {
-        // 封装 设备属性上报的 topic
+        // Wrap the topic of device property reports
         String commandTopic = DeviceTopicEnum.PROPERTY.buildTopic(DeviceClientDTO.from(device));
         try {
             tcpGateway.simulateDeviceReport(device.getId(), commandTopic, payload, DevicePropertyDTO.class);
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new ServerException(StrUtil.format("模拟设备:{}-{},模拟属性上报失败！ Topic:{} ",
+            throw new ServerException(StrUtil.format("Simulated device:{}-{},Failed to simulate property report! Topic:{} ",
                     device.getCode(), device.getName(), commandTopic));
         }
     }
 
     @Override
     public void simulateDeviceCommandResponseAttributeData(IotDeviceEntity device, String payload) {
-        // 封装 设备命令执行结果的 topic
+        // Wrap the topic of device command execution results
         String commandTopic = DeviceTopicEnum.COMMAND_RESPONSE.buildTopic(DeviceClientDTO.from(device));
         try {
             tcpGateway.simulateDeviceReport(device.getId(), commandTopic, payload, DeviceCommandResponseDTO.class);
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new ServerException(StrUtil.format("模拟设备:{}-{},模拟命令执行结果上报失败！ Topic:{} ",
+            throw new ServerException(StrUtil.format("Simulated device:{}-{},Failed to simulate reporting the command execution result! Topic:{} ",
                     device.getCode(), device.getName(), commandTopic));
         }
     }
 
 
     /**
-     * 设备命令响应处理，把设备响应结果放入通道中
+     * Device command response handling, puts the device response result into the channel
      *
-     * @param commandResponse 设备命令响应
+     * @param commandResponse Device command response
      */
     public void commandReplied(DeviceCommandResponseDTO commandResponse) {
         CommandResponseChan commandResponseChan = CommandResponseChan.getInstance(commandResponse.getCommandId(), false);

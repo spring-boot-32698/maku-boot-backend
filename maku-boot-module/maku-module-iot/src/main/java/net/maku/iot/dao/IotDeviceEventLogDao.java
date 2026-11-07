@@ -5,7 +5,7 @@ import net.maku.iot.entity.IotDeviceEventLogEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 设备事件日志
+ * Device event log
  *
  * @author LSF maku_lsf@163.com
  */

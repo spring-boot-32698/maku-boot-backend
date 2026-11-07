@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kubernetes Glossary</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="../lessons/index.html">K8s course</a><span>›</span><span>Reference</span><span>·</span><a href="cheatsheet.html">Cheat sheet</a></div>
+  <h1>Kubernetes &amp; Helm glossary</h1>
+  <p class="subtitle">One definition per term, used consistently in every lesson. “In maku” points at the real object in our chart.</p>
+
+  <h2>Cluster</h2>
+  <dl class="glossary">
+    <dt id="cluster">Cluster</dt>
+    <dd>A set of machines (nodes) run as one system, managed through a single API. <span class="where">In maku: k3d cluster “maku”, context k3d-maku</span></dd>
+    <dt id="control-plane">Control plane</dt>
+    <dd>The brain: <b>kube-apiserver</b> (the only front door, every command goes through it), <b>etcd</b> (key-value store holding all objects), <b>kube-scheduler</b> (picks a node for each new pod), <b>kube-controller-manager</b> (runs controllers). <a href="https://kubernetes.io/docs/concepts/overview/components/">docs</a></dd>
+    <dt id="node">Node</dt>
+    <dd>A worker machine. Runs <b>kubelet</b> (starts and monitors the node's pods), a container runtime (containerd), and kube-proxy (Service networking). <span class="where">In maku: k3d-maku-server-0, k3d-maku-agent-0 — each is a Docker container running k3s</span></dd>
+    <dt id="desired-state">Desired state / reconciliation</dt>
+    <dd>You declare <b>what</b> should exist (<code>spec</code>); controllers keep comparing it with reality (<code>status</code>) and act to close the gap, forever.</dd>
+    <dt id="namespace">Namespace</dt>
+    <dd>A named folder for objects; names are unique per namespace. <span class="where">In maku: maku (the app), play (exercises), kube-system (cluster add-ons)</span></dd>
+    <dt id="context">Context (kubeconfig)</dt>
+    <dd>Which cluster + user + default namespace <code>kubectl</code> targets. <code>kubectl config current-context</code>.</dd>
+  </dl>
+
+  <h2>Workloads</h2>
+  <dl class="glossary">
+    <dt id="pod">Pod</dt>
+    <dd>Smallest deployable unit: one or more containers sharing an IP address and volumes, scheduled together on one node. Disposable — replaced, never repaired.</dd>
+    <dt id="replicaset">ReplicaSet</dt>
+    <dd>Keeps N identical pods running (matched by label selector). Created and managed by a Deployment; you rarely touch it. <span class="where">maku-backend-779d8657fd (hash of the pod template)</span></dd>
+    <dt id="deployment">Deployment</dt>
+    <dd>Declares a stateless app: pod template + replicas + update strategy (RollingUpdate or Recreate). Each template change creates a new ReplicaSet → rollout, history, undo. <span class="where">maku-backend, maku-frontend, maku-redis</span></dd>
+    <dt id="statefulset">StatefulSet</dt>
+    <dd>Like a Deployment, but pods get stable names (<code>-0</code>, <code>-1</code>), ordered start/stop, and their own PVC each via <code>volumeClaimTemplates</code>. For databases. <span class="where">maku-mysql → pod maku-mysql-0, PVC data-maku-mysql-0</span></dd>
+    <dt id="init-container">Init container</dt>
+    <dd>Runs to completion before the app containers start. <span class="where">wait-for-mysql in the backend pod</span></dd>
+    <dt id="labels">Labels / selector</dt>
+    <dd>Key-value tags on objects; selectors find objects by label. This is how Deployments find their pods and Services find their endpoints. <span class="where">app.kubernetes.io/component=backend</span></dd>
+  </dl>
+
+  <h2>Networking</h2>
+  <dl class="glossary">
+    <dt id="service">Service</dt>
+    <dd>Stable virtual IP + DNS name in front of a changing set of pods (chosen by selector). <b>ClusterIP</b> (default, in-cluster only), <b>NodePort</b>, <b>LoadBalancer</b>, <b>headless</b> (<code>clusterIP: None</code>, DNS returns pod IPs). <span class="where">maku-backend, maku-frontend, maku-mysql, maku-mysql-headless, maku-redis</span></dd>
+    <dt id="endpoints">EndpointSlice</dt>
+    <dd>The live list of pod IPs behind a Service, each marked <code>ready</code> true/false; only ready ones get traffic. Empty = selector matches no pods; all <code>ready=false</code> = readiness failing.</dd>
+    <dt id="dns">Cluster DNS</dt>
+    <dd>CoreDNS answers <code>&lt;service&gt;.&lt;namespace&gt;.svc.cluster.local</code>; within the same namespace the short name works. <span class="where">jdbc:mysql://maku-mysql:3306</span></dd>
+    <dt id="port">port / targetPort / containerPort</dt>
+    <dd>Service listens on <code>port</code>, forwards to the pod's <code>targetPort</code> (a number or a named <code>containerPort</code>).</dd>
+    <dt id="ingress">Ingress / Ingress controller</dt>
+    <dd>HTTP routing rules (host/path → Service). Needs a controller to implement them (Traefik on k3s). The API is feature-frozen; its successor is <a href="https://kubernetes.io/docs/concepts/services-networking/gateway/">Gateway API</a>, and the community ingress-nginx controller was <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">retired in March 2026</a>. <span class="where">maku.localhost → frontend, api.maku.localhost → backend</span></dd>
+    <dt id="port-forward">port-forward</dt>
+    <dd><code>kubectl port-forward</code> tunnels a local port to a pod/Service through the API server — debugging only.</dd>
+  </dl>
+
+  <h2>Configuration &amp; storage</h2>
+  <dl class="glossary">
+    <dt id="configmap">ConfigMap</dt>
+    <dd>Non-secret key-values, injected as env vars or files. <span class="where">maku-backend (DB URL, Redis host, profile)</span></dd>
+    <dt id="secret">Secret</dt>
+    <dd>Like a ConfigMap for sensitive data; stored <b>base64-encoded, not encrypted</b> by default — protection comes from RBAC and etcd encryption settings. <span class="where">maku-db (mysql-password, mysql-root-password)</span></dd>
+    <dt id="pv">PersistentVolume (PV) / PersistentVolumeClaim (PVC)</dt>
+    <dd>PVC = a pod's request for storage (“5Gi, RWO”); PV = the actual piece of storage bound to it. Outlives pods. <span class="where">data-maku-mysql-0, maku-uploads</span></dd>
+    <dt id="storageclass">StorageClass</dt>
+    <dd>How PVs are created on demand (dynamic provisioning), plus reclaim policy and binding mode. <span class="where">local-path (k3s default): node-local directory, RWO, reclaim Delete</span></dd>
+    <dt id="access-modes">Access modes</dt>
+    <dd><b>RWO</b> ReadWriteOnce (one node), <b>RWX</b> ReadWriteMany (many nodes), <b>ROX</b> ReadOnlyMany, <b>RWOP</b> one pod.</dd>
+  </dl>
+
+  <h2>Health &amp; resources</h2>
+  <dl class="glossary">
+    <dt id="probes">Probes</dt>
+    <dd><b>startup</b>: is it done booting? (others wait for it) · <b>readiness</b>: should it get traffic? (fail → removed from endpoints) · <b>liveness</b>: is it stuck? (fail → container restarted). <span class="where">/actuator/health/liveness, /readiness</span></dd>
+    <dt id="requests-limits">Requests / limits</dt>
+    <dd>Request = what the scheduler reserves; limit = hard ceiling (memory over limit → <b>OOMKilled</b>).</dd>
+    <dt id="pod-status">Common pod statuses</dt>
+    <dd><b>Pending</b> (not scheduled / waiting for volume) · <b>ContainerCreating</b> · <b>Running</b> · <b>CrashLoopBackOff</b> (keeps exiting) · <b>ImagePullBackOff</b> (can't get image) · <b>Completed</b>.</dd>
+  </dl>
+
+  <h2>Helm</h2>
+  <dl class="glossary">
+    <dt id="chart">Chart</dt>
+    <dd>A package of templated manifests + default values. <span class="where">deploy/helm/maku</span></dd>
+    <dt id="values">Values</dt>
+    <dd>Inputs to the templates: <code>values.yaml</code> defaults, overridden by <code>-f file</code> then <code>--set</code> (last wins).</dd>
+    <dt id="release">Release / revision</dt>
+    <dd>One installed instance of a chart (name + namespace). Every install/upgrade/rollback creates a numbered revision. <span class="where">release “maku” in namespace maku</span></dd>
+    <dt id="template-helpers">Named template / _helpers.tpl</dt>
+    <dd>Reusable snippets defined with <code>define</code> and used with <code>include</code>. <span class="where">maku.fullname, maku.labels, maku.selectorLabels</span></dd>
+    <dt id="hook">Hook / helm test</dt>
+    <dd>Resources run at lifecycle points via the <code>helm.sh/hook</code> annotation; <code>test</code> hooks run with <code>helm test</code>. <span class="where">templates/tests/test-backend.yaml</span></dd>
+  </dl>
+
+  <h2>Compose → Kubernetes</h2>
+  <div class="table-wrap"><table>
+    <tr><th>docker-compose.yml</th><th>Kubernetes</th></tr>
+    <tr><td><code>services.maku-boot</code> (image, replicas)</td><td>Deployment (+ ReplicaSet + Pods)</td></tr>
+    <tr><td>service name as hostname</td><td>Service + cluster DNS</td></tr>
+    <tr><td><code>ports: "8080:8080"</code></td><td>Ingress (HTTP) / port-forward / NodePort</td></tr>
+    <tr><td><code>environment:</code></td><td>ConfigMap + Secret (env / envFrom)</td></tr>
+    <tr><td><code>volumes: mysql-data:</code></td><td>PVC (StorageClass provisions a PV)</td></tr>
+    <tr><td><code>healthcheck:</code></td><td>readiness / liveness / startup probes</td></tr>
+    <tr><td><code>depends_on: condition: service_healthy</code></td><td>init container + readiness (+ app retries)</td></tr>
+    <tr><td><code>restart: always</code></td><td>controllers + kubelet restart policy (built in)</td></tr>
+    <tr><td><code>docker compose up -d</code></td><td><code>helm upgrade --install</code> / <code>kubectl apply</code></td></tr>
+  </table></div>
+</main>
+</body>
+</html>

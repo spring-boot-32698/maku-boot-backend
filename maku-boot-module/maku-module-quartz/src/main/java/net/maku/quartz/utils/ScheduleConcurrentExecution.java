@@ -1,9 +1,9 @@
 package net.maku.quartz.utils;
 
 /**
- * 允许并发（不会等待上一次任务执行完毕，只要时间到就会执行）
+ * Allow concurrency (does not wait for the previous task to finish; runs whenever the time is reached)
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  *
  */

@@ -13,16 +13,16 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 
 /**
- * 异常处理器
+ * Exception handler
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Slf4j
 @RestControllerAdvice
 public class ServerExceptionHandler {
     /**
-     * 处理自定义异常
+     * Handle custom exceptions
      */
     @ExceptionHandler(ServerException.class)
     public Result<String> handleException(ServerException ex) {
@@ -31,7 +31,7 @@ public class ServerExceptionHandler {
     }
 
     /**
-     * SpringMVC参数绑定，Validator校验不正确
+     * SpringMVCParameter binding, Validator validation incorrect
      */
     @ExceptionHandler(BindException.class)
     public Result<String> bindException(BindException ex) {

@@ -1,0 +1,9 @@
+apiVersion: v2
+name: maku
+description: maku-boot API + maku-admin UI, with optional in-cluster MySQL and Redis
+type: application
+# Chart version: bump on every change to the chart itself (templates, values)
+version: 0.1.0
+# App version: the maku-boot / maku-admin release being deployed (default image tag)
+appVersion: "5.0.0"
+keywords: [spring-boot, vue, mysql, redis]

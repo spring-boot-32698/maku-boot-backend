@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 角色数据权限
+ * Role data permission
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -26,10 +26,10 @@ public class SysRoleDataScopeServiceImpl extends BaseServiceImpl<SysRoleDataScop
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdate(Long roleId, List<Long> orgIdList) {
-        // 数据库机构ID列表
+        // Organization ID list in the database
         List<Long> dbOrgIdList = getOrgIdList(roleId);
 
-        // 需要新增的机构ID
+        // Organization IDs to add
         Collection<Long> insertOrgIdList = CollUtil.subtract(orgIdList, dbOrgIdList);
         if (CollUtil.isNotEmpty(insertOrgIdList)){
             List<SysRoleDataScopeEntity> orgList = insertOrgIdList.stream().map(orgId -> {
@@ -39,11 +39,11 @@ public class SysRoleDataScopeServiceImpl extends BaseServiceImpl<SysRoleDataScop
                 return entity;
             }).collect(Collectors.toList());
 
-            // 批量新增
+            // Batch add
             saveBatch(orgList);
         }
 
-        // 需要删除的机构ID
+        // Organization IDs to delete
         Collection<Long> deleteOrgIdList = CollUtil.subtract(dbOrgIdList, orgIdList);
         if (CollUtil.isNotEmpty(deleteOrgIdList)){
             LambdaQueryWrapper<SysRoleDataScopeEntity> queryWrapper = new LambdaQueryWrapper<>();

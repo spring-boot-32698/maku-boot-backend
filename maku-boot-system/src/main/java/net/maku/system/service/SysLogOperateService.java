@@ -7,9 +7,9 @@ import net.maku.system.query.SysLogOperateQuery;
 import net.maku.system.vo.SysLogOperateVO;
 
 /**
- * 操作日志
+ * Operation log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysLogOperateService extends BaseService<SysLogOperateEntity> {

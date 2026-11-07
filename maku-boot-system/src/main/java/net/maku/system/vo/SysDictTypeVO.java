@@ -11,51 +11,51 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 字典类型
+ * Dictionary type
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "字典类型")
+@Schema(description = "Dictionary type")
 public class SysDictTypeVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
     private Long id;
 
-    @Schema(description = "字典类型", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "字典类型不能为空")
+    @Schema(description = "Dictionary type", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Dictionary type cannot be empty")
     private String dictType;
 
-    @Schema(description = "字典名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "字典名称不能为空")
+    @Schema(description = "Dictionary name", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Dictionary name cannot be empty")
     private String dictName;
 
-    @Schema(description = "备注")
+    @Schema(description = "Remarks")
     private String remark;
 
-    @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Min(value = 0, message = "排序值不能小于0")
+    @Schema(description = "Sort", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Min(value = 0, message = "Sort value cannot be less than 0")
     private Integer sort;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Creation time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime createTime;
 
-    @Schema(description = "更新时间")
+    @Schema(description = "Update time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime updateTime;
 
-    @Schema(description = "来源  0：字典数据  1：动态SQL")
+    @Schema(description = "Source  0: dictionary data  1: dynamic SQL")
     private Integer dictSource;
 
-    @Schema(description = "动态sql")
+    @Schema(description = "Dynamic sql")
     private String dictSql;
 
-    @Schema(description = "上级节点")
+    @Schema(description = "Parent node")
     private Long pid;
 
-    @Schema(description = "是否有子节点  0：无  1：有")
+    @Schema(description = "Whether there are child nodes  0: none  1: yes")
     private Integer hasChild;
 }

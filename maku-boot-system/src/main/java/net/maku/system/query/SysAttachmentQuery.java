@@ -6,19 +6,19 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
- * 附件管理查询
+ * Attachment management query
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "附件管理查询")
+@Schema(description = "Attachment management query")
 public class SysAttachmentQuery extends Query {
-    @Schema(description = "附件名称")
+    @Schema(description = "Attachment name")
     private String name;
 
-    @Schema(description = "存储平台")
+    @Schema(description = "Storage platform")
     private String platform;
 
 }

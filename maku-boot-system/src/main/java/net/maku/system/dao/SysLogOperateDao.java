@@ -5,9 +5,9 @@ import net.maku.system.entity.SysLogOperateEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 操作日志
+ * Operation log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Mapper

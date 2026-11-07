@@ -21,20 +21,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 字典类型
+ * Dictionary type
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/dict/type")
-@Tag(name = "字典类型")
+@Tag(name = "Dictionary type")
 @AllArgsConstructor
 public class SysDictTypeController {
     private final SysDictTypeService sysDictTypeService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('sys:dict:page')")
     public Result<PageResult<SysDictTypeVO>> page(@ParameterObject @Valid SysDictTypeQuery query) {
         PageResult<SysDictTypeVO> page = sysDictTypeService.page(query);
@@ -43,7 +43,7 @@ public class SysDictTypeController {
     }
 
     @GetMapping("list")
-    @Operation(summary = "列表")
+    @Operation(summary = "List")
     @PreAuthorize("hasAuthority('sys:dict:page')")
     public Result<List<SysDictTypeVO>> list(Long pid) {
         List<SysDictTypeVO> list = sysDictTypeService.list(pid);
@@ -52,7 +52,7 @@ public class SysDictTypeController {
     }
 
     @GetMapping("list/sql")
-    @Operation(summary = "动态SQL数据")
+    @Operation(summary = "Dynamic SQL data")
     @PreAuthorize("hasAuthority('sys:dict:page')")
     public Result<PageResult<SysDictVO.DictData>> listSql(Long id) {
         List<SysDictVO.DictData> list = sysDictTypeService.getDictSql(id);
@@ -63,7 +63,7 @@ public class SysDictTypeController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('sys:dict:info')")
     public Result<SysDictTypeVO> get(@PathVariable("id") Long id) {
         SysDictTypeEntity entity = sysDictTypeService.getById(id);
@@ -72,7 +72,7 @@ public class SysDictTypeController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @OperateLog(type = OperateTypeEnum.INSERT)
     @PreAuthorize("hasAuthority('sys:dict:save')")
     public Result<String> save(@RequestBody @Valid SysDictTypeVO vo) {
@@ -82,7 +82,7 @@ public class SysDictTypeController {
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('sys:dict:update')")
     public Result<String> update(@RequestBody @Valid SysDictTypeVO vo) {
@@ -92,7 +92,7 @@ public class SysDictTypeController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @OperateLog(type = OperateTypeEnum.DELETE)
     @PreAuthorize("hasAuthority('sys:dict:delete')")
     public Result<String> delete(@RequestBody List<Long> idList) {
@@ -102,7 +102,7 @@ public class SysDictTypeController {
     }
 
     @GetMapping("all")
-    @Operation(summary = "全部字典数据")
+    @Operation(summary = "All dictionary data")
     public Result<List<SysDictVO>> all() {
         List<SysDictVO> dictList = sysDictTypeService.getDictList();
 
@@ -110,7 +110,7 @@ public class SysDictTypeController {
     }
 
     @GetMapping("refreshTransCache")
-    @Operation(summary = "刷新字典翻译缓存数据")
+    @Operation(summary = "Refresh dictionary translation cache data")
     @PreAuthorize("hasAuthority('sys:dict:refreshTransCache')")
     public Result<String> refreshTransCache() {
         sysDictTypeService.refreshTransCache();

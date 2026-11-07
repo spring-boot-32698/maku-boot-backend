@@ -6,9 +6,9 @@ import net.maku.framework.security.mobile.MobileVerifyCodeService;
 import org.springframework.stereotype.Service;
 
 /**
- * 短信验证码效验
+ * SMS verification code validation
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 /**
- * 设备属性上报消息处理器
+ * Device property report message handler
  *
  * @author LSF maku_lsf@163.com
  */
@@ -41,7 +41,7 @@ public class DevicePropertyTCPMessageHandler implements TCPMessageHandler {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.convertValue(message, DevicePropertyDTO.class);
         } catch (Exception e) {
-            log.error(StrUtil.format("将主题'{}'的消息解析为设备运行状态对象失败", topic), e);
+            log.error(StrUtil.format("Set the topic'{}'message failed to parse into a device running status object", topic), e);
             return null;
         }
     }

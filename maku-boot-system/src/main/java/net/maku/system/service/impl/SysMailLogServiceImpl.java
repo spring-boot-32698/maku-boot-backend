@@ -19,9 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 邮件日志
+ * Mail log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Service
 @AllArgsConstructor

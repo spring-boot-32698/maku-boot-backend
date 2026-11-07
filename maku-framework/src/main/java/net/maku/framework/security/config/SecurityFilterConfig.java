@@ -18,9 +18,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.util.List;
 
 /**
- * Spring SecurityFilter 配置文件
+ * Spring SecurityFilter Configuration file
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Configuration
@@ -33,7 +33,7 @@ public class SecurityFilterConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // 忽略授权的地址列表
+        // List of addresses that skip authorization
         List<String> permitList = permitResource.getPermitList();
         String[] permits = permitList.toArray(new String[0]);
 

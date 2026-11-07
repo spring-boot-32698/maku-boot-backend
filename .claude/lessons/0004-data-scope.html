@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Scope</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">Course</a><span>›</span><span>Lesson 04</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Data scope: who sees which rows</h1>
+  <p class="subtitle">Permissions decide what you can <em>do</em>. Data scope decides which <em>rows</em> you see while doing it.</p>
+  <div class="meta"><span><b>Time</b> ~10 min</span><span><b>Prereq</b> <a href="0003-permissions.html">Lesson 03</a></span><span><b>Deep dive</b> <a href="../docs/03-business-flows.md">docs/03 §4</a></span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>Given a user's org and roles, you can write down the exact SQL filter they get — and opt a new query into it.</p>
+  </div>
+
+  <h2>Five levels, set per role</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Value</th><th><code>DataScopeEnum</code></th><th>Rows visible</th></tr>
+    <tr><td>0</td><td><code>ALL</code></td><td>everything — no filter</td></tr>
+    <tr><td>1</td><td><code>ORG_AND_CHILD</code></td><td>my org + all its descendants (+ custom orgs) + rows I created</td></tr>
+    <tr><td>2</td><td><code>ORG_ONLY</code></td><td>my org (+ custom orgs) + rows I created</td></tr>
+    <tr><td>3</td><td><code>SELF</code></td><td>only rows I created</td></tr>
+    <tr><td>4</td><td><code>CUSTOM</code></td><td>orgs ticked in <code>sys_role_data_scope</code> + rows I created</td></tr>
+  </table></div>
+  <p class="sidenote">New roles start as <code>SELF</code> (<code>SysRoleServiceImpl.save</code>). Change it with <code>PUT /sys/role/data-scope</code>.</p>
+  <p><strong>Several roles?</strong> <code>SysRoleDao.getDataScopeByUserId</code> runs <code>select min(data_scope)</code>. Lower number = broader, so the <em>broadest</em> role wins.</p>
+
+  <h2>From scope to SQL</h2>
+  <p>At login (and refresh), <code>SysUserDetailsServiceImpl.getDataScope</code> turns the scope into <code>UserDetail.dataScopeList</code>: <code>null</code> means “all”; otherwise a list of org IDs (empty for <code>SELF</code>). Later, <code>BaseServiceImpl.getDataScope(alias, orgColumn)</code> turns that list into a SQL fragment:</p>
+  <pre><code>-- dataScopeList = [3, 2], user id = 42
+ (org_id in(3,2) or creator=42)
+-- dataScopeList = []  (SELF)
+ (creator=42)
+-- dataScopeList = null (ALL) or super admin
+ (no filter at all)</code></pre>
+
+  <h2>Opting in — it is <em>not</em> automatic</h2>
+  <p>A query is only filtered if the service asks for it. Two ways:</p>
+  <pre><code>// 1) Lambda wrapper (simple single-table queries)
+LambdaQueryWrapper&lt;ProductEntity&gt; w = new LambdaQueryWrapper&lt;&gt;();
+dataScopeWrapper(w);                                  // appends the fragment via w.apply(...)
+
+// 2) XML query (joins) — pass a DataScope object as a mapper parameter
+params.put(Constant.DATA_SCOPE, getDataScope("t1", "id"));
+baseMapper.getList(params);   // DataScopeInnerInterceptor parses the SQL with JSqlParser
+                              // and ANDs the fragment into the WHERE clause</code></pre>
+  <p class="sidenote">Interceptor: <code>maku-framework/…/mybatis/interceptor/DataScopeInnerInterceptor.java</code>, registered first in <code>MybatisPlusConfig</code>. MyBatis-Plus <a href="https://baomidou.com/en/plugins/">plugin docs</a> explain <code>InnerInterceptor</code>.</p>
+  <p>Today only the <strong>role list</strong> and the <strong>org tree</strong> opt in. The user list has the line <em>commented out</em> in <code>SysUserServiceImpl#getParams</code>. For your own tables, include <code>org_id</code> (auto-filled on insert) and <code>creator</code> so the fragment has columns to hit.</p>
+
+  <h2>Practice</h2>
+  <p class="practice-intro">Org tree for all questions: <b>HQ (1)</b> → <b>Sales (2)</b> → <b>Sales-North (3)</b>; and <b>HQ (1)</b> → <b>Ops (4)</b>. Ana (user id 42) belongs to <b>Sales (2)</b>.</p>
+
+  <div class="quiz">
+    <p class="q">1. Ana's only role is <code>ORG_AND_CHILD</code>, no custom orgs. Which org IDs appear in her filter?</p>
+    <div class="opts">
+      <button class="opt" data-correct>org_id in {2,3}, or creator = 42</button>
+      <button class="opt">org_id in {1,2}, or creator = 42</button>
+      <button class="opt">org_id in {2}, or creator = 42</button>
+      <button class="opt">org_id in {1,2,3,4}, or creator = 42</button>
+    </div>
+    <div class="why"><code>getSubOrgIdList(2)</code> walks <em>down</em> the tree (3) and then adds Sales itself (2). Parents (HQ) are never included.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. Ana gets a second role: she now has <code>SELF</code> (3) and <code>ORG_ONLY</code> (2). Effective scope?</p>
+    <div class="opts">
+      <button class="opt" data-correct>ORG_ONLY, because min() picks broadest</button>
+      <button class="opt">SELF, because strictest one wins</button>
+      <button class="opt">Both combined together using AND</button>
+      <button class="opt">Whichever role was assigned first</button>
+    </div>
+    <div class="why"><code>select min(t1.data_scope)</code> → 2 = <code>ORG_ONLY</code> → filter <code>(org_id in(2) or creator=42)</code>.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. You write a new list query with <code>LambdaQueryWrapper</code>. What makes it respect data scope?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Call dataScopeWrapper(wrapper) before selecting</button>
+      <button class="opt">Annotate method with @DataScope</button>
+      <button class="opt">Nothing, the interceptor auto-applies</button>
+      <button class="opt">Add org_id to auth.yml</button>
+    </div>
+    <div class="why">The interceptor only acts when a <code>DataScope</code> object is among the mapper parameters. With wrappers, <code>dataScopeWrapper</code> applies the fragment directly. There's no <code>@DataScope</code> annotation in this codebase.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. Ana's role is <code>ALL</code>. Her colleague Ben is a super admin with no roles. Who sees more rows on the role list?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Same rows; neither gets a filter</button>
+      <button class="opt">Ben, because super admins bypass everything</button>
+      <button class="opt">Ana, because Ben has zero roles</button>
+      <button class="opt">Neither; both see only own rows</button>
+    </div>
+    <div class="why"><code>getDataScope</code> returns <code>null</code> for super admins first, and for a <code>null</code> <code>dataScopeList</code> (= <code>ALL</code>). No fragment, no filter.</div>
+  </div>
+
+  <details class="recall"><summary>Recall: a user has <em>no roles at all</em> and is not super admin. What do they see on a data-scoped list?</summary>
+    <p><code>getDataScopeByUserId</code> returns <code>null</code> → <code>getDataScope</code> returns an empty list → fragment <code>(creator=&lt;id&gt;)</code>. Same as <code>SELF</code>: only their own rows.</p>
+  </details>
+
+  <h2>Try it</h2>
+  <p>Create orgs HQ → Sales → Sales-North, a role per scope, and a user in Sales. Log in as them and open <em>Org Management</em> while switching the role's scope. Turn on MyBatis SQL logging (<code>logging.level.net.maku=debug</code>) to watch the rewritten <code>WHERE</code> clause.</p>
+
+  <div class="source"><span class="label">Primary source</span>The code itself: read <code>BaseServiceImpl.getDataScope</code> and <code>SysUserDetailsServiceImpl.getDataScope</code> side by side (≈60 lines total). For the plugin mechanism, <a href="https://baomidou.com/en/plugins/">MyBatis-Plus plugins</a>.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “should the user list apply data scope? what breaks if I uncomment it?” — a great first discussion with your team, too.</div>
+
+  <div class="score" data-lesson="0004"></div>
+  <div class="pager"><a href="0003-permissions.html">← Lesson 03: Permissions</a><a href="0005-crud-end-to-end.html">Lesson 05: First CRUD →</a></div>
+</main>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{{- if .Values.ingress.enabled }}
+# Two hosts: UI on frontendHost, API (+ WebSocket /ws, uploaded files /upload/**) on backendHost.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "maku.fullname" . }}
+  labels:
+    {{- include "maku.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- with .Values.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- if .Values.frontend.enabled }}
+    - host: {{ .Values.ingress.frontendHost | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "maku.fullname" . }}-frontend
+                port:
+                  name: http
+    {{- end }}
+    - host: {{ .Values.ingress.backendHost | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "maku.fullname" . }}-backend
+                port:
+                  name: http
+{{- end }}

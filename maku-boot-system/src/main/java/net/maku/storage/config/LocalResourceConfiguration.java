@@ -10,9 +10,9 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * 本地资源映射配置
+ * Local resource mapping settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Configuration
@@ -23,7 +23,7 @@ public class LocalResourceConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 如果不是本地存储，则返回
+        // If it is not local storage, return
         if (properties.getConfig().getType() != StorageTypeEnum.LOCAL) {
             return;
         }

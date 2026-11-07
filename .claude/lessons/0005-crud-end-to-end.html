@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>First CRUD Feature</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">Course</a><span>›</span><span>Lesson 05</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Your first CRUD feature</h1>
+  <p class="subtitle">Eleven touch-points, and the framework does half the work for you — if you let it.</p>
+  <div class="meta"><span><b>Time</b> ~12 min</span><span><b>Prereq</b> lessons <a href="0003-permissions.html">03</a>, <a href="0004-data-scope.html">04</a></span><span><b>Full recipe</b> <a href="../docs/07-add-a-feature.md">docs/07-add-a-feature.md</a></span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>You can list every file and row a new “Products” screen needs, in order, and explain which columns the framework fills for you.</p>
+  </div>
+
+  <h2>The slice, top to bottom</h2>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>Piece</th><th>Copy from</th></tr>
+    <tr><td><span class="tag db">DB</span></td><td><code>biz_product</code> table with the standard columns</td><td><code>sys_post</code></td></tr>
+    <tr><td><span class="tag be">BE</span></td><td>Entity · DAO · Query · VO · Service · Controller</td><td>the Posts feature</td></tr>
+    <tr><td><span class="tag db">DB</span></td><td><code>sys_menu</code>: one type-0 row (url) + type-1 rows (codes)</td><td>menu rows in <code>maku.sql</code></td></tr>
+    <tr><td><span class="tag fe">FE</span></td><td><code>src/api/biz/product.ts</code> · <code>views/biz/product/index.vue</code> · <code>add-or-update.vue</code></td><td><code>views/sys/post/*</code></td></tr>
+    <tr><td><span class="tag be">BE</span></td><td>Grant the menu to a role, test as a non-admin</td><td>—</td></tr>
+  </table></div>
+  <p class="sidenote">Or let the built-in code generator (<code>maku-module-generator</code>) produce it from the table — but know what it generates.</p>
+
+  <h2>What <code>BaseEntity</code> gives you for free</h2>
+  <p>Extend <code>BaseEntity</code> and these columns manage themselves:</p>
+  <div class="table-wrap"><table>
+    <tr><th>Column</th><th>Mechanism</th><th>Effect</th></tr>
+    <tr><td><code>creator</code>, <code>create_time</code>, <code>updater</code>, <code>update_time</code>, <code>org_id</code></td><td><code>FieldMetaObjectHandler</code> (auto-fill)</td><td>set from <code>SecurityUser</code> + now on insert/update</td></tr>
+    <tr><td><code>deleted</code></td><td><code>@TableLogic</code></td><td><code>removeById</code> becomes <code>UPDATE … SET deleted=1</code>; reads add <code>deleted=0</code></td></tr>
+    <tr><td><code>version</code></td><td><code>@Version</code> + <code>OptimisticLockerInnerInterceptor</code></td><td><code>updateById</code> adds <code>WHERE version=?</code> and bumps it</td></tr>
+  </table></div>
+  <p class="sidenote">MyBatis-Plus docs: <a href="https://baomidou.com/en/guides/logic-delete/">logic delete</a>, <a href="https://baomidou.com/en/guides/auto-fill-field/">auto-fill</a>, <a href="https://baomidou.com/en/plugins/optimistic-locker/">optimistic lock</a>.</p>
+  <p>And <code>BaseServiceImpl</code> gives you <code>getPage(query)</code> (paging + <code>order</code>/<code>asc</code>), <code>dataScopeWrapper</code> and <code>getDataScope</code>. Business errors: <code>throw new ServerException("…")</code> → <code>{"code":500,"msg":"…"}</code> → red toast.</p>
+
+  <h2>The frontend in ten lines</h2>
+  <pre><code>const state: IHooksOptions = reactive({
+  dataListUrl: '/biz/product/page',   // GET ?page&amp;limit&amp;order&amp;asc&amp;…queryForm
+  deleteUrl: '/biz/product',          // DELETE, body = [ids]
+  queryForm: { name: '', status: '' }
+})
+const { getDataList, sizeChangeHandle, currentChangeHandle,
+        selectionChangeHandle, deleteBatchHandle, reset } = useCrud(state)</code></pre>
+  <p><code>useCrud</code> (<code>src/hooks/index.ts</code>) loads on mount, expects <code>{list, total}</code> back (<code>PageResult</code>), and confirms before deleting. The dialog component exposes <code>init(id?)</code> and emits <code>refreshDataList</code>.</p>
+
+  <h2>Practice</h2>
+
+  <div class="order">
+    <p class="q">1. Order the work for a new “Products” screen so that each step can be tested as you go.</p>
+    <ol class="answer" hidden>
+      <li><span class="tag db">DB</span>Create <code>biz_product</code> with the standard columns</li>
+      <li><span class="tag be">BE</span>Entity + DAO extending <code>BaseEntity</code> / <code>BaseDao</code></li>
+      <li><span class="tag be">BE</span>Query, VO and Service (with <code>dataScopeWrapper</code>)</li>
+      <li><span class="tag be">BE</span>Controller with <code>@PreAuthorize</code> codes; test in Swagger</li>
+      <li><span class="tag db">DB</span><code>sys_menu</code> rows: page url + button codes</li>
+      <li><span class="tag fe">FE</span>API file, list page and add/edit dialog with <code>v-auth</code></li>
+      <li><span class="tag be">BE</span>Grant to a role; verify as a non-admin user</li>
+    </ol>
+    <div class="why">Bottom-up keeps each layer testable: Swagger proves the API before any Vue exists, and the menu must exist before the page can be routed.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. <code>productService.removeById(5)</code> — what actually happens in the database?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Soft delete: sets deleted to 1</button>
+      <button class="opt">Hard delete: row removed from table</button>
+      <button class="opt">Status update: sets status to 0</button>
+      <button class="opt">Version bump: row hidden by lock</button>
+    </div>
+    <div class="why"><code>@TableLogic</code> on <code>BaseEntity.deleted</code> plus <code>logic-delete-value: 1</code> in <code>application.yml</code> turns deletes into updates: <code>UPDATE biz_product SET deleted=1 WHERE id=5 AND deleted=0</code>. The row stays; every MyBatis-Plus read adds <code>deleted=0</code>.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. On insert, where do <code>creator</code>, <code>createTime</code> and <code>orgId</code> get their values?</p>
+    <div class="opts">
+      <button class="opt" data-correct>FieldMetaObjectHandler fills them from SecurityUser</button>
+      <button class="opt">MySQL column defaults fill them</button>
+      <button class="opt">Controller copies them from request</button>
+      <button class="opt">Frontend sends them in JSON</button>
+    </div>
+    <div class="why"><code>insertFill</code> reads <code>SecurityUser.getUser()</code>. Fields must be marked <code>@TableField(fill = …)</code> — <code>BaseEntity</code> does it for you; add it yourself for <code>orgId</code>.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. Two admins open the same product. Both click Save; the second save changes nothing and no error appears. Why?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Optimistic lock: stale version updated zero rows</button>
+      <button class="opt">BlockAttack interceptor blocked the second update statement</button>
+      <button class="opt">A Redis lock held by first admin</button>
+      <button class="opt">Logic delete hid the row from update</button>
+    </div>
+    <div class="why"><code>updateById</code> adds <code>AND version=&lt;old&gt;</code>; the first save bumped it. MyBatis-Plus reports 0 rows — and the service doesn't check the return value. Consider throwing a <code>ServerException</code> when it returns false.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. You added <code>views/biz/product/index.vue</code>, but clicking the menu shows 404. Most likely?</p>
+    <div class="opts">
+      <button class="opt" data-correct>sys_menu url doesn't match file path</button>
+      <button class="opt">Controller lacks a @PreAuthorize annotation here</button>
+      <button class="opt">Vite needs restarting for new files</button>
+      <button class="opt">The database table is missing org_id</button>
+    </div>
+    <div class="why"><code>generateRoutes</code> looks up <code>/src/views/${url}.vue</code>; the url must be <code>biz/product/index</code> (no leading slash, no <code>.vue</code>). Unmatched paths hit the catch-all <code>/404</code> route.</div>
+  </div>
+
+  <details class="recall"><summary>Recall: what JSON shape must <code>/biz/product/page</code> return for <code>useCrud</code> to fill the table and pager?</summary>
+    <p><code>{"code":0, "data": {"list": [...], "total": n}}</code> — i.e. <code>Result.ok(new PageResult&lt;&gt;(list, total))</code>.</p>
+  </details>
+
+  <h2>Do it for real</h2>
+  <p>Follow <a href="../docs/07-add-a-feature.md">docs/07</a> and build Products in <code>maku-boot-new</code>. Then ask your agent to review the diff against the Posts feature.</p>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://baomidou.com/en/">MyBatis-Plus documentation</a> — the “Guides” on CRUD interfaces, conditional wrappers, logic delete and auto-fill cover everything this lesson leans on.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “scaffold the Products feature with me step by step” or “when should I write XML instead of a wrapper?”.</div>
+
+  <div class="score" data-lesson="0005"></div>
+  <div class="pager"><a href="0004-data-scope.html">← Lesson 04: Data scope</a><a href="0006-platform-services.html">Lesson 06: Platform services →</a></div>
+</main>
+</body>
+</html>

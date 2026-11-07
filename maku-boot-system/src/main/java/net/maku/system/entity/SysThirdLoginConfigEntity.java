@@ -6,9 +6,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 第三方登录配置
+ * Third-party login settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -21,7 +21,7 @@ public class SysThirdLoginConfigEntity {
     private Long id;
 
     /**
-     * 开放平台类型
+     * Open platform type
      */
     private String openType;
 
@@ -46,26 +46,26 @@ public class SysThirdLoginConfigEntity {
     private String agentId;
 
     /**
-     * 租户ID
+     * Tenant ID
      */
     private Long tenantId;
 
     /**
-     * 版本号
+     * Version number
      */
     @Version
     @TableField(fill = FieldFill.INSERT)
     private Integer version;
 
     /**
-     * 删除标记
+     * Delete flag
      */
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private Integer deleted;
 
     /**
-     * 创建时间
+     * Creation time
      */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

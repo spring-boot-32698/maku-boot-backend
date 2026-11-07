@@ -12,32 +12,32 @@ import net.maku.framework.common.utils.TreeNode;
 import java.time.LocalDateTime;
 
 /**
- * 机构列表
+ * Organization list
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Schema(description = "机构")
+@Schema(description = "Organization")
 public class SysOrgVO extends TreeNode<SysOrgVO> {
 
-    @Schema(description = "机构名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "机构名称不能为空")
+    @Schema(description = "Organization name", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Organization name cannot be empty")
     private String name;
 
-    @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Min(value = 0, message = "排序值不能小于0")
+    @Schema(description = "Sort", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Min(value = 0, message = "Sort value cannot be less than 0")
     private Integer sort;
 
-    @Schema(description = "负责人ID")
+    @Schema(description = "Person in charge ID")
     private Long leaderId;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Creation time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime createTime;
 
-    @Schema(description = "上级名称")
+    @Schema(description = "Parent name")
     private String parentName;
 
 }

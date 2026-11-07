@@ -9,9 +9,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 定时任务日志
+ * Scheduled task log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -24,52 +24,52 @@ public class ScheduleJobLogEntity {
     private Long id;
 
     /**
-     * 任务id
+     * Task id
      */
     private Long jobId;
 
     /**
-     * 任务名称
+     * Task name
      */
     private String jobName;
 
     /**
-     * 任务组名
+     * Task group name
      */
     private String jobGroup;
 
     /**
-     * spring bean名称
+     * spring beanName
      */
     private String beanName;
 
     /**
-     * 执行方法
+     * Execution method
      */
     private String method;
 
     /**
-     * 参数
+     * Parameter
      */
     private String params;
 
     /**
-     * 任务状态
+     * Task status
      */
     private Integer status;
 
     /**
-     * 异常信息
+     * Exception info
      */
     private String error;
 
     /**
-     * 耗时(单位：毫秒)
+     * Elapsed time(Unit: milliseconds)
      */
     private Long times;
 
     /**
-     * 创建时间
+     * Creation time
      */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

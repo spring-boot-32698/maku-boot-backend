@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 翻译服务
+ * Translation service
  * <p>
- * 提供手动批量翻译能力，用于导出Excel等需要主动翻译的场景
+ * Provides manual batch translation for scenarios such as Excel export that need active translation
  *
  * @author maku
  */
@@ -25,9 +25,9 @@ public class TransService {
     private final DictionaryTransService dictionaryTransService;
 
     /**
-     * 批量翻译
+     * Batch translation
      *
-     * @param dataList 需要翻译的数据列表
+     * @param dataList Data list to translate
      */
     public <T> void transBatch(List<T> dataList) {
         if (dataList == null || dataList.isEmpty()) {
@@ -40,9 +40,9 @@ public class TransService {
     }
 
     /**
-     * 单个对象翻译
+     * Single object translation
      *
-     * @param data 需要翻译的对象
+     * @param data Object to translate
      */
     public void trans(Object data) {
         if (data == null) {
@@ -64,15 +64,15 @@ public class TransService {
                 } else if (TransType.SIMPLE.equals(trans.type())) {
                     translateSimple(data, clazz, field, trans);
                 }
-                // 可以在此扩展其他翻译类型
+                // Other translation types can be extended here
             } catch (Exception e) {
-                log.debug("翻译异常: field={}", field.getName(), e);
+                log.debug("Translation exception: field={}", field.getName(), e);
             }
         }
     }
 
     /**
-     * 字典翻译
+     * Dictionary translation
      */
     private void translateDictionary(Object obj, Class<?> clazz, Field field, Trans trans) throws Exception {
         if (trans.key().isEmpty() || trans.ref().isEmpty()) {
@@ -96,7 +96,7 @@ public class TransService {
     }
 
     /**
-     * 简单翻译（通过实体类查找）
+     * Simple translation (looked up via the entity class)
      */
     @SuppressWarnings({"rawtypes"})
     private void translateSimple(Object obj, Class<?> clazz, Field field, Trans trans) throws Exception {
@@ -111,19 +111,19 @@ public class TransService {
         }
 
         try {
-            // 获取目标实体对应的 Mapper
+            // Get the Mapper corresponding to the target entity
             BaseMapper mapper = getMapper(trans.target());
             if (mapper == null) {
                 return;
             }
 
-            // 查询目标实体
+            // Query target entity
             Object targetEntity = mapper.selectById((java.io.Serializable) fieldValue);
             if (targetEntity == null) {
                 return;
             }
 
-            // 获取目标字段的值
+            // Get the value of the target field
             Field targetField = TransReflectUtils.getDeclaredField(trans.target(), trans.fields());
             if (targetField == null) {
                 return;
@@ -131,14 +131,14 @@ public class TransService {
             targetField.setAccessible(true);
             Object targetValue = targetField.get(targetEntity);
 
-            // 设置到 ref 字段
+            // Set to the ref field
             Field refField = TransReflectUtils.getDeclaredField(clazz, trans.ref());
             if (refField != null) {
                 refField.setAccessible(true);
                 refField.set(obj, targetValue);
             }
         } catch (Exception e) {
-            log.debug("Simple翻译异常: target={}, field={}", trans.target().getSimpleName(), field.getName(), e);
+            log.debug("SimpleTranslation exception: target={}, field={}", trans.target().getSimpleName(), field.getName(), e);
         }
     }
 
@@ -162,7 +162,7 @@ public class TransService {
                     }
                 }
             } catch (Exception e) {
-                log.debug("获取Mapper异常: entityClass={}", entityClass.getSimpleName(), e);
+                log.debug("Failed to get Mapper: entityClass={}", entityClass.getSimpleName(), e);
             }
             return null;
         });

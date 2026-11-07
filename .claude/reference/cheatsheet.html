@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maku Cheat Sheet</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="../lessons/index.html">Course</a><span>›</span><span>Reference</span><span>·</span><a href="glossary.html">Glossary</a></div>
+  <h1>Cheat sheet</h1>
+  <p class="subtitle">Everything you look up twice. Prints on two pages.</p>
+
+  <h2>Run it</h2>
+  <pre><code>cd maku-boot-backend &amp;&amp; docker compose up -d --build     # MySQL 3306 · Redis 6379 · API 8080
+cd maku-admin-frontend &amp;&amp; npm i &amp;&amp; npm run dev            # http://localhost:3000   admin / admin
+# IDE: run net.maku.ServerApplication (maku-server), profile dev; set storage.local.path (default D://upload)
+# API docs: /swagger-ui.html  (/doc.html if knife4j enabled)</code></pre>
+
+  <h2>Response codes</h2>
+  <div class="table-wrap"><table>
+    <tr><th><code>code</code></th><th>Means</th><th>UI does</th></tr>
+    <tr><td>0</td><td>OK</td><td>resolve</td></tr>
+    <tr><td>400</td><td>refresh token invalid</td><td>“Login timed out” → /login</td></tr>
+    <tr><td>401</td><td>no / expired access token</td><td>refresh + replay</td></tr>
+    <tr><td>403</td><td>missing permission code</td><td>toast</td></tr>
+    <tr><td>500</td><td><code>ServerException</code> / bug</td><td>toast <code>msg</code></td></tr>
+  </table></div>
+
+  <h2>Auth flows</h2>
+  <pre><code>LOGIN   FE sm2Encrypt(pwd) → POST /sys/auth/login → captcha? → AuthenticationManager
+        → createToken (sys_user_token upsert) → Redis sys:token:&lt;at&gt; = UserDetail (8h)
+        → FE localStorage maToken/maRefreshToken → /sys/user/info, /sys/menu/authority,
+          /sys/dict/type/all, /sys/menu/nav → generateRoutes
+REQUEST Authorization: &lt;at&gt; → AuthenticationTokenFilter → Redis → SecurityContext
+        → @PreAuthorize → service → MyBatis-Plus (DataScope→Pagination→OptLock→BlockAttack)
+EXPIRY  code 401 → POST /sys/auth/token?refreshToken= → new at (perms reloaded) → replay
+        code 400 → re-login
+LOGOUT  POST /sys/auth/logout → del Redis key, expire DB row, login log
+ROLE/USER EDIT → updateCacheAuthByRoleId/UserId → rebuild online users' Redis UserDetail</code></pre>
+
+  <h2>Permission code = 3 places</h2>
+  <pre><code>@PreAuthorize("hasAuthority('biz:product:save')")       // controller — the real gate
+sys_menu(type=1, authority='biz:product:save')            // granted to roles via sys_role_menu
+&lt;el-button v-auth="'biz:product:save'"&gt;                  // hides the button</code></pre>
+
+  <h2>Data scope</h2>
+  <pre><code>0 ALL · 1 ORG_AND_CHILD · 2 ORG_ONLY · 3 SELF · 4 CUSTOM       (multiple roles → min wins)
+dataScopeWrapper(wrapper);                                 // lambda queries
+params.put(Constant.DATA_SCOPE, getDataScope("t1", null)); // XML queries; alias + org column
+→  (t1.org_id in(…) or t1.creator=&lt;me&gt;)                 // null list / super admin → no filter</code></pre>
+
+  <h2>Backend skeleton</h2>
+  <pre><code>@Data @EqualsAndHashCode(callSuper=false) @TableName("biz_x")
+class XEntity extends BaseEntity { … @TableField(fill=FieldFill.INSERT) Long orgId; }
+@Mapper interface XDao extends BaseDao&lt;XEntity&gt; {}
+class XQuery extends Query { … }                  // page, limit, order, asc
+@Service @AllArgsConstructor
+class XServiceImpl extends BaseServiceImpl&lt;XDao, XEntity&gt; implements XService {
+  page(q): selectPage(getPage(q), wrapper) → new PageResult&lt;&gt;(BeanUtil.copyToList(..., XVO.class), total)
+}
+@RestController @RequestMapping("biz/x") @Tag(name="X") @AllArgsConstructor
+  @GetMapping("page") @PreAuthorize("hasAuthority('biz:x:page')")  Result&lt;PageResult&lt;XVO&gt;&gt;
+  @GetMapping("{id}")  …'biz:x:info'     @PostMapping …'biz:x:save' + @OperateLog(type=INSERT)
+  @PutMapping          …'biz:x:update'   @DeleteMapping(@RequestBody List&lt;Long&gt;) …'biz:x:delete'</code></pre>
+
+  <h2>Frontend skeleton</h2>
+  <pre><code>// src/api/biz/x.ts
+export const useXApi = (id: number) =&gt; service.get('/biz/x/' + id)
+export const useXSubmitApi = (f: any) =&gt; f.id ? service.put('/biz/x', f) : service.post('/biz/x', f)
+// src/views/biz/x/index.vue   &lt;script setup lang="ts" name="BizXIndex"&gt;
+const state: IHooksOptions = reactive({ dataListUrl: '/biz/x/page', deleteUrl: '/biz/x', queryForm: {} })
+const { getDataList, sizeChangeHandle, currentChangeHandle, selectionChangeHandle, deleteBatchHandle, reset } = useCrud(state)
+// sys_menu.url = 'biz/x/index'  ⇒  src/views/biz/x/index.vue</code></pre>
+
+  <h2>Helpers</h2>
+  <div class="table-wrap"><table>
+    <tr><td><code>SecurityUser.getUser()/getUserId()/getOrgId()</code></td><td>current user (null in jobs)</td></tr>
+    <tr><td><code>throw new ServerException("…")</code></td><td>business error → toast</td></tr>
+    <tr><td><code>@OperateLog(type = OperateTypeEnum.UPDATE)</code></td><td>audit log (Redis → DB in ≤10 s)</td></tr>
+    <tr><td><code>@Trans(type = TransType.DICTIONARY, key = "user_status", ref = "statusLabel")</code></td><td>dict label on output</td></tr>
+    <tr><td><code>sysParamsService.getBoolean("KEY")</code></td><td>runtime setting</td></tr>
+    <tr><td><code>storageService.upload(bytes, storageService.getPath(name))</code></td><td>store a file → URL</td></tr>
+    <tr><td><code>smsApi.sendCode(mobile, "code", value)</code></td><td>SMS</td></tr>
+    <tr><td><code>TreeUtils.build(list)</code></td><td>build tree from <code>TreeNode</code>s</td></tr>
+    <tr><td><code>ExcelUtils</code></td><td>Excel import/export</td></tr>
+    <tr><td><code>&lt;ma-dict-select dict-type="…"&gt;</code> · <code>&lt;ma-dict-column&gt;</code></td><td>dict in UI</td></tr>
+  </table></div>
+
+  <h2>Redis keys (dev db 1)</h2>
+  <pre><code>sys:token:&lt;accessToken&gt;   UserDetail, TTL 8h      sys:captcha:&lt;key&gt;   captcha text, 300s
+sys:log                    operate-log queue        sys:sms:… / sys:mail:…  platform configs, round-robin counters</code></pre>
+
+  <h2>Debug SQL</h2>
+  <pre><code>-- user's codes
+select m.authority from sys_menu m join sys_role_menu rm on rm.menu_id=m.id and rm.deleted=0
+ join sys_user_role ur on ur.role_id=rm.role_id and ur.deleted=0 where ur.user_id=? and m.deleted=0;
+-- effective data scope
+select min(r.data_scope) from sys_role r join sys_user_role ur on ur.role_id=r.id
+ where ur.user_id=? and r.deleted=0 and ur.deleted=0;</code></pre>
+</main>
+</body>
+</html>

@@ -1,8 +1,8 @@
-# 构建镜像，执行命令：【docker build -t makunet:1.0 .】
+# Build the image, run: [docker build -t makunet:1.0 .]
 FROM eclipse-temurin:17-jre
-MAINTAINER 阿沐
+MAINTAINER Amu
 
-# 设置时区
+# Set time zone
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 RUN echo 'Asia/Shanghai' >/etc/timezone
 

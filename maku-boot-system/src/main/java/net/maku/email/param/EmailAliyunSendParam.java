@@ -3,39 +3,39 @@ package net.maku.email.param;
 import lombok.Data;
 
 /**
- * 阿里云 发送邮件参数
+ * Alibaba Cloud send mail parameters
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 public class EmailAliyunSendParam {
     /**
-     * 分组名称，非必填
+     * Group name, optional
      */
     private String groupName;
     /**
-     * 发件人邮箱
+     * Sender email
      */
     private String from;
     /**
-     * 发件人昵称
+     * Sender nickname
      */
     private String formAlias;
     /**
-     * 收件人邮箱列表，逗号拼接
+     * Recipient email list, joined by commas
      */
     private String tos;
     /**
-     * 邮件主题
+     * Mail subject
      */
     private String subject;
     /**
-     * 邮件内容
+     * Mail content
      */
     private String content;
     /**
-     * 是否为html格式
+     * Whether it is html format
      */
     private boolean html;
 }

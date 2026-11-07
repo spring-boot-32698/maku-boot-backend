@@ -25,20 +25,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 定时任务
+ * Scheduled task
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("schedule")
-@Tag(name = "定时任务")
+@Tag(name = "Scheduled task")
 @AllArgsConstructor
 public class ScheduleJobController {
     private final ScheduleJobService scheduleJobService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('schedule:page')")
     public Result<PageResult<ScheduleJobVO>> page(@ParameterObject @Valid ScheduleJobQuery query) {
         PageResult<ScheduleJobVO> page = scheduleJobService.page(query);
@@ -47,7 +47,7 @@ public class ScheduleJobController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('schedule:info')")
     public Result<ScheduleJobVO> get(@PathVariable("id") Long id) {
         ScheduleJobEntity entity = scheduleJobService.getById(id);
@@ -56,15 +56,15 @@ public class ScheduleJobController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @OperateLog(type = OperateTypeEnum.INSERT)
     @PreAuthorize("hasAuthority('schedule:save')")
     public Result<String> save(@RequestBody ScheduleJobVO vo) {
         if (!CronUtils.isValid(vo.getCronExpression())) {
-            return Result.error("操作失败，Cron表达式不正确");
+            return Result.error("Operation failed, the Cron expression is incorrect");
         }
 
-        // 检查Bean的合法性
+        // Check the validity of the Bean
         checkBean(vo.getBeanName());
 
         scheduleJobService.save(vo);
@@ -73,15 +73,15 @@ public class ScheduleJobController {
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('schedule:update')")
     public Result<String> update(@RequestBody @Valid ScheduleJobVO vo) {
         if (!CronUtils.isValid(vo.getCronExpression())) {
-            return Result.error("操作失败，Cron表达式不正确");
+            return Result.error("Operation failed, the Cron expression is incorrect");
         }
 
-        // 检查Bean的合法性
+        // Check the validity of the Bean
         checkBean(vo.getBeanName());
 
         scheduleJobService.update(vo);
@@ -90,7 +90,7 @@ public class ScheduleJobController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @OperateLog(type = OperateTypeEnum.DELETE)
     @PreAuthorize("hasAuthority('schedule:delete')")
     public Result<String> delete(@RequestBody List<Long> idList) {
@@ -100,7 +100,7 @@ public class ScheduleJobController {
     }
 
     @PutMapping("run")
-    @Operation(summary = "立即执行")
+    @Operation(summary = "Run now")
     @OperateLog(type = OperateTypeEnum.OTHER)
     @PreAuthorize("hasAuthority('schedule:run')")
     public Result<String> run(@RequestBody ScheduleJobVO vo) {
@@ -110,7 +110,7 @@ public class ScheduleJobController {
     }
 
     @PutMapping("change-status")
-    @Operation(summary = "修改状态")
+    @Operation(summary = "Update status")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('schedule:update')")
     public Result<String> changeStatus(@RequestBody ScheduleJobVO vo) {
@@ -120,10 +120,10 @@ public class ScheduleJobController {
     }
 
     private void checkBean(String beanName) {
-        // 为避免执行jdbcTemplate等类，只允许添加有@Service注解的Bean
+        // To avoid executing classes such as jdbcTemplate, only allow adding those with@ServiceAnnotated Bean
         String[] serviceBeans = SpringUtil.getApplicationContext().getBeanNamesForAnnotation(Service.class);
         if (!ArrayUtil.contains(serviceBeans, beanName)) {
-            throw new ServerException("只允许添加有@Service注解的Bean！");
+            throw new ServerException("Only allow adding those with@ServiceAnnotated Bean!");
         }
     }
 }

@@ -15,9 +15,9 @@ import net.maku.sms.config.SmsConfig;
 import java.util.Map;
 
 /**
- * 腾讯云短信
+ * Tencent Cloud SMS
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class TencentSmsStrategy implements SmsStrategy {
@@ -49,24 +49,24 @@ public class TencentSmsStrategy implements SmsStrategy {
         request.setSignName(smsConfig.getSignName());
         request.setTemplateId(smsConfig.getTemplateId());
 
-        // 有参数则设置
+        // Set if there are parameters
         if (MapUtil.isNotEmpty(params)) {
             request.setTemplateParamSet(params.values().toArray(new String[0]));
         }
 
-        // 手机号
+        // Mobile number
         String[] phoneNumberSet = {"+86" + mobile};
         request.setPhoneNumberSet(phoneNumberSet);
 
-        // 国际、港澳台短信，需要添加SenderId，国内短信填空，默认未开通
+        // For international and Hong Kong/Macao/Taiwan SMS, SenderId must be added; leave empty for domestic SMS; not enabled by default
         request.setSenderId(smsConfig.getSenderId());
 
         try {
-            // 发送短信
+            // Send SMS
             SendSmsResponse response = client.SendSms(request);
             SendStatus sendStatus = response.getSendStatusSet()[0];
 
-            // 发送失败
+            // Send failed
             if (!Constant.OK.equalsIgnoreCase(sendStatus.getCode())) {
                 throw new ServerException(sendStatus.getMessage());
             }

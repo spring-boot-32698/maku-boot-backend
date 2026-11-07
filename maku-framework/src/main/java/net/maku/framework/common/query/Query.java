@@ -7,26 +7,26 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
 /**
- * 查询公共参数
+ * Query public parameters
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  *         <a href="https://maku.net">MAKU</a>
  */
 @Data
 public class Query {
-    @NotNull(message = "页码不能为空")
-    @Min(value = 1, message = "页码最小值为 1")
-    @Schema(description = "当前页码", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "Page number cannot be empty")
+    @Min(value = 1, message = "Minimum page number is 1")
+    @Schema(description = "Current page number", requiredMode = Schema.RequiredMode.REQUIRED)
     Integer page;
 
-    @NotNull(message = "每页条数不能为空")
-    @Range(min = 1, max = 1000, message = "每页条数，取值范围 1-1000")
-    @Schema(description = "每页条数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "Items per page cannot be empty")
+    @Range(min = 1, max = 1000, message = "Items per page, range 1-1000")
+    @Schema(description = "Items per page", requiredMode = Schema.RequiredMode.REQUIRED)
     Integer limit;
 
-    @Schema(description = "排序字段")
+    @Schema(description = "Sort field")
     String order;
 
-    @Schema(description = "是否升序")
+    @Schema(description = "Whether ascending")
     boolean asc;
 }

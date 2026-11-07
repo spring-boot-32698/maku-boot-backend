@@ -1,18 +1,18 @@
 package net.maku.framework.common.trans;
 
 /**
- * 翻译类型常量
+ * Translation type constants
  *
  * @author maku
  */
 public interface TransType {
     /**
-     * 字典翻译
+     * Dictionary translation
      */
     String DICTIONARY = "dictionary";
 
     /**
-     * 简单翻译（通过实体类查找）
+     * Simple translation (looked up via the entity class)
      */
     String SIMPLE = "simple";
 }

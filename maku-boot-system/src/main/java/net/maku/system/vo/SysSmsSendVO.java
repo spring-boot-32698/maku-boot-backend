@@ -6,25 +6,25 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 短信发送
+ * SMS sending
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Data
-@Schema(description = "短信发送")
+@Schema(description = "SMS sending")
 public class SysSmsSendVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
     private Long id;
 
-    @Schema(description = "手机号")
+    @Schema(description = "Mobile number")
     private String mobile;
 
-    @Schema(description = "参数Key")
+    @Schema(description = "Parameter Key")
     private String paramKey;
 
-    @Schema(description = "参数Value")
+    @Schema(description = "Parameter Value")
     private String paramValue;
 
 }

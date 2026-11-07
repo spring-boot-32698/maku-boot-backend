@@ -8,9 +8,9 @@ import net.maku.system.vo.SysThirdLoginVO;
 import java.util.List;
 
 /**
- * 第三方登录
+ * Third-party login
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysThirdLoginService extends BaseService<SysThirdLoginEntity> {
@@ -22,11 +22,11 @@ public interface SysThirdLoginService extends BaseService<SysThirdLoginEntity> {
     void bind(Long userId, String openType, AuthUser authUser);
 
     /**
-     * 根据第三方登录类型和openId，查询用户Id
+     * Query the user Id by third-party login type and openId
      *
-     * @param openType 第三方登录类型
-     * @param openId   第三方用户唯一标识
-     * @return 用户Id
+     * @param openType Third-party login type
+     * @param openId   Third-party user unique identifier
+     * @return User Id
      */
     Long getUserIdByOpenTypeAndOpenId(String openType, String openId);
 

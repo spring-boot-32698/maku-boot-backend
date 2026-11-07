@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 /**
- * 设备命令响应处理器
+ * Device command response handler
  *
  * @author LSF maku_lsf@163.com
  */
@@ -35,23 +35,23 @@ public class DeviceCommandResponseMqttMessageHandler implements MqttMessageHandl
     public void handle(String topic, String message) {
         DeviceCommandResponseDTO commandResponseDTO = parseCommandReplyMessage(topic, message);
         Optional.ofNullable(commandResponseDTO.getCommand())
-                .orElseThrow(() -> new IllegalArgumentException(StrUtil.format("缺失指令类型! 主题:'{}',消息:{}", topic, message)));
+                .orElseThrow(() -> new IllegalArgumentException(StrUtil.format("Missing command type! Topic:'{}',Message:{}", topic, message)));
         Optional.ofNullable(commandResponseDTO.getCommandId())
-                .orElseThrow(() -> new IllegalArgumentException(StrUtil.format("缺失指令ID! 主题:'{}',消息:{}", topic, message)));
+                .orElseThrow(() -> new IllegalArgumentException(StrUtil.format("Missing command ID! Topic:'{}',Message:{}", topic, message)));
 
         Optional.ofNullable(commandResponseDTO)
                 .ifPresent(responseDTO -> {
-                    // 调用设备命令执行器的命令响应处理逻辑
+                    // Call the command response handling logic of the device command executor
                     try {
                         deviceMqttService.commandReplied( responseDTO);
                     } catch (Exception e) {
-                        log.error(StrUtil.format("调用设备命令执行器响应处理方法出错，topic:{}, message:{}", topic, message), e);
+                        log.error(StrUtil.format("Error calling the device command executor response handling method, topic:{}, message:{}", topic, message), e);
                     }
-                    // 调用自定义命令响应处理器
+                    // Call the custom command response handler
                     try {
                         deviceCommandResponseHandlerFactory.getHandlers().forEach(h -> h.handle(topic, responseDTO));
                     } catch (Exception e) {
-                        log.error(StrUtil.format("调用设备命令响应响应处理器出错，topic:{}, message:{}", topic, message), e);
+                        log.error(StrUtil.format("Error calling the device command response handler, topic:{}, message:{}", topic, message), e);
                     }
                 });
     }
@@ -60,13 +60,13 @@ public class DeviceCommandResponseMqttMessageHandler implements MqttMessageHandl
         try {
             DeviceCommandResponseDTO commandResponse = JsonUtils.parseObject(message, DeviceCommandResponseDTO.class);
             if (StrUtil.isBlank(commandResponse.getCommandId())) {
-                log.error(StrUtil.format("主题'{}'的消息,缺失指令ID", topic));
+                log.error(StrUtil.format("Topic'{}'message of,Missing command ID", topic));
                 return null;
             }
             return commandResponse;
 
         } catch (Exception e) {
-            log.error(StrUtil.format("将主题'{}'的消息解析为设备命令响应对象失败", topic), e);
+            log.error(StrUtil.format("Set the topic'{}'message failed to parse into a device command response object", topic), e);
             return null;
         }
     }

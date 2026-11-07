@@ -6,22 +6,22 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 设备上报属性数据
+ * Device reports property data
  *
  * @author LSF maku_lsf@163.com
  */
 @Data
-@Schema(description = "设备上报属性数据VO")
+@Schema(description = "Device property data report VO")
 public class DeviceReportAttributeDataVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "设备ID")
+    @Schema(description = "Device ID")
     private Long deviceId;
 
-    @Schema(description = "设备属性类型")
+    @Schema(description = "Device property type")
     private String propertyType;
 
-    @Schema(description = "属性数据")
+    @Schema(description = "Property data")
     private String payload;
 
 }

@@ -18,7 +18,7 @@ import java.util.List;
  *
  * @author Pure tea
  */
-@Tag(name = "服务器信息")
+@Tag(name = "Server info")
 @Data
 @Slf4j
 public class Server {
@@ -26,31 +26,31 @@ public class Server {
     /**
      * Cpu Info
      */
-    @Schema(description = "CPU信息")
+    @Schema(description = "CPUInformation")
     private Cpu cpu;
 
     /**
      * Mem Info
      */
-    @Schema(description = "内存信息")
+    @Schema(description = "Memory info")
     private Mem mem;
 
     /**
      * Jvm Info
      */
-    @Schema(description = "JVM信息")
+    @Schema(description = "JVMInformation")
     private Jvm jvm;
 
     /**
      * Sys Info
      */
-    @Schema(description = "系统信息")
+    @Schema(description = "System info")
     private Sys sys;
 
     /**
      * SysFile Info
      */
-    @Schema(description = "系统文件信息")
+    @Schema(description = "System file info")
     private List<Disk> disks = new LinkedList<>();
 
     public Server() {
@@ -68,7 +68,7 @@ public class Server {
     }
 
     /**
-     * 设置磁盘信息
+     * Set disk info
      */
     private void setDiskList() {
         SystemInfo systemInfo = new SystemInfo();
@@ -91,10 +91,10 @@ public class Server {
     }
 
     /**
-     * 字节转换
+     * Byte conversion
      *
-     * @param size 字节大小
-     * @return 转换后值
+     * @param size Byte size
+     * @return Converted value
      */
     public static String convertFileSize(long size) {
         long kb = 1024;

@@ -13,9 +13,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
- * 第三方登录，ThirdUserDetailsService
+ * Third-party login, ThirdUserDetailsService
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -30,7 +30,7 @@ public class ThirdUserDetailsServiceImpl implements ThirdUserDetailsService {
         Long userId = sysThirdLoginService.getUserIdByOpenTypeAndOpenId(openType, openId);
         SysUserEntity userEntity = sysUserDao.getById(userId);
         if (userEntity == null) {
-            throw new UsernameNotFoundException("绑定的系统用户，不存在");
+            throw new UsernameNotFoundException("The bound system user does not exist");
         }
 
         return sysUserDetailsService.getUserDetails(BeanUtil.copyProperties(userEntity, UserDetail.class));

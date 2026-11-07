@@ -4,15 +4,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 响应消息基础类
+ * Base class of response messages
  *
  * @author eden on 2024/6/17
  */
 @Data
 public class BaseCommandResponseDTO extends BaseDeviceID {
     /**
-     * 命令ID
+     * Command ID
      */
-    @Schema(description = "命令ID", required = true)
+    @Schema(description = "Command ID", required = true)
     protected String commandId;
 }

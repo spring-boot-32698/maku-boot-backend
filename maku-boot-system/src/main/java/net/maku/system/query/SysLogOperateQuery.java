@@ -6,25 +6,25 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
- * 操作日志查询
+ * Operation log query
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "操作日志查询")
+@Schema(description = "Operation log query")
 public class SysLogOperateQuery extends Query {
-    @Schema(description = "用户")
+    @Schema(description = "User")
     private String realName;
 
-    @Schema(description = "模块名")
+    @Schema(description = "Module name")
     private String module;
 
-    @Schema(description = "请求URI")
+    @Schema(description = "Request URI")
     private String reqUri;
 
-    @Schema(description = "操作状态")
+    @Schema(description = "Operation status")
     private Integer status;
 
 }

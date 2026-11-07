@@ -12,22 +12,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * WebSocket 会话管理器
+ * WebSocket Session manager
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Component
 public class WebSocketSessionManager {
     /**
-     * 用户 WebSocket 会话
-     * key1：用户ID
-     * key2：SessionID
+     * User WebSocket session
+     * key1: user ID
+     * key2: SessionID
      */
     private final ConcurrentMap<Long, ConcurrentMap<String, WebSocketSession>> userSessions = new ConcurrentHashMap<>();
 
     public void addSession(WebSocketSession session) {
-        // 当前连接的用户
+        // Currently connected users
         UserDetail user = SessionUserUtil.getUser(session);
         if (user == null) {
             return;
@@ -38,7 +38,7 @@ public class WebSocketSessionManager {
     }
 
     public void removeSession(WebSocketSession session) {
-        // 当前连接的用户
+        // Currently connected users
         UserDetail user = SessionUserUtil.getUser(session);
         if (user == null) {
             return;

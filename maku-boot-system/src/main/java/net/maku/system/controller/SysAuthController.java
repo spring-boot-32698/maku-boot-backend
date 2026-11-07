@@ -12,21 +12,21 @@ import net.maku.system.vo.*;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * 认证管理
+ * Authentication management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/auth")
-@Tag(name = "认证管理")
+@Tag(name = "Authentication management")
 @AllArgsConstructor
 public class SysAuthController {
     private final SysCaptchaService sysCaptchaService;
     private final SysAuthService sysAuthService;
 
     @GetMapping("captcha")
-    @Operation(summary = "验证码")
+    @Operation(summary = "Captcha")
     public Result<SysCaptchaVO> captcha() {
         SysCaptchaVO captchaVO = sysCaptchaService.generate();
 
@@ -34,7 +34,7 @@ public class SysAuthController {
     }
 
     @GetMapping("captcha/enabled")
-    @Operation(summary = "是否开启验证码")
+    @Operation(summary = "Whether to enable the captcha")
     public Result<Boolean> captchaEnabled() {
         boolean enabled = sysCaptchaService.isCaptchaEnabled();
 
@@ -42,7 +42,7 @@ public class SysAuthController {
     }
 
     @PostMapping("login")
-    @Operation(summary = "账号密码登录")
+    @Operation(summary = "Account and password login")
     public Result<SysUserTokenVO> login(@RequestBody SysAccountLoginVO login) {
         SysUserTokenVO token = sysAuthService.loginByAccount(login);
 
@@ -50,18 +50,18 @@ public class SysAuthController {
     }
 
     @PostMapping("send/code")
-    @Operation(summary = "发送短信验证码")
+    @Operation(summary = "Send SMS verification code")
     public Result<String> sendCode(String mobile) {
         boolean flag = sysAuthService.sendCode(mobile);
         if (!flag) {
-            return Result.error("短信发送失败！");
+            return Result.error("SMS sending failed!");
         }
 
         return Result.ok();
     }
 
     @PostMapping("mobile")
-    @Operation(summary = "手机号登录")
+    @Operation(summary = "Mobile number login")
     public Result<SysUserTokenVO> mobile(@RequestBody SysMobileLoginVO login) {
         SysUserTokenVO token = sysAuthService.loginByMobile(login);
 
@@ -69,7 +69,7 @@ public class SysAuthController {
     }
 
     @PostMapping("third")
-    @Operation(summary = "第三方登录")
+    @Operation(summary = "Third-party login")
     public Result<SysUserTokenVO> third(@RequestBody SysThirdCallbackVO login) {
         SysUserTokenVO token = sysAuthService.loginByThird(login);
 
@@ -77,7 +77,7 @@ public class SysAuthController {
     }
 
     @PostMapping("token")
-    @Operation(summary = "获取 accessToken")
+    @Operation(summary = "Get accessToken")
     public Result<AccessTokenVO> token(String refreshToken) {
         AccessTokenVO token = sysAuthService.getAccessToken(refreshToken);
 
@@ -85,7 +85,7 @@ public class SysAuthController {
     }
 
     @PostMapping("logout")
-    @Operation(summary = "退出")
+    @Operation(summary = "Exit")
     public Result<String> logout(HttpServletRequest request) {
         sysAuthService.logout(TokenUtils.getAccessToken(request));
 

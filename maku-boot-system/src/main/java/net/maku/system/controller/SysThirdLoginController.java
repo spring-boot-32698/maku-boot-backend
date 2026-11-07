@@ -26,21 +26,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 第三方账号登录
+ * Third-party account login
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/third")
-@Tag(name = "第三方账号")
+@Tag(name = "Third-party account")
 @AllArgsConstructor
 public class SysThirdLoginController {
     private final SysThirdLoginService sysThirdLoginService;
     private final SysThirdLoginConfigService sysThirdLoginConfigService;
 
     @GetMapping("list")
-    @Operation(summary = "列表")
+    @Operation(summary = "List")
     public Result<List<SysThirdLoginVO>> list() {
         List<SysThirdLoginVO> list = sysThirdLoginService.listByUserId(SecurityUser.getUserId());
 
@@ -65,28 +65,28 @@ public class SysThirdLoginController {
     }
 
     @PostMapping("bind")
-    @Operation(summary = "绑定")
+    @Operation(summary = "Bind")
     @OperateLog(type = OperateTypeEnum.INSERT)
     public Result<String> bind(@RequestBody SysThirdCallbackVO vo) {
         AuthRequest authRequest = sysThirdLoginConfigService.getAuthRequest(vo.getOpenType());
         AuthCallback callback = AuthCallback.builder().code(vo.getCode()).state(vo.getState()).build();
 
-        // 根据code，获取用户信息
+        // Get user info by code
         AuthResponse<AuthUser> response = authRequest.login(callback);
 
-        // 判断是否成功
+        // Check whether it succeeded
         if (!response.ok()) {
-            throw new RuntimeException("第三方登录失败");
+            throw new RuntimeException("Third-party login failed");
         }
 
-        // 绑定用户信息
+        // Bind user info
         sysThirdLoginService.bind(SecurityUser.getUserId(), vo.getOpenType(), response.getData());
 
         return Result.ok();
     }
 
     @PutMapping("unbind/{openType}")
-    @Operation(summary = "解绑")
+    @Operation(summary = "Unbind")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     public Result<String> unBind(@PathVariable("openType") String openType) {
         sysThirdLoginService.unBind(SecurityUser.getUserId(), openType);

@@ -7,18 +7,18 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 用户头像
+ * User avatar
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "用户头像")
+@Schema(description = "User avatar")
 public class SysUserAvatarVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @NotBlank(message = "头像不能为空")
-    @Schema(description = "头像")
+    @NotBlank(message = "Avatar cannot be empty")
+    @Schema(description = "Avatar")
     private String avatar;
 
 }

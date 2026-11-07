@@ -21,9 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 邮件配置
+ * Mail settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Service
 @AllArgsConstructor
@@ -48,10 +48,10 @@ public class SysMailConfigServiceImpl extends BaseServiceImpl<SysMailConfigDao, 
 
     @Override
     public List<EmailConfig> listByEnable() {
-        // 从缓存读取
+        // Read from cache
         List<EmailConfig> cacheList = emailConfigCache.list();
 
-        // 如果缓存没有，则从DB读取，然后保存到缓存里
+        // If not in cache, read from DB, then save it to cache
         if (cacheList == null) {
             List<SysMailConfigEntity> list = this.list(new LambdaQueryWrapper<SysMailConfigEntity>().in(SysMailConfigEntity::getStatus, Constant.ENABLE));
 

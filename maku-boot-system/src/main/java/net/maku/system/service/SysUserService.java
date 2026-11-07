@@ -14,9 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 /**
- * 用户管理
+ * User management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysUserService extends BaseService<SysUserEntity> {
@@ -36,46 +36,46 @@ public interface SysUserService extends BaseService<SysUserEntity> {
     void delete(List<Long> idList);
 
     /**
-     * 获取用户姓名列表
+     * Get user name list
      *
-     * @param idList 用户ID列表
-     * @return 用户姓名列表
+     * @param idList User ID list
+     * @return User name list
      */
     List<String> getRealNameList(List<Long> idList);
 
     /**
-     * 根据机构ID，获取用户列表
+     * Get the user list by organization ID
      *
-     * @param orgId 根据机构ID
-     * @return 用户列表
+     * @param orgId By organization ID
+     * @return User list
      */
     List<SysUserVO> getOrgUserList(Long orgId);
 
     SysUserVO getByMobile(String mobile);
 
     /**
-     * 修改密码
+     * Change password
      *
-     * @param id          用户ID
-     * @param newPassword 新密码
+     * @param id          User ID
+     * @param newPassword New password
      */
     void updatePassword(Long id, String newPassword);
 
     /**
-     * 分配角色，用户列表
+     * Assign role, user list
      */
     PageResult<SysUserVO> roleUserPage(SysRoleUserQuery query);
 
     /**
-     * 批量导入用户
+     * Batch import users
      *
-     * @param file     excel文件
-     * @param password 密码
+     * @param file     excelFile
+     * @param password Password
      */
     void importByExcel(MultipartFile file, String password);
 
     /**
-     * 导出用户信息表格
+     * Export user info table
      */
     void export();
 }

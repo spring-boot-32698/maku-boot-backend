@@ -6,18 +6,18 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
- * 短信配置查询
+ * SMS settings query
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "短信配置查询")
+@Schema(description = "SMS settings query")
 public class SysSmsConfigQuery extends Query {
-    @Schema(description = "平台类型")
+    @Schema(description = "Platform type")
     private Integer platform;
 
-    @Schema(description = "分组名称")
+    @Schema(description = "Group name")
     private String groupName;
 
 }

@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- *  Netty服务配置
+ *  NettyService settings
  *
  * @author LSF maku_lsf@163.com
  */
@@ -48,7 +48,7 @@ public class NettyServerConfig {
                         ch.pipeline().addLast(
                                 new StringDecoder(),
                                 new StringEncoder(),
-                                // 添加设备连接处理器
+                                // Add device connection handler
                                 new ConnectionHandler(deviceChannels,tcpMessageHandlerFactory)
                         );
                     }
@@ -62,10 +62,10 @@ public class NettyServerConfig {
     public ChannelFuture serverChannelFuture(ServerBootstrap serverBootstrap) throws InterruptedException {
         try {
             ChannelFuture future = serverBootstrap.bind(8888).sync();
-            log.info("------------------------ Netty 服务器在端口 8888 启动成功");
+            log.info("------------------------ Netty Server started successfully on port 8888");
             return future;
         } catch (Exception e) {
-            log.error("------------------------ Netty 服务器启动失败", e);
+            log.error("------------------------ Netty Server failed to start", e);
             throw e;
         }
     }

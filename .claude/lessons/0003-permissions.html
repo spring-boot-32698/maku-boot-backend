@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menus and Permissions</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">Course</a><span>›</span><span>Lesson 03</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Permissions: menus, buttons, codes</h1>
+  <p class="subtitle">One string — a permission code — has to match in three places.</p>
+  <div class="meta"><span><b>Time</b> ~10 min</span><span><b>Prereq</b> <a href="0002-login-and-tokens.html">Lesson 02</a></span><span><b>Deep dive</b> <a href="../docs/03-business-flows.md">docs/03 §3</a></span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>You can make a button appear for exactly the right roles <em>and</em> be enforced on the server — and diagnose it when it isn't.</p>
+  </div>
+
+  <h2>The model</h2>
+  <pre><code>sys_user ─< sys_user_role >─ sys_role ─< sys_role_menu >─ sys_menu
+                                                          type 0 = menu    (url → Vue page)
+                                                          type 1 = button  (authority = codes)</code></pre>
+  <p>A <a href="../reference/glossary.html#permission-code">permission code</a> looks like <code>sys:post:save</code> (<em>module:resource:action</em>). A button row's <code>authority</code> column may hold several, comma-separated: <code>sys:menu:update,sys:menu:info</code>.</p>
+
+  <h2>The same code, three places</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Where</th><th>Looks like</th><th>Role</th></tr>
+    <tr><td><span class="tag be">BE</span> Controller</td><td><code>@PreAuthorize("hasAuthority('sys:post:save')")</code></td><td><strong>The real gate.</strong> Missing code → <code>{"code":403}</code></td></tr>
+    <tr><td><span class="tag db">DB</span> <code>sys_menu.authority</code></td><td><code>sys:post:save</code> on a type-1 row</td><td>What a role is granted (via <code>sys_role_menu</code>)</td></tr>
+    <tr><td><span class="tag fe">FE</span> Template</td><td><code>v-auth="'sys:post:save'"</code></td><td>Cosmetic: removes the element from the DOM</td></tr>
+  </table></div>
+  <p class="sidenote"><code>@PreAuthorize</code> works because of <code>@EnableMethodSecurity</code> on <code>SecurityFilterConfig</code> — see <a href="https://docs.spring.io/spring-security/reference/servlet/authorization/method-security.html">Method Security</a>. The directive is <code>src/utils/directive/auth.ts</code>.</p>
+  <p>At login, <code>SysMenuServiceImpl.getUserAuthority</code> collects every code from the user's roles' menus, splits on commas, and adds <code>ROLE_&lt;roleCode&gt;</code> for each role. That set becomes <code>UserDetail.authoritySet</code> in Redis. The UI gets the same list from <code>GET /sys/menu/authority</code>.</p>
+
+  <h2>Two special cases</h2>
+  <p><strong>Super admin</strong> (<code>sys_user.super_admin = 1</code>, e.g. <code>admin</code>): instead of reading menus, <code>PreAuthorizeUtil</code> scans every controller for <code>hasAuthority('…')</code> and grants them all. New endpoints “just work” for admin — which is why <em>testing only as admin hides permission bugs</em>.</p>
+  <p><strong>No <code>@PreAuthorize</code></strong>: the endpoint only requires a valid login. Examples: <code>GET /sys/post/page</code>, <code>GET /sys/user/page</code>.</p>
+
+  <div class="callout warn"><span class="label">Watch out</span>The browser caches the menu tree and authority list until a full reload. After changing a role, the backend enforces it immediately (lesson 02), but the user won't see new menus until they refresh.</div>
+
+  <h2>Practice</h2>
+
+  <div class="quiz">
+    <p class="q">1. User U sees the “Add” button, but clicking it returns <code>{"code":403}</code>. Most likely cause?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Frontend code differs from @PreAuthorize code</button>
+      <button class="opt">User's Redis token has already expired</button>
+      <button class="opt">The role's data scope is SELF</button>
+      <button class="opt">The menu row has type zero</button>
+    </div>
+    <div class="why">The button is visible, so U <em>has</em> the code used in <code>v-auth</code>; the server checks a <em>different</em> one. An expired token gives 401, not 403. Data scope filters rows, never returns 403.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. Which user automatically has every permission code, with no menu rows needed?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Users with sys_user.super_admin = 1</button>
+      <button class="opt">Users holding role code ADMIN</button>
+      <button class="opt">Users with ALL data scope</button>
+      <button class="opt">Users in the root organisation</button>
+    </div>
+    <div class="why"><code>getUserAuthority</code> branches on <code>SuperAdminEnum.YES</code> and returns <code>PreAuthorizeUtil.getPreAuthorizeList()</code>. Role names and data scope don't grant codes.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. A type-1 <code>sys_menu</code> row named “Modify” has <code>authority = "sys:menu:update,sys:menu:info"</code>. What does granting it give?</p>
+    <div class="opts">
+      <button class="opt" data-correct>One button granting both permission codes</button>
+      <button class="opt">Two menus sharing the same route</button>
+      <button class="opt">Update allowed only after info checked</button>
+      <button class="opt">A new page mounted at sys:menu:update</button>
+    </div>
+    <div class="why">Codes are split on commas into the authority set. “Modify” needs <code>info</code> too, because the edit dialog first loads the record via <code>GET /sys/menu/{id}</code> (<code>sys:menu:info</code>).</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. A controller method has <em>no</em> <code>@PreAuthorize</code> and its URL is not in any <code>auth.yml</code>. Who can call it?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Any logged-in user</button>
+      <button class="opt">Only super admins</button>
+      <button class="opt">Anyone, even anonymous</button>
+      <button class="opt">Nobody until configured</button>
+    </div>
+    <div class="why"><code>SecurityFilterConfig</code>: <code>anyRequest().authenticated()</code>. Only the method annotation narrows it further; only <code>auth.yml</code> opens it up.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. You granted a new menu to role R. A logged-in user with R doesn't see it in the sidebar. What fixes it?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Reload the page to refetch menus</button>
+      <button class="opt">Wait for the access token expiry</button>
+      <button class="opt">Clear Redis and restart the backend</button>
+      <button class="opt">Add the menu URL to auth.yml</button>
+    </div>
+    <div class="why">Menus come from <code>GET /sys/menu/nav</code>, called once by the router guard when <code>user.id</code> is empty — i.e. after a reload.</div>
+  </div>
+
+  <details class="recall"><summary>Recall: list the three places the code <code>biz:product:delete</code> must appear for a non-admin to delete a product from the UI.</summary>
+    <p>(1) <code>@PreAuthorize("hasAuthority('biz:product:delete')")</code> on the controller; (2) a type-1 <code>sys_menu</code> row with that authority, granted to the user's role; (3) <code>v-auth="'biz:product:delete'"</code> on the button (optional for security, needed for UX).</p>
+  </details>
+
+  <h2>Try it</h2>
+  <p>As <code>admin</code>: create role “Viewer” with only <em>Post Management → Query</em>, create a user with that role, log in as them in a private window. The Add/Edit/Delete buttons should vanish. Then call <code>POST /sys/post</code> with their token via curl and confirm <code>{"code":403}</code>.</p>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://docs.spring.io/spring-security/reference/servlet/authorization/method-security.html">Spring Security reference — Method Security</a>, sections on <code>@PreAuthorize</code> and <code>hasAuthority</code>.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “list every permission code the Role page needs” or “show me the SQL behind /sys/menu/nav”.</div>
+
+  <div class="score" data-lesson="0003"></div>
+  <div class="pager"><a href="0002-login-and-tokens.html">← Lesson 02: Tokens</a><a href="0004-data-scope.html">Lesson 04: Data scope →</a></div>
+</main>
+</body>
+</html>

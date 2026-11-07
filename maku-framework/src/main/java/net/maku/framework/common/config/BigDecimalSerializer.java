@@ -8,9 +8,9 @@ import tools.jackson.databind.ser.std.StdScalarSerializer;
 import java.math.BigDecimal;
 
 /**
- * 解决js精度丢失问题
+ * Solve the js precision loss problem
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class BigDecimalSerializer extends StdScalarSerializer<BigDecimal> {
@@ -27,12 +27,12 @@ public class BigDecimalSerializer extends StdScalarSerializer<BigDecimal> {
             return;
         }
 
-        // 根据整数长度决定序列化方式
+        // Decide the serialization method by integer length
         if (value.longValue() > MAX_SAFE_INTEGER) {
-            // 序列化为字符串
+            // Serialize as string
             gen.writeString(value.toPlainString());
         } else {
-            // 序列化为数字
+            // Serialize as number
             gen.writeNumber(value);
         }
     }

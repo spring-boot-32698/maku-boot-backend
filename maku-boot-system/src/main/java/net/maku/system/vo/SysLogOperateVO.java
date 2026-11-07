@@ -9,62 +9,62 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 操作日志
+ * Operation log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "操作日志")
+@Schema(description = "Operation log")
 public class SysLogOperateVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
     private Long id;
 
-    @Schema(description = "用户ID")
+    @Schema(description = "User ID")
     private Long userId;
 
-    @Schema(description = "操作人")
+    @Schema(description = "Operator")
     private String realName;
 
-    @Schema(description = "模块名")
+    @Schema(description = "Module name")
     private String module;
 
-    @Schema(description = "操作名")
+    @Schema(description = "Operation name")
     private String name;
 
-    @Schema(description = "请求URI")
+    @Schema(description = "Request URI")
     private String reqUri;
 
-    @Schema(description = "请求方法")
+    @Schema(description = "Request method")
     private String reqMethod;
 
-    @Schema(description = "请求参数")
+    @Schema(description = "Request parameters")
     private String reqParams;
 
-    @Schema(description = "操作IP")
+    @Schema(description = "Operation IP")
     private String ip;
 
-    @Schema(description = "登录地点")
+    @Schema(description = "Login location")
     private String address;
 
     @Schema(description = "User Agent")
     private String userAgent;
 
-    @Schema(description = "操作类型")
+    @Schema(description = "Operation type")
     private Integer operateType;
 
-    @Schema(description = "执行时长")
+    @Schema(description = "Execution duration")
     private Integer duration;
 
-    @Schema(description = "操作状态")
+    @Schema(description = "Operation status")
     private Integer status;
 
-    @Schema(description = "返回消息")
+    @Schema(description = "Return message")
     private String resultMsg;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Creation time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime createTime;
 

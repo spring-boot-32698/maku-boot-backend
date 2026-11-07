@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * mybatis-plus 配置
+ * mybatis-plus Settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Configuration
@@ -21,13 +21,13 @@ public class MybatisPlusConfig {
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
-        // 数据权限
+        // Data permission
         mybatisPlusInterceptor.addInnerInterceptor(new DataScopeInnerInterceptor());
-        // 分页插件
+        // Pagination plugin
         mybatisPlusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor());
-        // 乐观锁
+        // Optimistic lock
         mybatisPlusInterceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
-        // 防止全表更新与删除
+        // Prevent full-table updates and deletes
         mybatisPlusInterceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
 
         return mybatisPlusInterceptor;

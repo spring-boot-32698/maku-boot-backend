@@ -39,13 +39,13 @@ import java.util.List;
 public class ExcelUtils {
 
     /**
-     * 读取excel文件
+     * Read excel file
      *
-     * @param <T>      数据类型
-     * @param file     excel文件
-     * @param head     列名
-     * @param callBack 回调 导入时传入定义好的回调接口，excel数据解析完毕之后监听器将数据传入回调函数
-     *                 这样调用工具类时可以通过回调函数获取导入的数据，如果数据量过大可根据实际情况进行分配入库
+     * @param <T>      Data type
+     * @param file     excelFile
+     * @param head     Column name
+     * @param callBack Callback: the predefined callback interface passed in on import; after the excel data is parsed, the listener passes the data to the callback
+     *                 This way, when calling the utility class the imported data can be obtained via the callback; if the data volume is large, it can be split into batches for storage as needed
      */
     public static <T> void readAnalysis(MultipartFile file, Class<T> head, ExcelFinishCallBack<T> callBack) {
         try {
@@ -56,13 +56,13 @@ public class ExcelUtils {
     }
 
     /**
-     * 读取excel文件
+     * Read excel file
      *
-     * @param <T>      数据类型
-     * @param file     excel文件
-     * @param head     列名
-     * @param callBack 回调 导入时传入定义好的回调接口，excel数据解析完毕之后监听器将数据传入回调函数
-     *                 这样调用工具类时可以通过回调函数获取导入的数据，如果数据量过大可根据实际情况进行分配入库
+     * @param <T>      Data type
+     * @param file     excelFile
+     * @param head     Column name
+     * @param callBack Callback: the predefined callback interface passed in on import; after the excel data is parsed, the listener passes the data to the callback
+     *                 This way, when calling the utility class the imported data can be obtained via the callback; if the data volume is large, it can be split into batches for storage as needed
      */
     public static <T> void readAnalysis(File file, Class<T> head, ExcelFinishCallBack<T> callBack) {
         try {
@@ -73,11 +73,11 @@ public class ExcelUtils {
     }
 
     /**
-     * 读取excel文件 同步
+     * Read excel file synchronously
      *
-     * @param <T>   数据类型
-     * @param file  文件
-     * @param clazz 模板类
+     * @param <T>   Data type
+     * @param file  File
+     * @param clazz Template class
      * @return java.util.List
      */
     public static <T> List<T> readSync(File file, Class<T> clazz) {
@@ -85,14 +85,14 @@ public class ExcelUtils {
     }
 
     /**
-     * 读取excel文件 同步
+     * Read excel file synchronously
      *
-     * @param <T>       数据类型
-     * @param file      文件
-     * @param clazz     模板类
-     * @param rowNum    数据开始行 1
-     * @param sheetNo   第几张表
-     * @param excelType 数据表格式类型
+     * @param <T>       Data type
+     * @param file      File
+     * @param clazz     Template class
+     * @param rowNum    Data start row 1
+     * @param sheetNo   Which table
+     * @param excelType Data table format type
      * @return java.util.List list
      */
     public static <T> List<T> readSync(File file, Class<T> clazz, Integer rowNum, Integer sheetNo, ExcelTypeEnum excelType) {
@@ -101,25 +101,25 @@ public class ExcelUtils {
 
 
     /**
-     * 导出数据到文件
+     * Export data to file
      *
-     * @param <T>  数据类型
-     * @param head 类名
-     * @param file 导入到文件
-     * @param data 数据
+     * @param <T>  Data type
+     * @param head Class name
+     * @param file Import to file
+     * @param data Data
      */
     public static <T> void excelExport(Class<T> head, File file, List<T> data) {
         excelExport(head, file, "sheet1", data);
     }
 
     /**
-     * 导出数据到文件
+     * Export data to file
      *
-     * @param <T>       写入格式
-     * @param head      类名
-     * @param file      写入到文件
-     * @param sheetName sheet名称
-     * @param data      数据列表
+     * @param <T>       Write format
+     * @param head      Class name
+     * @param file      Write to file
+     * @param sheetName sheetName
+     * @param data      Data list
      */
     public static <T> void excelExport(Class<T> head, File file, String sheetName, List<T> data) {
         try {
@@ -130,13 +130,13 @@ public class ExcelUtils {
     }
 
     /**
-     * 导出数据到web
-     * 文件下载（失败了会返回一个有部分数据的Excel）
+     * Export data to web
+     * File download (on failure, an Excel with partial data is returned)
      *
-     * @param head      类名
-     * @param excelName excel名字
-     * @param sheetName sheet名称
-     * @param data      数据
+     * @param head      Class name
+     * @param excelName excelName
+     * @param sheetName sheetName
+     * @param data      Data
      */
     public static <T> void excelExport(Class<T> head, String excelName, String sheetName, List<T> data) {
         try {
@@ -150,13 +150,13 @@ public class ExcelUtils {
     }
 
     /**
-     * 导出数据到web
-     * 文件下载（失败了会返回一个有部分数据的Excel）
+     * Export data to web
+     * File download (on failure, an Excel with partial data is returned)
      *
-     * @param head      类名
-     * @param excelName excel名字
-     * @param sheetName sheet名称
-     * @param data      数据
+     * @param head      Class name
+     * @param excelName excelName
+     * @param sheetName sheetName
+     * @param data      Data
      */
     public static <T> void excelExport(List<List<String>> head, String excelName, String sheetName, List<T> data) {
         try {
@@ -183,36 +183,36 @@ public class ExcelUtils {
     }
 
     /**
-     * 解析字典数据到字段上
-     * 比如 T中有 genderLabel字段 为男 需要给 gender 字段自动设置为0
+     * Parse dictionary data into fields
+     * For example, if T has a genderLabel field with the value male, the gender field needs to be set to 0 automatically
      *
-     * @param dataList 需要被反向解析的数据
+     * @param dataList Data to be reverse parsed
      */
     @SneakyThrows
     public static <T extends TransPojo> void parseDict(List<T> dataList) {
-        //没有数据就不需要初始化
+        //No need to initialize when there is no data
         if (CollectionUtil.isEmpty(dataList)) {
             return;
         }
         Class<? extends TransPojo> clazz = dataList.get(0).getClass();
-        //拿到所有需要反向翻译的字段
+        //Get all fields that need reverse translation
         List<Field> fields = TransReflectUtils.getAnnotationField(clazz, Trans.class);
-        //过滤出字典翻译
+        //Filter out dictionary translations
         fields = fields.stream().filter(field -> TransType.DICTIONARY.equals(field.getAnnotation(Trans.class).type())).toList();
         DictionaryTransService dictionaryTransService = SpringUtil.getBean(DictionaryTransService.class);
         for (T data : dataList) {
             for (Field field : fields) {
                 Trans trans = field.getAnnotation(Trans.class);
-                // key不能为空并且ref不为空的才自动处理
+                // keyOnly handled automatically when not empty and ref is not empty
                 if (StrUtil.isAllNotBlank(trans.key(), trans.ref())) {
                     Field ref = TransReflectUtils.getDeclaredField(clazz, trans.ref());
                     ref.setAccessible(true);
-                    // 获取字典反向值
+                    // Get dictionary reverse value
                     String value = dictionaryTransService.getDictionaryTransMap().get("un_trans:" + trans.key() + "_" + ref.get(data));
                     if (StringUtils.isBlank(value)) {
                         continue;
                     }
-                    // 一般目标字段是int或者string字段 后面有添加单独抽离方法
+                    // Generally the target field is an int or string field; a separate extraction method was added later
                     if (Integer.class.equals(field.getType())) {
                         field.setAccessible(true);
                         field.set(data, Integer.parseInt(value));

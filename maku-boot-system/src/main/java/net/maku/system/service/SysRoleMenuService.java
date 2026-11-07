@@ -8,34 +8,34 @@ import java.util.List;
 
 
 /**
- * 角色与菜单对应关系
+ * Role-menu mapping
  * 
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysRoleMenuService extends BaseService<SysRoleMenuEntity> {
 
 	/**
-	 * 根据角色ID，获取菜单ID列表
+	 * Get the menu ID list by role ID
 	 */
 	List<Long> getMenuIdList(Long roleId);
 
 	/**
-	 * 保存或修改
-	 * @param roleId      角色ID
-	 * @param menuIdList  菜单ID列表
+	 * Save or update
+	 * @param roleId      Role ID
+	 * @param menuIdList  Menu ID list
 	 */
 	void saveOrUpdate(Long roleId, List<Long> menuIdList);
 
 	/**
-	 * 根据角色id列表，删除角色菜单关系
-	 * @param roleIdList 角色id列表
+	 * Delete role-menu relationships by role id list
+	 * @param roleIdList Role id list
 	 */
 	void deleteByRoleIdList(List<Long> roleIdList);
 
 	/**
-	 * 根据菜单id，删除角色菜单关系
-	 * @param menuId 菜单id
+	 * Delete role-menu relationships by menu id
+	 * @param menuId Menu id
 	 */
 	void deleteByMenuId(Long menuId);
 }

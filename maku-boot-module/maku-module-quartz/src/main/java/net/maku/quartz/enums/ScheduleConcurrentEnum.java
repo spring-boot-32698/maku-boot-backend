@@ -4,20 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 定时任务并发枚举
+ * Scheduled task concurrency enum
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum ScheduleConcurrentEnum {
     /**
-     * 禁止
+     * Forbid
      */
     NO(0),
     /**
-     * 允许
+     * Allow
      */
     YES(1);
 

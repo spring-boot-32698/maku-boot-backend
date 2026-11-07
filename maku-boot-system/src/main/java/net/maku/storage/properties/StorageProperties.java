@@ -6,59 +6,59 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
 /**
- * 存储配置项
+ * Storage settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @ConfigurationProperties(prefix = "storage")
 public class StorageProperties {
     /**
-     * 是否开启存储
+     * Whether to enable storage
      */
     private boolean enabled;
     /**
-     * 通用配置项
+     * Common settings
      */
     private StorageConfig config;
     /**
-     * 本地配置项
+     * Local settings
      */
     private LocalStorageProperties local;
     /**
-     * 阿里云配置项
+     * Alibaba Cloud settings
      */
     private AliyunStorageProperties aliyun;
     /**
-     * 七牛云配置项
+     * Qiniu Cloud settings
      */
     private QiniuStorageProperties qiniu;
     /**
-     * 华为云配置项
+     * Huawei Cloud settings
      */
     private HuaweiStorageProperties huawei;
     /**
-     * Minio配置项
+     * MinioSettings
      */
     private MinioStorageProperties minio;
     /**
-     * 腾讯云配置项
+     * Tencent Cloud settings
      */
     private TencentStorageProperties tencent;
 
     @Data
     public static class StorageConfig {
         /**
-         * 访问域名
+         * Access domain
          */
         private String domain;
         /**
-         * 配置路径前缀
+         * Configure path prefix
          */
         private String prefix;
         /**
-         * 存储类型
+         * Storage type
          */
         private StorageTypeEnum type;
     }

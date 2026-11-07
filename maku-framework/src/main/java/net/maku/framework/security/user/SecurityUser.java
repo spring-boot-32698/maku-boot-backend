@@ -3,15 +3,15 @@ package net.maku.framework.security.user;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * 用户
+ * User
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class SecurityUser {
 
     /**
-     * 获取用户信息
+     * Get user info
      */
     public static UserDetail getUser() {
         UserDetail user;
@@ -25,7 +25,7 @@ public class SecurityUser {
     }
 
     /**
-     * 获取用户ID
+     * Get user ID
      */
     public static Long getUserId() {
         UserDetail user = getUser();
@@ -37,7 +37,7 @@ public class SecurityUser {
     }
 
     /**
-     * 获取机构ID
+     * Get organization ID
      */
     public static Long getOrgId() {
         UserDetail user = getUser();

@@ -16,9 +16,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
 /**
- * 手机短信登录 AuthenticationProvider
+ * SMS login AuthenticationProvider
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class MobileAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
@@ -49,7 +49,7 @@ public class MobileAuthenticationProvider implements AuthenticationProvider, Ini
                 throw new BadCredentialsException("Bad credentials");
             }
 
-            // 短信验证码效验
+            // SMS verification code validation
             if (mobileVerifyCodeService.verifyCode(mobile, code)) {
                 return createSuccessAuthentication(authentication, userDetails);
             } else {

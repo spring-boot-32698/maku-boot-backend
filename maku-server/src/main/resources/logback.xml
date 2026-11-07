@@ -2,17 +2,17 @@
 <configuration>
     <contextName>logback-spring</contextName>
 
-    <!-- 指定日志输出路径 -->
+    <!-- Specify the log output path -->
     <property name="logging.path" value="logs" />
 
-    <!-- 彩色日志依赖的渲染类 -->
+    <!-- Rendering class that colored logs depend on -->
     <conversionRule conversionWord="clr" class="org.springframework.boot.logging.logback.ColorConverter" />
     <conversionRule conversionWord="wex" class="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
     <conversionRule conversionWord="wEx" class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
-    <!-- 彩色日志格式 -->
+    <!-- Colored log format -->
     <property name="CONSOLE_LOG_PATTERN" value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
 
-    <!--输出到控制台-->
+    <!--Output to console-->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
@@ -20,11 +20,11 @@
         </encoder>
     </appender>
 
-    <!--输出到文档-->
+    <!--Output to document-->
     <appender name="DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <!-- 正在记录的日志文档的路径及文档名 -->
+        <!-- Path and file name of the log document being recorded -->
         <file>${logging.path}/debug.log</file>
-        <!--日志文档输出格式-->
+        <!--Log document output format-->
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
             <charset>UTF-8</charset>
@@ -35,7 +35,7 @@
             <maxHistory>60</maxHistory>
             <totalSizeCap>20GB</totalSizeCap>
         </rollingPolicy>
-        <!-- 此日志文档只记录debug级别的 -->
+        <!-- This log document only records debug level -->
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>debug</level>
             <onMatch>ACCEPT</onMatch>

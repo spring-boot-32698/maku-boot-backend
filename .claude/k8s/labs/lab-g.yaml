@@ -1,0 +1,20 @@
+# Lab G
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-g
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: lab-g }
+  template:
+    metadata:
+      labels: { app: lab-g }
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z orders-db 5432; do echo waiting for orders-db; sleep 2; done"]
+      containers:
+        - name: app
+          image: nginx:1.27-alpine

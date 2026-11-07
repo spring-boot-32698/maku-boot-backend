@@ -3,59 +3,59 @@ package net.maku.api.module.system;
 import java.util.Map;
 
 /**
- * 短信服务API
+ * SMS service API
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SmsApi {
 
     /**
-     * 发送短信
+     * Send SMS
      *
-     * @param mobile 手机号
-     * @param params 参数
-     * @return 是否发送成功
+     * @param mobile Mobile number
+     * @param params Parameter
+     * @return Whether sent successfully
      */
     boolean send(String mobile, Map<String, String> params);
 
     /**
-     * 发送短信
+     * Send SMS
      *
-     * @param groupName 分组名称
-     * @param mobile    手机号
-     * @param params    参数
-     * @return 是否发送成功
+     * @param groupName Group name
+     * @param mobile    Mobile number
+     * @param params    Parameter
+     * @return Whether sent successfully
      */
     boolean send(String groupName, String mobile, Map<String, String> params);
 
     /**
-     * 发送短信
+     * Send SMS
      *
-     * @param mobile 手机号
-     * @param key    参数KEY
-     * @param value  参数Value
-     * @return 是否发送成功
+     * @param mobile Mobile number
+     * @param key    Parameter KEY
+     * @param value  Parameter Value
+     * @return Whether sent successfully
      */
     boolean sendCode(String mobile, String key, String value);
 
     /**
-     * 发送短信
+     * Send SMS
      *
-     * @param groupName 分组名称
-     * @param mobile    手机号
-     * @param key       参数KEY
-     * @param value     参数Value
-     * @return 是否发送成功
+     * @param groupName Group name
+     * @param mobile    Mobile number
+     * @param key       Parameter KEY
+     * @param value     Parameter Value
+     * @return Whether sent successfully
      */
     boolean sendCode(String groupName, String mobile, String key, String value);
     
     /**
-     * 效验短信验证码
+     * Validate the SMS verification code
      *
-     * @param mobile 手机号
-     * @param code   验证码
-     * @return 是否效验成功
+     * @param mobile Mobile number
+     * @param code   Captcha
+     * @return Whether validation succeeded
      */
     boolean verifyCode(String mobile, String code);
 }

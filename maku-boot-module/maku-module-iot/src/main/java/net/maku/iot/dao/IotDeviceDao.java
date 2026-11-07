@@ -5,7 +5,7 @@ import net.maku.iot.entity.IotDeviceEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 设备表
+ * Device table
  *
  * @author LSF maku_lsf@163.com
  */

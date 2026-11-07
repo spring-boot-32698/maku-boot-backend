@@ -3,7 +3,7 @@ package net.maku.framework.common.trans;
 import java.lang.annotation.*;
 
 /**
- * 翻译注解，标记需要翻译的字段
+ * Translation annotation, marks fields that need translation
  *
  * @author maku
  */
@@ -12,29 +12,29 @@ import java.lang.annotation.*;
 @Documented
 public @interface Trans {
     /**
-     * 翻译类型
+     * Translation type
      *
      * @see TransType
      */
     String type();
 
     /**
-     * 字典类型key（字典翻译时使用）
+     * Dictionary type key (used in dictionary translation)
      */
     String key() default "";
 
     /**
-     * 翻译结果存放字段名
+     * Field name where the translation result is stored
      */
     String ref() default "";
 
     /**
-     * 目标实体类（SIMPLE翻译时使用）
+     * Target entity class (used in SIMPLE translation)
      */
     Class<?> target() default Object.class;
 
     /**
-     * 要翻译的字段名（SIMPLE翻译时使用）
+     * Name of the field to translate (used in SIMPLE translation)
      */
     String fields() default "";
 }

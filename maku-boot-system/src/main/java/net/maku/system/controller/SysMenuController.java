@@ -22,20 +22,20 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 菜单管理
+ * Menu management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/menu")
-@Tag(name = "菜单管理")
+@Tag(name = "Menu management")
 @AllArgsConstructor
 public class SysMenuController {
     private final SysMenuService sysMenuService;
 
     @GetMapping("nav")
-    @Operation(summary = "菜单导航")
+    @Operation(summary = "Menu navigation")
     public Result<List<SysMenuVO>> nav() {
         UserDetail user = SecurityUser.getUser();
         List<SysMenuVO> list = sysMenuService.getUserMenuList(user, MenuTypeEnum.MENU.getValue());
@@ -44,7 +44,7 @@ public class SysMenuController {
     }
 
     @GetMapping("authority")
-    @Operation(summary = "用户权限标识")
+    @Operation(summary = "User permission identifier")
     public Result<Set<String>> authority() {
         UserDetail user = SecurityUser.getUser();
         Set<String> set = sysMenuService.getUserAuthority(user);
@@ -53,8 +53,8 @@ public class SysMenuController {
     }
 
     @GetMapping("list")
-    @Operation(summary = "菜单列表")
-    @Parameter(name = "type", description = "菜单类型 0：菜单 1：按钮  2：接口  null：全部")
+    @Operation(summary = "Menu list")
+    @Parameter(name = "type", description = "Menu type 0: menu 1: button  2: API  null: all")
     @PreAuthorize("hasAuthority('sys:menu:list')")
     public Result<List<SysMenuVO>> list(Integer type) {
         List<SysMenuVO> list = sysMenuService.getMenuList(type);
@@ -63,13 +63,13 @@ public class SysMenuController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('sys:menu:info')")
     public Result<SysMenuVO> get(@PathVariable("id") Long id) {
         SysMenuEntity entity = sysMenuService.getById(id);
         SysMenuVO vo = BeanUtil.copyProperties(entity, SysMenuVO.class);
 
-        // 获取上级菜单名称
+        // Get the parent menu name
         if (entity.getPid() != null) {
             SysMenuEntity parentEntity = sysMenuService.getById(entity.getPid());
             vo.setParentName(parentEntity.getName());
@@ -79,7 +79,7 @@ public class SysMenuController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @OperateLog(type = OperateTypeEnum.INSERT)
     @PreAuthorize("hasAuthority('sys:menu:save')")
     public Result<String> save(@RequestBody @Valid SysMenuVO vo) {
@@ -89,7 +89,7 @@ public class SysMenuController {
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('sys:menu:update')")
     public Result<String> update(@RequestBody @Valid SysMenuVO vo) {
@@ -99,14 +99,14 @@ public class SysMenuController {
     }
 
     @DeleteMapping("{id}")
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @OperateLog(type = OperateTypeEnum.DELETE)
     @PreAuthorize("hasAuthority('sys:menu:delete')")
     public Result<String> delete(@PathVariable("id") Long id) {
-        // 判断是否有子菜单或按钮
+        // Check whether there are child menus or buttons
         Long count = sysMenuService.getSubMenuCount(id);
         if (count > 0) {
-            return Result.error("请先删除子菜单");
+            return Result.error("Please delete the child menus first");
         }
 
         sysMenuService.delete(id);

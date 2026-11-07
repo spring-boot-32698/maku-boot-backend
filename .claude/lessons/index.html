@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maku Onboarding Course</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><span>maku-boot + maku-admin</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Onboarding course</h1>
+  <p class="subtitle">Six short lessons that take you from “where is anything?” to shipping your first CRUD feature.</p>
+
+  <div class="goal">
+    <span class="label">Mission</span>
+    <p>Become productive on this codebase: run it, trace any request end-to-end, and add features without breaking auth, permissions or data scope. <a href="../MISSION.md">MISSION.md</a></p>
+  </div>
+
+  <ol class="lesson-list">
+    <li data-lesson-link="0001"><span class="num">01</span><a href="0001-the-map.html">The map: modules, layers and one request</a><span class="desc">Find the controller and the Vue page behind any screen.</span></li>
+    <li data-lesson-link="0002"><span class="num">02</span><a href="0002-login-and-tokens.html">Login, tokens and refresh</a><span class="desc">What a token is here, where it lives, and how the UI survives expiry.</span></li>
+    <li data-lesson-link="0003"><span class="num">03</span><a href="0003-permissions.html">Permissions: menus, buttons, codes</a><span class="desc">Make a button appear — and be enforced — for exactly the right role.</span></li>
+    <li data-lesson-link="0004"><span class="num">04</span><a href="0004-data-scope.html">Data scope: who sees which rows</a><span class="desc">Predict the SQL filter for any user and opt your queries in.</span></li>
+    <li data-lesson-link="0005"><span class="num">05</span><a href="0005-crud-end-to-end.html">Your first CRUD feature</a><span class="desc">The eleven touch-points, in order, and the framework magic behind them.</span></li>
+    <li data-lesson-link="0006"><span class="num">06</span><a href="0006-platform-services.html">Reuse the platform services</a><span class="desc">Dictionaries, params, files, logs, jobs, WebSocket — pick the right tool.</span></li>
+  </ol>
+
+  <h2>How to use these</h2>
+  <p>Do one lesson per sitting (~10 minutes). Answer the practice questions <em>before</em> peeking — the struggle is what makes it stick. Come back a day or two later and redo the practice of the previous lesson before starting the next one; your first-try score is remembered in this browser and shown above.</p>
+  <p>The long-form docs are in <a href="../docs/README.md"><code>docs/</code></a>; the lessons point into them.</p>
+
+  <div class="ask"><span class="label">Stuck?</span>Ask your agent (Claude) anything — “explain the refresh flow again”, “quiz me on data scope”, “walk me through SysRoleServiceImpl”. It's your teacher for this course and can read the code with you.</div>
+</main>
+</body>
+</html>

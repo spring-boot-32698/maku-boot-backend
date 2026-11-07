@@ -25,9 +25,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * 登录日志
+ * Login log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -77,8 +77,8 @@ public class SysLogLoginServiceImpl extends BaseServiceImpl<SysLogLoginDao, SysL
         List<SysLogLoginEntity> list = list();
         List<SysLogLoginVO> sysLogLoginVOS = BeanUtil.copyToList(list, SysLogLoginVO.class);
         transService.transBatch(sysLogLoginVOS);
-        // 写到浏览器打开
-        ExcelUtils.excelExport(SysLogLoginVO.class, "登录日志", null, sysLogLoginVOS);
+        // Write to browser to open
+        ExcelUtils.excelExport(SysLogLoginVO.class, "Login log", null, sysLogLoginVOS);
     }
 
 }

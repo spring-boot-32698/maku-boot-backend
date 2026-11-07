@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Helm Charts Inside</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script src="../../assets/quiz.js" defer></script>
+<script src="../../assets/steps.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">K8s course</a><span>›</span><span>Lesson 08</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Helm charts from the inside</h1>
+  <p class="subtitle">A chart is a folder of YAML with blanks in it. Values fill the blanks.</p>
+  <div class="meta"><span><b>Time</b> ~18 min</span><span><b>Prereq</b> lessons 01–07</span><span><b>Run from</b> <code>maku-boot-backend/</code></span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>You can read any template in <code>deploy/helm/maku</code>, predict what it renders, and add a new configurable feature to the chart.</p>
+  </div>
+
+  <h2>What Helm adds over plain YAML</h2>
+  <ul>
+    <li><b>Parameters</b>: one chart, many environments (<code>values-k3d.yaml</code> vs <code>values-production.example.yaml</code>).</li>
+    <li><b>A release</b>: everything installed together is tracked as one unit with numbered <b>revisions</b>, so you can upgrade, roll back, or uninstall it as a whole.</li>
+    <li><b>Packaging</b>: charts can be versioned, shared, and depended on (<code>helm install bitnami/…</code>).</li>
+  </ul>
+  <p class="sidenote">Helm 4 (your version) renders charts the same way as Helm 3. <code>apiVersion: v2</code> charts “continue to work unchanged” (<a href="https://helm.sh/docs/overview/">Helm 4 overview</a>). New installs use server-side apply.</p>
+
+  <h2>Anatomy of <code>deploy/helm/maku</code></h2>
+  <pre><code>Chart.yaml          name, version (the chart's), appVersion (the app's, = default image tag)
+values.yaml         every knob with its default
+values-k3d.yaml     overrides for the local cluster
+templates/
+  _helpers.tpl      named snippets: maku.fullname, maku.labels, maku.selectorLabels, maku.image …
+  *.yaml            one or more manifests each, with {{ template actions }}
+  NOTES.txt         printed after install/upgrade
+  tests/            helm test hooks</code></pre>
+
+  <h2>The template language in ten patterns</h2>
+  <p>Helm uses Go templates plus the Sprig function library. Everything below appears in our chart:</p>
+  <div class="table-wrap"><table>
+    <tr><th>Pattern</th><th>Meaning</th></tr>
+    <tr><td><code>{{ .Values.backend.service.port }}</code></td><td>read a value</td></tr>
+    <tr><td><code>{{ .Release.Name }}</code>, <code>.Release.Namespace</code>, <code>.Chart.AppVersion</code></td><td>built-in objects</td></tr>
+    <tr><td><code>{{ .Values.x | quote }}</code></td><td>pipeline: pass the value into a function</td></tr>
+    <tr><td><code>{{ default .Chart.AppVersion .image.tag }}</code></td><td>fallback if empty</td></tr>
+    <tr><td><code>{{ required "msg" .Values.externalDatabase.host }}</code></td><td>fail rendering with a helpful message</td></tr>
+    <tr><td><code>{{- if .Values.mysql.enabled }} … {{- end }}</code></td><td>conditional block (the <code>-</code> trims whitespace)</td></tr>
+    <tr><td><code>{{- with .Values.backend.extraEnv }} {{- toYaml . | nindent 12 }} {{- end }}</code></td><td>only if non-empty; <code>.</code> becomes that value; dump as YAML indented 12</td></tr>
+    <tr><td><code>{{ include "maku.labels" . | nindent 4 }}</code></td><td>call a named template from <code>_helpers.tpl</code>, then indent it</td></tr>
+    <tr><td><code>{{ include "maku.selectorLabels" (dict "ctx" . "component" "backend") }}</code></td><td>pass several arguments by building a dict</td></tr>
+    <tr><td><code>{{ include (print $.Template.BasePath "/backend-configmap.yaml") . | sha256sum }}</code></td><td>render another template and hash it (the <code>checksum/config</code> trick)</td></tr>
+  </table></div>
+  <p class="sidenote">Sources: <a href="https://helm.sh/docs/chart_template_guide/getting_started/">Chart Template Guide</a> → <a href="https://helm.sh/docs/chart_template_guide/functions_and_pipelines/">functions and pipelines</a>, <a href="https://helm.sh/docs/chart_template_guide/control_structures/">control structures</a>, <a href="https://helm.sh/docs/chart_template_guide/named_templates/">named templates</a>.</p>
+  <p><strong>Value precedence</strong>: <code>values.yaml</code> &lt; <code>-f first.yaml</code> &lt; <code>-f second.yaml</code> &lt; <code>--set</code>. Later wins. <a href="https://helm.sh/docs/chart_template_guide/values_files/">docs</a></p>
+
+  <div class="callout warn"><span class="label">Helm renders text</span>Templates produce <em>text</em> that only has to look like YAML. <code>helm lint</code> and <code>helm template</code> won't notice <code>replicas: two</code>. In my tests, not even <code>helm upgrade --dry-run=server</code> caught it. The <b>Kubernetes API server</b> is what validates types. The <code>kubectl apply --dry-run=server</code> in step 5 asks it directly.</div>
+
+  <h2>Hands-on</h2>
+  <ol class="steps" data-id="k8s-l8">
+    <li><p>Render one template with a different value. Nothing touches the cluster.</p>
+      <pre><code>helm template maku deploy/helm/maku --show-only templates/backend-configmap.yaml --set backend.springProfile=prod</code></pre>
+      <details class="expect"><summary>What to notice</summary><p><code>SPRING_PROFILES_ACTIVE: "prod"</code>, and every name starts with <code>maku-</code> (from the release name).</p></details></li>
+    <li><p>How names are built: render with a different release name and read <code>maku.fullname</code> in <code>_helpers.tpl</code>.</p>
+      <pre><code>helm template foo deploy/helm/maku --show-only templates/backend-service.yaml | grep -E 'name:|instance'</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>  name: foo-maku-backend          ← release "foo" doesn't contain "maku", so: &lt;release&gt;-&lt;chart&gt;
+    app.kubernetes.io/instance: foo</pre><p>With release <code>maku</code> the name is just <code>maku-backend</code>: <code>fullname</code> avoids <code>maku-maku-backend</code>.</p></details></li>
+    <li><p>Trip a <code>required</code> guard on purpose.</p>
+      <pre><code>helm template maku deploy/helm/maku --set mysql.enabled=false</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>Error: execution error at (maku/templates/backend-deployment.yaml:24:28): externalDatabase.host is required when mysql.enabled=false</pre></details></li>
+    <li><p>Inspect the live release: the values <em>you</em> supplied vs everything computed, and the manifests actually applied.</p>
+      <pre><code>helm get values maku -n maku
+helm get values maku -n maku --all | head -20
+helm get manifest maku -n maku | grep -E '^kind:' | sort | uniq -c</code></pre></li>
+    <li><p>See what Helm misses: a wrongly typed value sails through, and the API server catches it.</p>
+      <pre><code>helm lint deploy/helm/maku --set backend.replicaCount=two
+helm template dryrun deploy/helm/maku --set backend.replicaCount=two --show-only templates/backend-deployment.yaml \
+  | kubectl apply --dry-run=server -n maku -f -</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>1 chart(s) linted, 0 chart(s) failed
+Error from server (BadRequest): … cannot unmarshal string into Go struct field DeploymentSpec.spec.replicas of type int32</pre></details></li>
+    <li><p><strong>Your turn: add a feature.</strong> Make extra pod annotations configurable (teams use them for Prometheus scraping and similar). Work on a copy so the real chart stays clean:</p>
+      <pre><code>cp -r deploy/helm/maku /tmp/maku-chart</code></pre>
+      <p>Goal: <code>--set-string 'backend.podAnnotations.prometheus\.io/scrape=true'</code> should add that annotation next to <code>checksum/config</code> in the backend pod template, and with no value set, nothing should change. Edit <code>/tmp/maku-chart/values.yaml</code> and <code>templates/backend-deployment.yaml</code>, then check:</p>
+      <pre><code>helm lint /tmp/maku-chart
+helm template maku /tmp/maku-chart --set-string 'backend.podAnnotations.prometheus\.io/scrape=true' \
+  --show-only templates/backend-deployment.yaml | sed -n '/template:/,/spec:/p'</code></pre>
+      <details class="expect"><summary>Solution (try first!)</summary><pre># values.yaml, under backend:
+  podAnnotations: {}
+
+# templates/backend-deployment.yaml, right after the checksum/config line:
+        {{- with .Values.backend.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+
+# rendered:
+      annotations:
+        checksum/config: f53a0ed4…
+        prometheus.io/scrape: "true"</pre></details></li>
+  </ol>
+
+  <h2>Practice</h2>
+
+  <div class="quiz">
+    <p class="q">1. <code>values.yaml</code> says <code>springProfile: dev</code>, <code>-f prod.yaml</code> says <code>prod</code>, and <code>--set backend.springProfile=test</code> is passed. Result?</p>
+    <div class="opts">
+      <button class="opt" data-correct><code>test</code></button>
+      <button class="opt"><code>prod</code></button>
+      <button class="opt"><code>dev</code></button>
+      <button class="opt">error</button>
+    </div>
+    <div class="why">Defaults &lt; files (in order) &lt; <code>--set</code>. The most specific, last source wins.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. Why does the chart write <code>include "maku.labels" . | nindent 4</code> instead of plain <code>template "maku.labels" .</code>?</p>
+    <div class="opts">
+      <button class="opt" data-correct><code>include</code> returns text you can pipe and indent</button>
+      <button class="opt"><code>template</code> is deprecated and removed in Helm 4</button>
+      <button class="opt"><code>include</code> validates the labels against the Kubernetes rules</button>
+      <button class="opt"><code>template</code> can only be used inside the NOTES.txt</button>
+    </div>
+    <div class="why"><code>template</code> writes output directly and can't be piped. YAML is indentation-sensitive, so you almost always need <code>include … | nindent N</code> (newline + indent N).</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. <code>maku.selectorLabels</code> leaves out <code>app.kubernetes.io/version</code> and <code>helm.sh/chart</code>. Why?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Selectors are immutable; versions change every upgrade</button>
+      <button class="opt">Kubernetes forbids dots inside selector label keys</button>
+      <button class="opt">Those labels are added by the scheduler</button>
+      <button class="opt">Services can match at most three labels</button>
+    </div>
+    <div class="why">A Deployment's <code>spec.selector</code> can't be changed after creation. If it included the version, the next upgrade would fail. Stable identity goes in selectors; everything else goes in <code>maku.labels</code>.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. You install the chart with release name <code>shop</code>. What is the backend Service called?</p>
+    <div class="opts">
+      <button class="opt" data-correct><code>shop-maku-backend</code></button>
+      <button class="opt"><code>maku-shop-backend</code></button>
+      <button class="opt"><code>shop-backend</code></button>
+      <button class="opt"><code>maku-backend</code></button>
+    </div>
+    <div class="why"><code>maku.fullname</code> = release name if it already contains the chart name, else <code>&lt;release&gt;-&lt;chart&gt;</code>. <code>fullnameOverride</code> replaces it entirely.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. Which check would catch <code>replicas: two</code> before it reaches a real cluster?</p>
+    <div class="opts">
+      <button class="opt" data-correct><code>kubectl apply --dry-run=server</code> on the rendered output</button>
+      <button class="opt"><code>helm lint</code> with the strict flag off</button>
+      <button class="opt"><code>helm template</code> with the show-only flag set</button>
+      <button class="opt"><code>helm get values</code> on the running release</button>
+    </div>
+    <div class="why">Only the API server knows the schemas (offline tools like kubeconform also work). Helm checks template syntax and chart structure, not Kubernetes types.</div>
+  </div>
+
+  <details class="recall"><summary>Recall (interview): “Why use Helm instead of plain YAML or Kustomize?”</summary>
+    <p>Helm gives parameterised templates, a <b>release</b> abstraction with revisions (upgrade/rollback/uninstall as a unit), hooks (tests, migrations), and packaging/sharing via repositories. Plain YAML has none of that; <b>Kustomize</b> patches plain YAML without templating and is built into kubectl. Teams often pick Kustomize for in-house apps and Helm for distributing software, or combine them (Helm render + Kustomize patch). Downsides of Helm: templated YAML is harder to read, and errors appear late.</p>
+  </details>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://helm.sh/docs/chart_template_guide/getting_started/">Helm Chart Template Guide</a>. Work through “Getting Started” to “Named Templates” (about an hour, the best investment in this course), then skim <a href="https://helm.sh/docs/chart_best_practices/">Chart Best Practices</a>.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “review my podAnnotations change”, “what does helm create generate that our chart doesn't have?”, or “how do chart dependencies work?”.</div>
+
+  <div class="score" data-lesson="k8s-0008"></div>
+  <div class="pager"><a href="0007-ingress.html">← Lesson 07</a><a href="0009-rebuild-by-hand.html">Lesson 09: Rebuild by hand →</a></div>
+</main>
+</body>
+</html>

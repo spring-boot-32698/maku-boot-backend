@@ -1,0 +1,29 @@
+# Lab F
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-f
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: shop }
+  template:
+    metadata:
+      labels: { app: shop }
+    spec:
+      containers:
+        - name: app
+          image: nginx:1.27-alpine
+          ports:
+            - name: http
+              containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shop
+spec:
+  selector: { app: shopp }
+  ports:
+    - port: 80
+      targetPort: http

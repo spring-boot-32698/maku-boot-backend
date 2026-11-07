@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Debugging Playbook</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script src="../../assets/quiz.js" defer></script>
+<script src="../../assets/steps.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">K8s course</a><span>›</span><span>Lesson 11</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Debugging playbook</h1>
+  <p class="subtitle">Eight broken apps. One method. No guessing.</p>
+  <div class="meta"><span><b>Time</b> ~25 min</span><span><b>Prereq</b> lessons 01–10</span><span><b>Run from</b> <code>maku-boot-backend/</code></span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>Given any unhealthy pod, you know which command reveals the cause, and you've diagnosed eight real failures.</p>
+  </div>
+
+  <h2>The method: get → describe → logs → events</h2>
+  <ol class="flow">
+    <li><b><code>kubectl get pods</code></b>: the STATUS and READY columns tell you <em>which phase</em> failed.</li>
+    <li><b><code>kubectl describe pod</code></b>: read <b>Events</b> at the bottom (scheduling, pulling, probes) and <b>Last State</b> (why the previous container died).</li>
+    <li><b><code>kubectl logs</code></b>: the app's own words. <code>--previous</code> for a crashed container, <code>-c &lt;name&gt;</code> for an init container.</li>
+    <li><b><code>kubectl get events --sort-by=.lastTimestamp</code></b>: namespace-wide, including objects that aren't pods (PVCs, ReplicaSets).</li>
+    <li>Still stuck? Look sideways: the <b>Service's endpoints</b>, the <b>PVC</b>, a <b>debug pod</b> (<code>kubectl run t --rm -it --image=busybox:1.36 -- sh</code>).</li>
+  </ol>
+  <p class="sidenote">Official flow: <a href="https://kubernetes.io/docs/tasks/debug/debug-application/debug-pods/">Debug Pods</a>, <a href="https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/">Debug Running Pods</a>, <a href="https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/">Debug Services</a>.</p>
+
+  <div class="table-wrap"><table>
+    <tr><th>STATUS</th><th>Phase that failed</th><th>Look at first</th></tr>
+    <tr><td><code>Pending</code></td><td>scheduling (no node fits / volume not ready)</td><td>describe → Events (scheduler)</td></tr>
+    <tr><td><code>ErrImagePull</code> / <code>ImagePullBackOff</code></td><td>getting the image</td><td>describe → Events (kubelet)</td></tr>
+    <tr><td><code>Init:0/1</code> for long</td><td>init container not finishing</td><td><code>logs -c &lt;init&gt;</code></td></tr>
+    <tr><td><code>CrashLoopBackOff</code> / <code>Error</code></td><td>the app exits</td><td><code>logs --previous</code></td></tr>
+    <tr><td><code>OOMKilled</code></td><td>memory limit</td><td>describe → Last State</td></tr>
+    <tr><td><code>Running</code> but <code>0/1</code></td><td>readiness probe</td><td>describe → Events “Unhealthy”</td></tr>
+    <tr><td>Pods fine, Service dead</td><td>wiring</td><td>endpointslices + selector vs labels</td></tr>
+  </table></div>
+
+  <h2>The labs</h2>
+  <p>Eight manifests in <code>.claude/k8s/labs/</code> (<code>lab-a.yaml</code> … <code>lab-h.yaml</code>), each broken differently. <strong>Don't open the files.</strong> Diagnose from the cluster only, the way you would at work. You met A and D in lesson 06.</p>
+  <ol class="steps" data-id="k8s-l11">
+    <li><p>Apply them all and give them a minute to fail.</p>
+      <pre><code>kubectl create namespace play
+kubectl -n play apply -f .claude/k8s/labs/
+sleep 60; kubectl -n play get pods,pvc,svc</code></pre>
+      <details class="expect"><summary>Expected symptoms</summary><pre>lab-a-…   0/1   Pending
+lab-b-…   0/1   ImagePullBackOff
+lab-c-…   0/1   Error / CrashLoopBackOff   3 restarts
+lab-d-…   0/1   OOMKilled / CrashLoopBackOff
+lab-e-…   0/1   Running      (×2)
+lab-f-…   1/1   Running      (×2)   ← looks healthy…
+lab-g-…   0/1   Init:0/1
+lab-h-…   0/1   Pending
+persistentvolumeclaim/lab-h-data   Pending   fast-ssd</pre></details></li>
+    <li><p><b>Lab B.</b> Diagnose, then write the cause in one sentence before opening.</p>
+      <pre><code>kubectl -n play describe pod -l app=lab-b | tail -5</code></pre>
+      <details class="expect"><summary>Diagnosis</summary><pre>Failed to pull image "nginx:1.27-alpinee": … not found</pre><p>Typo in the tag. Fix: correct the image. (Other causes of the same symptom: a private registry without <code>imagePullSecrets</code>, or a local image not imported into k3d, as in lesson 09.)</p></details></li>
+    <li><p><b>Lab C.</b></p>
+      <pre><code>kubectl -n play logs deploy/lab-c --previous
+kubectl -n play describe pod -l app=lab-c | grep -A3 'Last State'</code></pre>
+      <details class="expect"><summary>Diagnosis</summary><pre>Starting app...
+ERROR: required env DB_URL is not set
+    Last State:  Terminated   Reason: Error   Exit Code: 1</pre><p>The app exits on start because config is missing. Kubernetes restarts it with growing back-off: CrashLoopBackOff. Fix: provide the env (ConfigMap/Secret, lesson 04). This is the most common real-world failure, e.g. a wrong DB password for maku-backend.</p></details></li>
+    <li><p><b>Lab E.</b> Pods are Running but never Ready.</p>
+      <pre><code>kubectl -n play describe pod -l app=lab-e | grep Unhealthy | tail -1
+kubectl -n play get endpointslice -l kubernetes.io/service-name=lab-e \
+  -o jsonpath='{range .items[*].endpoints[*]}{.addresses[0]} ready={.conditions.ready}{"\n"}{end}'</code></pre>
+      <details class="expect"><summary>Diagnosis</summary><pre>Readiness probe failed: HTTP probe failed with statuscode: 404
+10.42.0.20 ready=false
+10.42.1.17 ready=false</pre><p>The probe checks <code>/healthz</code>, which nginx doesn't serve. The Service has endpoints, but none are ready, so it gets no traffic. Fix: probe a real path.</p></details></li>
+    <li><p><b>Lab F.</b> Pods are 1/1 and healthy. Test the Service from inside the cluster.</p>
+      <pre><code>kubectl -n play run t --rm -it --image=busybox:1.36 --restart=Never -- wget -qO- -T 3 http://shop
+kubectl -n play get endpointslices -l kubernetes.io/service-name=shop
+kubectl -n play get svc shop -o jsonpath='{.spec.selector}'; echo
+kubectl -n play get pods --show-labels | grep lab-f</code></pre>
+      <details class="expect"><summary>Diagnosis</summary><pre>wget: can't connect to remote host (10.43.170.103): Connection refused
+shop-…   IPv4   &lt;unset&gt;   &lt;unset&gt;      ← no endpoints at all
+{"app":"shopp"}                       ← selector typo
+lab-f-…  app=shop</pre><p>The selector matches nothing. Nothing in the pods is wrong, which is why <code>get pods</code> can't find this bug. Note the <em>instant</em> “Connection refused”: kube-proxy actively rejects traffic to a Service with no endpoints. A <em>timeout</em> instead points elsewhere (NetworkPolicy, a pod not listening).</p></details></li>
+    <li><p><b>Lab G.</b></p>
+      <pre><code>kubectl -n play logs deploy/lab-g -c wait-for-db --tail=3</code></pre>
+      <details class="expect"><summary>Diagnosis</summary><pre>nc: bad address 'orders-db'
+waiting for orders-db</pre><p>The init container waits for a Service that doesn't exist (wrong name or wrong namespace). Remember from lesson 03 that a cross-namespace name would need <code>orders-db.&lt;namespace&gt;</code>. Same shape as maku's <code>wait-for-mysql</code>.</p></details></li>
+    <li><p><b>Lab H.</b> Pending, but not for CPU.</p>
+      <pre><code>kubectl -n play describe pod -l app=lab-h | tail -2
+kubectl -n play describe pvc lab-h-data | tail -2
+kubectl get storageclass</code></pre>
+      <details class="expect"><summary>Diagnosis</summary><pre>0/2 nodes are available: pod has unbound immediate PersistentVolumeClaims …
+ProvisioningFailed   storageclass.storage.k8s.io "fast-ssd" not found</pre><p>The PVC asks for a StorageClass this cluster doesn't have (it exists only on some other platform). Fix: use an existing class, or omit it for the default (local-path). This is common when a chart from a cloud cluster meets a local one.</p></details></li>
+    <li><p>Namespace-wide view, then clean up.</p>
+      <pre><code>kubectl -n play get events --sort-by=.lastTimestamp | tail -15
+kubectl delete namespace play</code></pre></li>
+  </ol>
+
+  <h2>Practice: match symptom to cause</h2>
+
+  <div class="quiz">
+    <p class="q">1. A pod is <code>CrashLoopBackOff</code>. The current container just restarted and its logs are empty. Next command?</p>
+    <div class="opts">
+      <button class="opt" data-correct><code>kubectl logs &lt;pod&gt; --previous</code></button>
+      <button class="opt"><code>kubectl get nodes --show-labels</code></button>
+      <button class="opt"><code>kubectl get svc --all-namespaces</code></button>
+      <button class="opt"><code>helm rollback &lt;release&gt; 1</code></button>
+    </div>
+    <div class="why"><code>--previous</code> shows the output of the container instance that crashed. That's where the stack trace is.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. A pod is <code>Pending</code>; Events say “pod has unbound immediate PersistentVolumeClaims”. What do you check?</p>
+    <div class="opts">
+      <button class="opt" data-correct>The PVC's events and its StorageClass name</button>
+      <button class="opt">The container image tag and registry login</button>
+      <button class="opt">The readiness probe path and its port</button>
+      <button class="opt">The Service selector against the pod labels</button>
+    </div>
+    <div class="why">The scheduler is waiting for storage. <code>describe pvc</code> told us the class doesn't exist (lab H).</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. All pods are <code>1/1 Running</code>, yet connections to the Service are refused instantly. First suspect?</p>
+    <div class="opts">
+      <button class="opt" data-correct>The Service selector doesn't match the pods' labels</button>
+      <button class="opt">The container keeps exceeding its configured memory limit</button>
+      <button class="opt">The image tag was mistyped in the Deployment</button>
+      <button class="opt">The init container is still waiting for DNS</button>
+    </div>
+    <div class="why">Healthy pods plus a dead Service point to wiring. <code>get endpointslices</code> → empty → compare <code>svc .spec.selector</code> with <code>--show-labels</code> (lab F).</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. maku-backend is <code>Running 0/1</code> right after a MySQL restart, with no restarts counting up. Most likely?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Readiness fails until its database connection pool recovers</button>
+      <button class="opt">Liveness fails and the kubelet keeps restarting it</button>
+      <button class="opt">The startup probe timed out during Liquibase run</button>
+      <button class="opt">The ingress removed the pod after a 404</button>
+    </div>
+    <div class="why">Our readiness group includes <code>db</code>. No restarts means liveness is fine. It should recover by itself; if it doesn't, check the backend logs for connection-pool errors.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. Where do you find <em>why</em> a container was killed with exit code 137?</p>
+    <div class="opts">
+      <button class="opt" data-correct><code>describe pod</code> → Last State → Reason</button>
+      <button class="opt"><code>get pods</code> → the RESTARTS column total</button>
+      <button class="opt"><code>logs</code> → last line before the exit</button>
+      <button class="opt"><code>get events</code> → the oldest scheduler message</button>
+    </div>
+    <div class="why">137 = SIGKILL. <code>Reason: OOMKilled</code> means memory limit; otherwise it may be a liveness kill (then Events say “Liveness probe failed … will be restarted”). The app usually logs nothing; it was killed mid-flight.</div>
+  </div>
+
+  <details class="recall"><summary>Recall (interview): “A pod is in CrashLoopBackOff. Walk me through debugging it.”</summary>
+    <p>CrashLoopBackOff means the container starts and exits repeatedly, and Kubernetes backs off between restarts. 1) <code>kubectl describe pod</code>: Last State (exit code, OOMKilled?), Events (liveness kills?). 2) <code>kubectl logs --previous</code>: the crash output. 3) Common causes: missing or wrong config/secrets, a dependency unreachable at boot, bad command/args, OOM (exit 137), a liveness probe too aggressive for a slow start (use a startup probe). 4) Reproduce interactively: override the command with <code>sleep</code> and exec in, or use <code>kubectl debug</code>.</p>
+  </details>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://kubernetes.io/docs/tasks/debug/debug-application/debug-pods/">Debug Pods (kubernetes.io)</a> and <a href="https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/">Debug Services</a>. The Services page is a step-by-step checklist worth bookmarking.</div>
+  <div class="ask"><span class="label">Questions?</span>Paste any real error into your agent with the <code>describe</code> output. Or ask it to “break maku in a random way” and diagnose it blind. Great interview practice.</div>
+
+  <div class="score" data-lesson="k8s-0011"></div>
+  <div class="pager"><a href="0010-ship-and-rollback.html">← Lesson 10</a><a href="0012-production-and-interviews.html">Lesson 12: Production &amp; interviews →</a></div>
+</main>
+</body>
+</html>

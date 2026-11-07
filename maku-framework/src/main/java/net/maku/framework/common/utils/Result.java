@@ -5,21 +5,21 @@ import lombok.Data;
 import net.maku.framework.common.exception.ErrorCode;
 
 /**
- * 响应数据
+ * Response data
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "响应")
+@Schema(description = "Response")
 public class Result<T> {
-    @Schema(description = "编码 0表示成功，其他值表示失败")
+    @Schema(description = "Code: 0 means success, other values mean failure")
     private int code = 0;
 
-    @Schema(description = "消息内容")
+    @Schema(description = "Message content")
     private String msg = "success";
 
-    @Schema(description = "响应数据")
+    @Schema(description = "Response data")
     private T data;
 
     public static <T> Result<T> ok() {

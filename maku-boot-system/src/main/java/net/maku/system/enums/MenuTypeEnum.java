@@ -4,24 +4,24 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 菜单类型枚举
+ * Menu type enum
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum MenuTypeEnum {
     /**
-     * 菜单
+     * Menu
      */
     MENU(0),
     /**
-     * 按钮
+     * Button
      */
     BUTTON(1),
     /**
-     * 接口
+     * API
      */
     INTERFACE(2);
 

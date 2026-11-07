@@ -1,0 +1,12 @@
+# Local learning cluster:  k3d cluster create --config deploy/k3d/cluster.yaml
+# 1 server (control plane) + 1 agent (worker). Traefik (bundled with k3s) serves Ingress on host port 8088.
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: maku
+servers: 1
+agents: 1
+ports:
+  - port: 8088:80
+    nodeFilters:
+      - loadbalancer

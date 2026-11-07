@@ -8,37 +8,37 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 菜单管理
+ * Menu management
  * 
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Mapper
 public interface SysMenuDao extends BaseDao<SysMenuEntity> {
 
 	/**
-	 * 查询所有菜单列表
+	 * Query all menu list
 	 *
-	 * @param type 菜单类型
+	 * @param type Menu type
 	 */
 	List<SysMenuEntity> getMenuList(@Param("type") Integer type);
 
 	/**
-	 * 查询用户菜单列表
+	 * Query user menu list
 	 *
-	 * @param userId 用户ID
-	 * @param type 菜单类型
+	 * @param userId User ID
+	 * @param type Menu type
 	 */
 	List<SysMenuEntity> getUserMenuList(@Param("userId") Long userId, @Param("type") Integer type);
 
 	/**
-	 * 查询用户权限列表
-	 * @param userId  用户ID
+	 * Query user permission list
+	 * @param userId  User ID
 	 */
 	List<String> getUserAuthorityList(@Param("userId") Long userId);
 
 	/**
-	 * 查询所有权限列表
+	 * Query all permission list
 	 */
 	List<String> getAuthorityList();
 

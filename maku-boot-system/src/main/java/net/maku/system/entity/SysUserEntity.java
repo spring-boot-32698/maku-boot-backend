@@ -9,9 +9,9 @@ import net.maku.framework.mybatis.entity.BaseEntity;
 import net.maku.system.enums.UserStatusEnum;
 
 /**
- * 用户
+ * User
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -19,61 +19,61 @@ import net.maku.system.enums.UserStatusEnum;
 @TableName("sys_user")
 public class SysUserEntity extends BaseEntity {
     /**
-     * 用户名
+     * Username
      */
     private String username;
     /**
-     * 密码
+     * Password
      */
     private String password;
     /**
-     * 姓名
+     * Name
      */
     private String realName;
     /**
-     * 头像
+     * Avatar
      */
     private String avatar;
     /**
-     * 签名
+     * Signature
      */
     private String signature;
     /**
-     * 性别   0：男   1：女   2：未知
+     * Gender   0: male   1: female   2: unknown
      */
     private Integer gender;
     /**
-     * 邮箱
+     * Email
      */
     private String email;
     /**
-     * 手机号
+     * Mobile number
      */
     private String mobile;
     /**
-     * 机构ID
+     * Organization ID
      */
     private Long orgId;
     /**
-     * 直属主管ID
+     * Direct supervisor ID
      */
     @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Long leaderId;
     /**
-     * 超级管理员   0：否   1：是
+     * Super administrator   0: no   1: yes
      */
     private Integer superAdmin;
     /**
-     * 状态  {@link UserStatusEnum}
+     * Status  {@link UserStatusEnum}
      */
     private Integer status;
     /**
-     * 机构名称
+     * Organization name
      */
     @TableField(exist = false)
     private String orgName;
     /**
-     * 租户ID
+     * Tenant ID
      */
     private Long tenantId;
 }

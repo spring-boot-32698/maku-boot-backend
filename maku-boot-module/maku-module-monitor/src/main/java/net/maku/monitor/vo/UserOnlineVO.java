@@ -4,27 +4,27 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 在线用户
+ * Online users
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "在线用户")
+@Schema(description = "Online users")
 public class UserOnlineVO {
     @Schema(description = "id")
     private Long id;
 
-    @Schema(description = "用户名")
+    @Schema(description = "Username")
     private String username;
 
-    @Schema(description = "姓名")
+    @Schema(description = "Name")
     private String realName;
 
-    @Schema(description = "性别")
+    @Schema(description = "Gender")
     private Integer gender;
 
-    @Schema(description = "邮箱")
+    @Schema(description = "Email")
     private String email;
 
     @Schema(description = "accessToken")

@@ -8,25 +8,25 @@ import net.maku.framework.common.query.Query;
 import java.util.List;
 
 /**
- * 用户查询
+ * User query
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "用户查询")
+@Schema(description = "User query")
 public class SysUserQuery extends Query {
-    @Schema(description = "用户名")
+    @Schema(description = "Username")
     private String username;
 
-    @Schema(description = "手机号")
+    @Schema(description = "Mobile number")
     private String mobile;
 
-    @Schema(description = "性别")
+    @Schema(description = "Gender")
     private Integer gender;
 
-    @Schema(description = "机构ID")
+    @Schema(description = "Organization ID")
     private List<Long> orgId;
 
 }

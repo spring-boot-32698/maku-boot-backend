@@ -36,7 +36,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 设备服务类
+ * Device service class
  *
  * @author LSF maku_lsf@163.com
  */
@@ -111,7 +111,7 @@ public class IotDeviceServiceImpl extends BaseServiceImpl<IotDeviceDao, IotDevic
     public DeviceCommandResponseDTO syncSendCommand(DeviceCommandVO vo) {
 
         IotDeviceEntity device = getById(vo.getDeviceId());
-        Assert.notNull(device, "未注册的设备:{}", vo.getDeviceId());
+        Assert.notNull(device, "Unregistered device:{}", vo.getDeviceId());
 
         DeviceCommandEnum commandEnum = DeviceCommandEnum.parse(vo.getCommand());
         try {
@@ -119,7 +119,7 @@ public class IotDeviceServiceImpl extends BaseServiceImpl<IotDeviceDao, IotDevic
         } catch (ServerException e) {
             if (DeviceCommandEnum.parse(vo.getCommand()).getEventType() != null
                     && StrUtil.contains(e.getMessage(), DeviceServiceEnum.COMMAND_ID.getValue())) {
-                //指令异常事件记录
+                //Command exception event record
                 String commandId = e.getMessage().substring(e.getMessage().indexOf("<") + 1, e.getMessage().indexOf(">"));
                 deviceEventLogService.createAndSaveDeviceEvent(
                         vo.getDeviceId(), device.getTenantId(),
@@ -158,7 +158,7 @@ public class IotDeviceServiceImpl extends BaseServiceImpl<IotDeviceDao, IotDevic
     }
 
     /**
-     * 设备状态上报处理
+     * Device status report handling
      *
      * @param topic
      * @param deviceProperty
@@ -169,16 +169,16 @@ public class IotDeviceServiceImpl extends BaseServiceImpl<IotDeviceDao, IotDevic
         try {
             topicContext = DeviceTopicEnum.parseContext(topic);
         } catch (Exception e) {
-            log.warn("无效设备主题:{}，忽略设备状态上报消息:{}", topic, deviceProperty);
+            log.warn("Invalid device topic:{}, ignore device status report message:{}", topic, deviceProperty);
             return;
         }
         if (log.isDebugEnabled()) {
-            log.warn("处理设备状态上报消息，Topic:{}, TopicContext:{}", topic, topicContext);
+            log.warn("Handle device status report messages, Topic:{}, TopicContext:{}", topic, topicContext);
         }
         Long deviceId = topicContext.getClient().getDeviceId();
         IotDeviceEntity device = super.getById(deviceId);
         if (device == null) {
-            log.warn("无效设备id:{}，忽略设备状态上报消息:{}", deviceId, deviceProperty);
+            log.warn("Invalid device id:{}, ignore device status report message:{}", deviceId, deviceProperty);
             return;
         }
         switch (deviceProperty.getPropertyType()) {
@@ -195,7 +195,7 @@ public class IotDeviceServiceImpl extends BaseServiceImpl<IotDeviceDao, IotDevic
                 handleTemperature(device, deviceProperty, topicContext);
                 break;
             default:
-                log.warn("未知设备属性类型:{}，忽略设备状态上报消息:{}", deviceProperty.getPropertyType(), deviceProperty);
+                log.warn("Unknown device property type:{}, ignore device status report message:{}", deviceProperty.getPropertyType(), deviceProperty);
                 break;
         }
     }
@@ -215,11 +215,11 @@ public class IotDeviceServiceImpl extends BaseServiceImpl<IotDeviceDao, IotDevic
 
         if (newStatus.getEventType() != null) {
             deviceEventLogService.createAndSaveDeviceEvent(device.getId(), topicContext.getClient().getTenantId(),
-                    newStatus.getEventType(), null, StrUtil.format("设备上报运行状态 ： {}", newStatus.getTitle()));
+                    newStatus.getEventType(), null, StrUtil.format("Device reports running status: {}", newStatus.getTitle()));
         }
 
         if (log.isInfoEnabled()) {
-            log.info("租户：{}，设备：{}-{}，运行状态：{}-{} -> {}-{}", topicContext.getClient().getTenantId(), device.getId(), device.getName(), oldStatus.getValue(), oldStatus.getTitle(), newStatus.getValue(), newStatus.getTitle());
+            log.info("Tenant:{}, device:{}-{}, running status:{}-{} -> {}-{}", topicContext.getClient().getTenantId(), device.getId(), device.getName(), oldStatus.getValue(), oldStatus.getTitle(), newStatus.getValue(), newStatus.getTitle());
         }
     }
 
@@ -236,7 +236,7 @@ public class IotDeviceServiceImpl extends BaseServiceImpl<IotDeviceDao, IotDevic
                 StrUtil.format(" {}:{}", DeviceEventTypeEnum.APP_VERSION_REPORT.getTitle(), deviceStatus.getPayload()));
 
         if (log.isInfoEnabled()) {
-            log.info("租户：{}，设备：{}-{}，App版本：{} -> {}", topicContext.getClient().getTenantId(), device.getId(), device.getName(), device.getAppVersion(), deviceStatus.getPayload());
+            log.info("Tenant:{}, device:{}-{}, App version:{} -> {}", topicContext.getClient().getTenantId(), device.getId(), device.getName(), device.getAppVersion(), deviceStatus.getPayload());
         }
     }
 
@@ -254,7 +254,7 @@ public class IotDeviceServiceImpl extends BaseServiceImpl<IotDeviceDao, IotDevic
                 StrUtil.format(" {}:{}", DeviceEventTypeEnum.BATTERY_PERCENT_REPORT.getTitle(), deviceStatus.getPayload()));
 
         if (log.isInfoEnabled()) {
-            log.info("租户：{}，设备：{}-{}，电池电量百分比：{} -> {}", topicContext.getClient().getTenantId(), device.getId(), device.getName(), device.getBatteryPercent(), batteryPercent);
+            log.info("Tenant:{}, device:{}-{}, battery level percentage:{} -> {}", topicContext.getClient().getTenantId(), device.getId(), device.getName(), device.getBatteryPercent(), batteryPercent);
         }
     }
 
@@ -272,12 +272,12 @@ public class IotDeviceServiceImpl extends BaseServiceImpl<IotDeviceDao, IotDevic
                 StrUtil.format(" {}:{}", DeviceEventTypeEnum.TEMPERATURE_REPORT.getTitle(), deviceStatus.getPayload()));
 
         if (log.isInfoEnabled()) {
-            log.info("租户：{}，设备：{}-{}，温度：{} -> {}", topicContext.getClient().getTenantId(), device.getId(), device.getName(), device.getTemperature(), temperature);
+            log.info("Tenant:{}, device:{}-{}, temperature:{} -> {}", topicContext.getClient().getTenantId(), device.getId(), device.getName(), device.getTemperature(), temperature);
         }
     }
 
     /**
-     * 设备命令响应处理
+     * Device command response handling
      *
      * @param topic
      * @param commandResponse
@@ -288,22 +288,22 @@ public class IotDeviceServiceImpl extends BaseServiceImpl<IotDeviceDao, IotDevic
         try {
             topicContext = DeviceTopicEnum.parseContext(topic);
         } catch (Exception e) {
-            log.warn("无效设备主题:{}，忽略设备命令响应消息:{}", topic, commandResponse);
+            log.warn("Invalid device topic:{}, ignore device command response message:{}", topic, commandResponse);
             return;
         }
         if (log.isDebugEnabled()) {
-            log.warn("处理设备设备命令响应消息，Topic:{}, TopicContext:{}", topic, topicContext);
+            log.warn("Handle device command response messages, Topic:{}, TopicContext:{}", topic, topicContext);
         }
 
         Long deviceId = topicContext.getClient().getDeviceId();
         IotDeviceEntity device = super.getById(deviceId);
         if (device == null) {
-            log.warn("无效设备id:{}，忽略设备命令响应消息:{}", deviceId, commandResponse);
+            log.warn("Invalid device id:{}, ignore device command response message:{}", deviceId, commandResponse);
             return;
         }
         switch (commandResponse.getCommand()) {
             case LOCK, UNLOCK, OTA_UPGRADE: {
-                //记录处理设备事件
+                //Record handling of device events
                 deviceEventLogService.createAndSaveDeviceEvent(device.getId(),
                         topicContext.getClient().getTenantId(),
                         commandResponse.getCommand().getEventType(),
@@ -311,7 +311,7 @@ public class IotDeviceServiceImpl extends BaseServiceImpl<IotDeviceDao, IotDevic
                 break;
             }
             default:
-                log.warn("未知设备命令类型:{}，忽略设备命令响应消息:{}", commandResponse.getCommand(), commandResponse);
+                log.warn("Unknown device command type:{}, ignore device command response message:{}", commandResponse.getCommand(), commandResponse);
                 break;
 
         }

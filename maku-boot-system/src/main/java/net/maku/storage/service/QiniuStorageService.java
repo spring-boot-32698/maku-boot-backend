@@ -13,9 +13,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * 七牛云存储
+ * Qiniu Cloud storage
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class QiniuStorageService extends StorageService {
@@ -41,7 +41,7 @@ public class QiniuStorageService extends StorageService {
 
             return properties.getConfig().getDomain() + "/" + path;
         } catch (Exception e) {
-            throw new ServerException("上传文件失败：", e);
+            throw new ServerException("File upload failed:", e);
         }
     }
 
@@ -51,7 +51,7 @@ public class QiniuStorageService extends StorageService {
             byte[] data = IOUtils.toByteArray(inputStream);
             return this.upload(data, path);
         } catch (IOException e) {
-            throw new ServerException("上传文件失败：", e);
+            throw new ServerException("File upload failed:", e);
         }
     }
 

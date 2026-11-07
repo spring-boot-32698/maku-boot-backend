@@ -9,9 +9,9 @@ import net.maku.sms.config.SmsConfig;
 import java.util.Map;
 
 /**
- * 七牛云短信
+ * Qiniu Cloud SMS
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class QiniuSmsStrategy implements SmsStrategy {
@@ -30,7 +30,7 @@ public class QiniuSmsStrategy implements SmsStrategy {
         try {
             Response response = smsManager.sendSingleMessage(smsConfig.getTemplateId(), mobile, params);
 
-            // 是否发送成功
+            // Whether sent successfully
             if (!response.isOK()) {
                 throw new ServerException(response.error);
             }

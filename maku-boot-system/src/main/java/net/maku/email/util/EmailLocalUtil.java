@@ -9,9 +9,9 @@ import net.maku.framework.common.exception.ServerException;
 import java.io.File;
 
 /**
- * 本地 邮件发送
+ * Local mail sending
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Slf4j
@@ -24,7 +24,7 @@ public class EmailLocalUtil {
         mailAccount.setHost(config.getMailHost());
         if (config.getMailPort() != null) {
             mailAccount.setPort(config.getMailPort());
-            // 开启SSL加密
+            // Enable SSL encryption
             if (config.getMailPort() == 465 || config.getMailPort() == 587) {
                 mailAccount.setSslEnable(true);
             }
@@ -35,19 +35,19 @@ public class EmailLocalUtil {
     }
 
     /**
-     * 发送邮件
+     * Send mail
      *
-     * @param tos     收件人邮箱列表，多个收件人逗号隔开
-     * @param subject 邮件主题
-     * @param content 邮件内容
-     * @param files   附件列表
+     * @param tos     Recipient email list, separate multiple recipients with commas
+     * @param subject Mail subject
+     * @param content Mail content
+     * @param files   Attachment list
      * @return message-id
      */
     public String sendEmail(String tos, String subject, String content, boolean isHtml, File... files) {
         try {
             return MailUtil.send(mailAccount, tos, subject, content, isHtml, files);
         } catch (Exception e) {
-            log.error("发送邮件失败", e);
+            log.error("Failed to send mail", e);
             throw new ServerException(e.getMessage());
         }
     }

@@ -6,9 +6,9 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.mybatis.entity.BaseEntity;
 
 /**
- * 用户岗位关系
+ * User-post relationship
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -16,11 +16,11 @@ import net.maku.framework.mybatis.entity.BaseEntity;
 @TableName("sys_user_post")
 public class SysUserPostEntity extends BaseEntity {
 	/**
-	 * 用户ID
+	 * User ID
 	 */
 	private Long userId;
 	/**
-	* 岗位ID
+	* Post ID
 	*/
 	private Long postId;
 }

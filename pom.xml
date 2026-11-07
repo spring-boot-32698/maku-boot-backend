@@ -210,7 +210,7 @@
     <repositories>
         <repository>
             <id>public</id>
-            <name>阿里云公共仓库</name>
+            <name>Alibaba Cloud public repository</name>
             <url>https://maven.aliyun.com/repository/public/</url>
             <releases>
                 <enabled>true</enabled>
@@ -220,7 +220,7 @@
     <pluginRepositories>
         <pluginRepository>
             <id>public</id>
-            <name>阿里云公共仓库</name>
+            <name>Alibaba Cloud public repository</name>
             <url>https://maven.aliyun.com/repository/public/</url>
             <releases>
                 <enabled>true</enabled>

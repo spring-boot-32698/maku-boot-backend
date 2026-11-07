@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ship and Roll Back</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script src="../../assets/quiz.js" defer></script>
+<script src="../../assets/steps.js" defer></script>
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="index.html">K8s course</a><span>›</span><span>Lesson 10</span><span>·</span><a href="../reference/glossary.html">Glossary</a><a href="../reference/cheatsheet.html">Cheat sheet</a></div>
+  <h1>Ship a change, then roll it back</h1>
+  <p class="subtitle">Deploying is easy. Deploying safely means knowing exactly how you'll undo it.</p>
+  <div class="meta"><span><b>Time</b> ~20 min</span><span><b>Prereq</b> <a href="0009-rebuild-by-hand.html">Lesson 09</a></span><span><b>Run from</b> <code>maku-boot-backend/</code></span></div>
+
+  <div class="goal">
+    <span class="label">Your win</span>
+    <p>You ship a real code change as a new image version, survive a broken release without downtime, and roll back on purpose.</p>
+  </div>
+
+  <h2>The release loop</h2>
+  <pre><code>change code → build image with a NEW tag → make it available to the cluster → helm upgrade --set …tag=NEW
+                                                                         ↓ watch / verify
+                                                     helm history · helm rollback &lt;revision&gt;</code></pre>
+  <ul>
+    <li><b>Always a new tag.</b> Re-using <code>5.0.0</code> for different code means Kubernetes sees no change in the pod template, so no rollout, and nodes may keep the old cached image. Tags should be immutable; real pipelines use the version or the git SHA.</li>
+    <li><b>Rollback = redeploy an old revision's manifests.</b> <code>helm rollback maku 5</code> creates a <em>new</em> revision whose content equals revision 5. History only grows.</li>
+    <li><b>Helm 4 flags.</b> <code>--rollback-on-failure</code> (Helm 3 called it <code>--atomic</code>) waits for readiness and automatically rolls back if the upgrade fails. <code>--force</code> is now <code>--force-replace</code> (<a href="https://helm.sh/docs/overview/">Helm 4 overview</a>).</li>
+  </ul>
+
+  <h2>Strategy decides whether a broken release hurts</h2>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>maku-frontend (RollingUpdate)</th><th>maku-backend (Recreate)</th></tr>
+    <tr><td>New version can't start</td><td>Old pod <strong>keeps serving</strong>; the new one waits in ImagePullBackOff. Users notice nothing.</td><td>Old pod was <strong>already stopped</strong>. Users get errors until you fix or roll back.</td></tr>
+  </table></div>
+  <p>That's the real cost of the Recreate trade-off from lesson 02. It's why lesson 12 lists what maku needs to run more than one backend replica.</p>
+
+  <h2>Hands-on</h2>
+  <ol class="steps" data-id="k8s-l10">
+    <li><p>Note where you start.</p>
+      <pre><code>helm history maku -n maku
+kubectl -n maku get deploy maku-frontend -o jsonpath='{.spec.template.spec.containers[0].image}'; echo</code></pre></li>
+    <li><p>Make a visible code change: the login page title.</p>
+      <pre><code>sed -i "s/title: 'MAKU Low Code'/title: 'MAKU on Kubernetes'/" ../maku-admin-frontend/src/i18n/lang/en-US.ts
+git -C ../maku-admin-frontend diff --stat</code></pre></li>
+    <li><p>Build it as <strong>5.0.1</strong> and give it to the cluster.</p>
+      <pre><code>docker build -t maku-admin:5.0.1 --build-arg VITE_API_URL=http://api.maku.localhost:8088 ../maku-admin-frontend
+k3d image import maku-admin:5.0.1 -c maku</code></pre></li>
+    <li><p>Ship it, watching pods in a second terminal. Then hard-refresh <a href="http://maku.localhost:8088">the login page</a>.</p>
+      <pre><code>helm upgrade maku deploy/helm/maku -n maku -f deploy/helm/maku/values-k3d.yaml \
+  --set frontend.image.tag=5.0.1 --wait
+helm history maku -n maku | tail -2</code></pre>
+      <details class="expect"><summary>What to notice</summary><p>A new frontend pod starts, becomes ready, and only <em>then</em> the old one terminates (RollingUpdate). The title reads “MAKU on Kubernetes”. History has a new <code>deployed</code> revision; the previous one is <code>superseded</code>.</p></details></li>
+    <li><p><strong>Ship a broken release</strong> (a typo'd tag), with automatic rollback. While it hangs, keep reloading the site.</p>
+      <pre><code>helm upgrade maku deploy/helm/maku -n maku -f deploy/helm/maku/values-k3d.yaml \
+  --set frontend.image.tag=5.0.2 --rollback-on-failure --timeout 90s</code></pre>
+      <details class="expect"><summary>What happened when I ran it</summary><pre>Error: UPGRADE FAILED: release maku failed, and has been rolled back due to rollback-on-failure being set:
+resource Deployment/maku/maku-frontend not ready. status: InProgress … context deadline exceeded
+
+$ helm history maku -n maku | tail -3
+6   superseded   Upgrade complete
+7   failed       Upgrade "maku" failed: resource Deployment/maku/maku-frontend not ready …
+8   deployed     Rollback to 6</pre><p>The site never went down: the 5.0.1 pod kept serving while the 5.0.2 pod sat in ImagePullBackOff.</p></details></li>
+    <li><p>Now roll back <em>by choice</em> to the revision that ran <code>5.0.0</code> (find its number in history).</p>
+      <pre><code>helm history maku -n maku
+helm rollback maku &lt;revision-with-5.0.0&gt; -n maku --wait
+kubectl -n maku get deploy maku-frontend -o jsonpath='{.spec.template.spec.containers[0].image}'; echo</code></pre>
+      <details class="expect"><summary>Expected output</summary><pre>Rollback was a success! Happy Helming!
+maku-admin:5.0.0</pre><p>The title is back to “MAKU Low Code” after a hard refresh.</p></details></li>
+    <li><p>The trap: <code>--set</code> isn't remembered between upgrades. Run a “harmless” upgrade without it, and the image tag falls back to the default (<code>appVersion</code>). That's why teams keep tags in a values file or have CI pass them every time.</p>
+      <pre><code>helm get values maku -n maku     # no frontend.image.tag here
+helm upgrade maku deploy/helm/maku -n maku -f deploy/helm/maku/values-k3d.yaml --wait   # would reset any --set tag</code></pre></li>
+    <li><p>Undo the code change.</p>
+      <pre><code>git -C ../maku-admin-frontend checkout src/i18n/lang/en-US.ts</code></pre></li>
+  </ol>
+
+  <h2>Practice</h2>
+
+  <div class="quiz">
+    <p class="q">1. You fixed a bug, rebuilt as <code>maku-boot:5.0.0</code> (same tag), imported it, and ran <code>helm upgrade</code>. Nothing changes. Why?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Pod template is unchanged, so there's no rollout</button>
+      <button class="opt">Helm refuses to upgrade when versions are equal</button>
+      <button class="opt">Kubernetes blocks images whose digest has silently changed</button>
+      <button class="opt">k3d image import ignores images that already exist</button>
+    </div>
+    <div class="why">The Deployment spec is byte-for-byte identical, so no new ReplicaSet is created. (<code>kubectl rollout restart</code> would force new pods.) Use a new tag every build.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. <code>helm rollback maku 5</code> while at revision 8. What is the current revision afterwards?</p>
+    <div class="opts">
+      <button class="opt" data-correct>9, with content identical to 5</button>
+      <button class="opt">5, and revisions 6–8 are deleted</button>
+      <button class="opt">8, with only the images reverted</button>
+      <button class="opt">5, while 6–8 are marked superseded</button>
+    </div>
+    <div class="why">Rollbacks are recorded as new revisions (“Rollback to 5”), so history is an audit log you can always roll forward from.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. A bad frontend tag was deployed. Why did users see no outage?</p>
+    <div class="opts">
+      <button class="opt" data-correct>RollingUpdate kept the old pod until the new became ready</button>
+      <button class="opt">Traefik cached the previous version of the website for us</button>
+      <button class="opt">Helm validated the image tag before applying the new Deployment</button>
+      <button class="opt">Kubernetes pulled the closest matching tag that actually existed instead</button>
+    </div>
+    <div class="why">With RollingUpdate, old pods are removed only as new ones become ready. Helm doesn't check images exist; the kubelet discovers it at pull time.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. The same bad tag on <code>maku-backend</code> (Recreate). What happens?</p>
+    <div class="opts">
+      <button class="opt" data-correct>Downtime until rollback, since old pods stop first</button>
+      <button class="opt">No downtime; Recreate also waits for readiness first</button>
+      <button class="opt">Helm refuses because Recreate needs a manual approval</button>
+      <button class="opt">The old ReplicaSet keeps one pod as fallback</button>
+    </div>
+    <div class="why">Recreate scales the old ReplicaSet to 0 before creating new pods. <code>--rollback-on-failure</code> limits the damage to the timeout window.</div>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. What is the Helm 4 name for Helm 3's <code>--atomic</code>?</p>
+    <div class="opts">
+      <button class="opt" data-correct><code>--rollback-on-failure</code></button>
+      <button class="opt"><code>--force-replace</code></button>
+      <button class="opt"><code>--wait-for-jobs</code></button>
+      <button class="opt"><code>--server-side</code></button>
+    </div>
+    <div class="why">From the Helm 4 overview: <code>--atomic</code> → <code>--rollback-on-failure</code>, <code>--force</code> → <code>--force-replace</code>. The old names still work, with a deprecation warning. Expect both in job adverts and older scripts.</div>
+  </div>
+
+  <details class="recall"><summary>Recall (interview): “A deploy went bad in production. What do you do?”</summary>
+    <p><b>Stabilise first:</b> <code>helm rollback &lt;release&gt; &lt;last-good&gt;</code> (or <code>kubectl rollout undo</code>), and confirm health. <b>Then investigate:</b> <code>helm history</code>, <code>kubectl describe</code>/<code>logs --previous</code> on the failed pods, diff the values (<code>helm get values --revision N</code>). <b>Prevent:</b> readiness probes plus RollingUpdate (so bad pods never get traffic), <code>--rollback-on-failure</code> in CI, immutable tags, and progressive delivery (canary) for risky changes.</p>
+  </details>
+
+  <div class="source"><span class="label">Primary source</span><a href="https://helm.sh/docs/helm/helm_upgrade/">helm upgrade</a> and <a href="https://helm.sh/docs/helm/helm_rollback/">helm rollback</a> reference pages, plus the “Rolling Back a Deployment” section of <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">Deployments</a>.</div>
+  <div class="ask"><span class="label">Questions?</span>Ask your agent: “what would a CI pipeline for this look like (GitHub Actions)?” or “how do canary releases work on Kubernetes?”.</div>
+
+  <div class="score" data-lesson="k8s-0010"></div>
+  <div class="pager"><a href="0009-rebuild-by-hand.html">← Lesson 09</a><a href="0011-debugging-playbook.html">Lesson 11: Debugging →</a></div>
+</main>
+</body>
+</html>

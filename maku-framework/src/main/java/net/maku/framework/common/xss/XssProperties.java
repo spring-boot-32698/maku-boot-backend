@@ -7,20 +7,20 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * XSS 配置项
+ * XSS Settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @ConfigurationProperties(prefix = "maku.xss")
 public class XssProperties {
     /**
-     * 是否开启 XSS
+     * Whether to enable XSS
      */
     private boolean enabled;
     /**
-     * 排除的URL列表
+     * List of excluded URLs
      */
     private List<String> excludeUrls = Collections.emptyList();
 }

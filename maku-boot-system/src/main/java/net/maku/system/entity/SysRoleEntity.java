@@ -9,9 +9,9 @@ import net.maku.framework.mybatis.entity.BaseEntity;
 import net.maku.system.enums.DataScopeEnum;
 
 /**
- * 角色
+ * Role
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -19,28 +19,28 @@ import net.maku.system.enums.DataScopeEnum;
 @TableName("sys_role")
 public class SysRoleEntity extends BaseEntity {
     /**
-     * 角色名称
+     * Role name
      */
     private String name;
     /**
-     * 角色编码
+     * Role code
      */
     private String roleCode;
     /**
-     * 备注
+     * Remarks
      */
     private String remark;
     /**
-     * 数据范围  {@link DataScopeEnum}
+     * Data scope  {@link DataScopeEnum}
      */
     private Integer dataScope;
     /**
-     * 机构ID
+     * Organization ID
      */
     @TableField(fill = FieldFill.INSERT)
     private Long orgId;
     /**
-     * 租户ID
+     * Tenant ID
      */
     private Long tenantId;
 }

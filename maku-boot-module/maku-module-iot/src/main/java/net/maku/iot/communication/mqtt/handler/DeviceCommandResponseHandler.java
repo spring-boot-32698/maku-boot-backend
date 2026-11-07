@@ -4,13 +4,13 @@ package net.maku.iot.communication.mqtt.handler;
 import net.maku.iot.communication.dto.DeviceCommandResponseDTO;
 
 /**
- * 设备命令响应处理器
+ * Device command response handler
  *
  * @author LSF maku_lsf@163.com
  */
 public interface DeviceCommandResponseHandler {
     /**
-     * 设备命令响应处理
+     * Device command response handling
      *
      * @param topic
      * @param commandResponse

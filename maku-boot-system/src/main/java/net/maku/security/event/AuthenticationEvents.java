@@ -11,9 +11,9 @@ import org.springframework.security.authentication.event.AuthenticationSuccessEv
 import org.springframework.stereotype.Component;
 
 /**
- * 认证事件处理
+ * Authentication event handling
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Component
@@ -23,19 +23,19 @@ public class AuthenticationEvents {
 
     @EventListener
     public void onSuccess(AuthenticationSuccessEvent event) {
-        // 用户信息
+        // User info
         UserDetail user = (UserDetail) event.getAuthentication().getPrincipal();
 
-        // 保存登录日志
+        // Save login log
         sysLogLoginService.save(user.getUsername(), Constant.SUCCESS, LoginOperationEnum.LOGIN_SUCCESS.getValue());
     }
 
     @EventListener
     public void onFailure(AbstractAuthenticationFailureEvent event) {
-        // 用户名
+        // Username
         String username = (String) event.getAuthentication().getPrincipal();
 
-        // 保存登录日志
+        // Save login log
         sysLogLoginService.save(username, Constant.FAIL, LoginOperationEnum.ACCOUNT_FAIL.getValue());
     }
 

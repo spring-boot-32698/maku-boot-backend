@@ -28,21 +28,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 短信配置
+ * SMS settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/sms/config")
-@Tag(name = "短信配置")
+@Tag(name = "SMS settings")
 @AllArgsConstructor
 public class SysSmsConfigController {
     private final SysSmsConfigService sysSmsConfigService;
     private final SmsService smsService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('sys:sms:config')")
     public Result<PageResult<SysSmsConfigVO>> page(@ParameterObject @Valid SysSmsConfigQuery query) {
         PageResult<SysSmsConfigVO> page = sysSmsConfigService.page(query);
@@ -51,7 +51,7 @@ public class SysSmsConfigController {
     }
 
     @GetMapping("list")
-    @Operation(summary = "列表")
+    @Operation(summary = "List")
     public Result<List<SysSmsConfigVO>> list(Integer platform) {
         List<SysSmsConfigVO> list = sysSmsConfigService.list(platform);
 
@@ -59,7 +59,7 @@ public class SysSmsConfigController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('sys:sms:config')")
     public Result<SysSmsConfigVO> get(@PathVariable("id") Long id) {
         SysSmsConfigEntity entity = sysSmsConfigService.getById(id);
@@ -68,7 +68,7 @@ public class SysSmsConfigController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @OperateLog(type = OperateTypeEnum.INSERT)
     @PreAuthorize("hasAuthority('sys:sms:config')")
     public Result<String> save(@RequestBody SysSmsConfigVO vo) {
@@ -78,29 +78,29 @@ public class SysSmsConfigController {
     }
 
     @PostMapping("send")
-    @Operation(summary = "发送短信")
+    @Operation(summary = "Send SMS")
     @OperateLog(type = OperateTypeEnum.OTHER)
     @PreAuthorize("hasAuthority('sys:sms:config')")
     public Result<String> send(@RequestBody SysSmsSendVO vo) {
         SysSmsConfigEntity entity = sysSmsConfigService.getById(vo.getId());
         SmsConfig config = BeanUtil.copyProperties(entity, SmsConfig.class);
 
-        // 短信参数
+        // SMS parameters
         Map<String, String> params = new LinkedHashMap<>();
         if (StringUtils.isNotBlank(vo.getParamValue())) {
             params.put(vo.getParamKey(), vo.getParamValue());
         }
 
         try {
-            // 发送短信
+            // Send SMS
             new SmsContext(config).send(vo.getMobile(), params);
 
-            // 保存日志
+            // Save log
             smsService.saveLog(config, vo.getMobile(), params, null);
 
             return Result.ok();
         } catch (Exception e) {
-            // 保存日志
+            // Save log
             smsService.saveLog(config, vo.getMobile(), params, e);
 
             return Result.error(ExceptionUtils.getExceptionMessage(e));
@@ -108,7 +108,7 @@ public class SysSmsConfigController {
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('sys:sms:config')")
     public Result<String> update(@RequestBody @Valid SysSmsConfigVO vo) {
@@ -118,7 +118,7 @@ public class SysSmsConfigController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @OperateLog(type = OperateTypeEnum.DELETE)
     @PreAuthorize("hasAuthority('sys:sms:config')")
     public Result<String> delete(@RequestBody List<Long> idList) {

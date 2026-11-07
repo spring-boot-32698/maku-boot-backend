@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * JSON 工具类
+ * JSON Utility class
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  *         <a href="https://maku.net">MAKU</a>
  */
 public class JsonUtils {

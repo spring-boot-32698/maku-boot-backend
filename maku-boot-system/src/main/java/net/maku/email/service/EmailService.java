@@ -24,9 +24,9 @@ import java.io.File;
 import java.util.List;
 
 /**
- * 邮件服务
+ * Mail service
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Slf4j
@@ -38,9 +38,9 @@ public class EmailService {
     private final SysMailLogService sysMailLogService;
 
     /**
-     * 本地 发送邮件
+     * Local send mail
      *
-     * @param param 发送邮件参数
+     * @param param Send mail parameters
      * @return message-id
      */
     public boolean sendLocal(EmailLocalSendParam param) {
@@ -49,9 +49,9 @@ public class EmailService {
     }
 
     /**
-     * 本地 发送邮件
+     * Local send mail
      *
-     * @param param 发送邮件参数
+     * @param param Send mail parameters
      * @return message-id
      */
     public boolean sendLocal(EmailLocalSendParam param, EmailConfig config) {
@@ -61,7 +61,7 @@ public class EmailService {
 
             return true;
         } catch (Exception e) {
-            log.error("本地发送邮件失败", e);
+            log.error("Failed to send local mail", e);
             saveLog(config.getId(), config.getPlatform(), config.getMailFrom(), param.getTos(), param.getSubject(), param.getContent(), e);
             return false;
         }
@@ -69,9 +69,9 @@ public class EmailService {
 
 
     /**
-     * 阿里云 发送邮件
+     * Alibaba Cloud send mail
      *
-     * @param param 发送邮件参数
+     * @param param Send mail parameters
      * @return env-id
      */
     public boolean sendAliyun(EmailAliyunSendParam param) {
@@ -81,9 +81,9 @@ public class EmailService {
     }
 
     /**
-     * 阿里云 发送邮件
+     * Alibaba Cloud send mail
      *
-     * @param param 发送邮件参数
+     * @param param Send mail parameters
      * @return env-id
      */
     public boolean sendAliyun(EmailAliyunSendParam param, EmailConfig config) {
@@ -93,16 +93,16 @@ public class EmailService {
 
             return true;
         } catch (Exception e) {
-            log.error("阿里云发送邮件失败", e);
+            log.error("Alibaba Cloud failed to send mail", e);
             saveLog(config.getId(), config.getPlatform(), param.getFrom(), param.getTos(), param.getSubject(), param.getContent(), e);
             return false;
         }
     }
 
     /**
-     * 阿里云 批量发送邮件
+     * Alibaba Cloud batch send mail
      *
-     * @param param 发送邮件参数
+     * @param param Send mail parameters
      * @return message-id
      */
     public boolean batchSendAliyun(EmailAliyunBatchSendParam param) {
@@ -112,9 +112,9 @@ public class EmailService {
     }
 
     /**
-     * 阿里云 批量发送邮件
+     * Alibaba Cloud batch send mail
      *
-     * @param param 发送邮件参数
+     * @param param Send mail parameters
      * @return message-id
      */
     public boolean batchSendAliyun(EmailAliyunBatchSendParam param, EmailConfig config) {
@@ -124,14 +124,14 @@ public class EmailService {
 
             return true;
         } catch (Exception e) {
-            log.error("阿里云发送邮件失败", e);
+            log.error("Alibaba Cloud failed to send mail", e);
             saveLog(config.getId(), config.getPlatform(), param.getFrom(), param.getReceiversName(), null, param.getTemplateName(), e);
             return false;
         }
     }
 
     /**
-     * 保存邮件日志
+     * Save mail log
      */
     public void saveLog(Long platformId, Integer platform, String mailFrom, String mailTos, String subject, String content, Exception e) {
         SysMailLogEntity logEntity = new SysMailLogEntity();
@@ -154,37 +154,37 @@ public class EmailService {
     }
 
     /**
-     * 通过轮询算法，获取邮件平台的配置
+     * Get the mail platform settings via a round-robin algorithm
      *
-     * @param groupName 分组名称
-     * @return 邮件平台配置
+     * @param groupName Group name
+     * @return Mail platform settings
      */
     private EmailConfig roundEmailConfig(String groupName) {
         List<EmailConfig> platformList = sysMailConfigService.listByEnable();
 
-        // 是否有可用的邮件平台
+        // Whether there is an available mail platform
         if (platformList.isEmpty()) {
-            throw new ServerException("没有可用的邮件平台，请先添加");
+            throw new ServerException("No mail platform available, please add one first");
         }
 
-        // 没有分组的情况
+        // Case without groups
         if (StrUtil.isBlank(groupName)) {
-            // 采用轮询算法，发送邮件
+            // Send mail using a round-robin algorithm
             long round = emailConfigCache.getRoundValue();
 
             return platformList.get((int) round % platformList.size());
         }
 
 
-        // 有分组的情况
+        // Case with groups
         List<EmailConfig> newList = platformList.stream().filter(platform -> StrUtil.equals(platform.getGroupName(), groupName)).toList();
         if (newList.isEmpty()) {
-            throw new ServerException("邮件分组不存在");
+            throw new ServerException("Mail group does not exist");
         }
 
         long round = emailConfigCache.getRoundCodeValue();
 
-        // 指定邮件平台
+        // Specify the mail platform
         return newList.get((int) round % newList.size());
     }
 

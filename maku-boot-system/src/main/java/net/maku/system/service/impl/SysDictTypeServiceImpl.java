@@ -33,9 +33,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * 字典类型
+ * Dictionary type
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -74,7 +74,7 @@ public class SysDictTypeServiceImpl extends BaseServiceImpl<SysDictTypeDao, SysD
     public void save(SysDictTypeVO vo) {
         SysDictTypeEntity entity = BeanUtil.copyProperties(vo, SysDictTypeEntity.class);
 
-        // 更新上级，有子节点
+        // Update the parent, which has child nodes
         if (vo.getPid() != null) {
             this.updateHasChild(vo.getPid(), 1);
         }
@@ -87,22 +87,22 @@ public class SysDictTypeServiceImpl extends BaseServiceImpl<SysDictTypeDao, SysD
     public void update(SysDictTypeVO vo) {
         SysDictTypeEntity entity = BeanUtil.copyProperties(vo, SysDictTypeEntity.class);
 
-        // 更新上级，有子节点
+        // Update the parent, which has child nodes
         if (vo.getPid() != null) {
             this.updateHasChild(vo.getPid(), 1);
         }
 
-        // 获取原先的上级ID
+        // Get the original parent ID
         Long oldPid = baseMapper.selectById(vo.getId()).getPid();
 
-        // 更新
+        // Update
         updateById(entity);
 
-        // 上级已修改
+        // Parent has been changed
         if (!ObjectUtil.equals(oldPid, vo.getPid())) {
             long count = baseMapper.selectCount(new LambdaQueryWrapper<SysDictTypeEntity>().eq(SysDictTypeEntity::getPid, oldPid));
             if (count == 0) {
-                // 更新原先的上级，没有子节点
+                // Update the original parent, which has no child nodes
                 this.updateHasChild(oldPid, 0);
             }
         }
@@ -110,10 +110,10 @@ public class SysDictTypeServiceImpl extends BaseServiceImpl<SysDictTypeDao, SysD
     }
 
     /**
-     * 更新上级，有子节点
+     * Update the parent, which has child nodes
      *
-     * @param pid      上级ID
-     * @param hasChild 是否有子节点
+     * @param pid      Parent ID
+     * @param hasChild Whether there are child nodes
      */
     private void updateHasChild(Long pid, Integer hasChild) {
         SysDictTypeEntity entity = new SysDictTypeEntity();
@@ -134,20 +134,20 @@ public class SysDictTypeServiceImpl extends BaseServiceImpl<SysDictTypeDao, SysD
         try {
             return sysDictDataDao.getListForSql(entity.getDictSql());
         } catch (Exception e) {
-            throw new ServerException("动态SQL执行失败，请检查SQL是否正确！");
+            throw new ServerException("Dynamic SQL execution failed, please check that the SQL is correct!");
         }
     }
 
     @Override
     public List<SysDictVO> getDictList() {
-        // 全部字典类型列表
+        // All dictionary type list
         List<SysDictTypeEntity> typeList = this.list(Wrappers.emptyWrapper());
 
-        // 全部字典数据列表
+        // All dictionary data list
         QueryWrapper<SysDictDataEntity> query = new QueryWrapper<SysDictDataEntity>().orderByAsc("sort");
         List<SysDictDataEntity> dataList = sysDictDataDao.selectList(query);
 
-        // 全部字典列表
+        // All dictionary list
         List<SysDictVO> dictList = new ArrayList<>(typeList.size());
         for (SysDictTypeEntity type : typeList) {
             SysDictVO dict = new SysDictVO();
@@ -159,14 +159,14 @@ public class SysDictTypeServiceImpl extends BaseServiceImpl<SysDictTypeDao, SysD
                 }
             }
 
-            // 数据来源动态SQL
+            // Data source dynamic SQL
             if (type.getDictSource() == DictSourceEnum.SQL.getValue()) {
-                // 增加动态列表
+                // Add dynamic list
                 String sql = type.getDictSql();
                 try {
                     dict.setDataList(sysDictDataDao.getListForSql(sql));
                 } catch (Exception e) {
-                    log.error("增加动态字典异常: type=" + type, e);
+                    log.error("Failed to add dynamic dictionary: type=" + type, e);
                 }
             }
 
@@ -182,11 +182,11 @@ public class SysDictTypeServiceImpl extends BaseServiceImpl<SysDictTypeDao, SysD
     }
 
     public void refreshTransCache() {
-        // 异步不阻塞主线程，不会 增加启动用时
+        // Async, does not block the main thread and does not increase startup time
         CompletableFuture.supplyAsync(() -> {
-            // 获取所有的字典项数据
+            // Get all dictionary item data
             List<SysDictDataEntity> dataList = sysDictDataDao.selectList(new LambdaQueryWrapper<>());
-            // 根据类型分组
+            // Group by type
             Map<Long, List<SysDictDataEntity>> dictTypeDataMap = dataList.stream().collect(Collectors
                     .groupingBy(SysDictDataEntity::getDictTypeId));
             List<SysDictTypeEntity> dictTypeEntities = super.list();
@@ -196,14 +196,14 @@ public class SysDictTypeServiceImpl extends BaseServiceImpl<SysDictTypeDao, SysD
                         dictionaryTransService.refreshCache(dictTypeEntity.getDictType(), dictTypeDataMap.get(dictTypeEntity.getId())
                                 .stream().collect(Collectors.toMap(SysDictDataEntity::getDictValue, SysDictDataEntity::getDictLabel)));
                     } catch (Exception e) {
-                        log.error("刷新字典缓存异常: type=" + dictTypeEntity, e);
+                        log.error("Failed to refresh dictionary cache: type=" + dictTypeEntity, e);
                     }
                 } else {
                     try {
                         dictionaryTransService.refreshCache(dictTypeEntity.getDictType(), sysDictDataDao.getListForSql(dictTypeEntity.getDictSql())
                                 .stream().collect(Collectors.toMap(SysDictVO.DictData::getDictValue, SysDictVO.DictData::getDictLabel)));
                     } catch (Exception e) {
-                        log.error("刷新动态SQL字典缓存异常: type=" + dictTypeEntity, e);
+                        log.error("Failed to refresh dynamic SQL dictionary cache: type=" + dictTypeEntity, e);
                     }
                 }
             }

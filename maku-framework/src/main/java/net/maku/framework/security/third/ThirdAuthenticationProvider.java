@@ -16,9 +16,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
 /**
- * 第三方登录 AuthenticationProvider
+ * Third-party login AuthenticationProvider
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class ThirdAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
@@ -43,9 +43,9 @@ public class ThirdAuthenticationProvider implements AuthenticationProvider, Init
         ThirdLogin login = (ThirdLogin) authenticationToken.getPrincipal();
 
         try {
-            // 获取用户 openId
+            // Get user openId
             String openId = thirdOpenIdService.getOpenId(login);
-            // 获取用户信息
+            // Get user info
             UserDetails userDetails = thirdUserDetailsService.loadUserByOpenTypeAndOpenId(login.getOpenType(), openId);
             if (userDetails == null) {
                 throw new BadCredentialsException("Bad credentials");

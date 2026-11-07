@@ -12,9 +12,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
- * 手机验证码登录 MobileUserDetailsService
+ * Mobile verification code login MobileUserDetailsService
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -27,7 +27,7 @@ public class MobileUserDetailsServiceImpl implements MobileUserDetailsService {
     public UserDetails loadUserByMobile(String mobile) throws UsernameNotFoundException {
         SysUserEntity userEntity = sysUserDao.getByMobile(mobile);
         if (userEntity == null) {
-            throw new UsernameNotFoundException("手机号或验证码错误");
+            throw new UsernameNotFoundException("Mobile number or verification code is wrong");
         }
 
         return sysUserDetailsService.getUserDetails(BeanUtil.copyProperties(userEntity, UserDetail.class));

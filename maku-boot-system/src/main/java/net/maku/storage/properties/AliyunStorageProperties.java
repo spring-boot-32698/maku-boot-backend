@@ -3,9 +3,9 @@ package net.maku.storage.properties;
 import lombok.Data;
 
 /**
- * 阿里云存储配置项
+ * Alibaba Cloud storage settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data

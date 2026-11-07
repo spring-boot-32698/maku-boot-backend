@@ -3,45 +3,45 @@ package net.maku.email.config;
 import lombok.Data;
 
 /**
- * 邮箱配置项
+ * Email settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 public class EmailConfig {
     /**
-     * 平台ID
+     * Platform ID
      */
     private Long id;
 
     /**
-     * 平台类型
+     * Platform type
      */
     private Integer platform;
 
     /**
-     * 分组名称，发送邮件时，可指定分组
+     * Group name; a group can be specified when sending mail
      */
     private String groupName;
 
     /**
-     * SMTP服务器
+     * SMTPServer
      */
     private String mailHost;
 
     /**
-     * SMTP端口
+     * SMTPPort
      */
     private Integer mailPort;
 
     /**
-     * 发件人邮箱
+     * Sender email
      */
     private String mailFrom;
 
     /**
-     * 发件人密码
+     * Sender password
      */
     private String mailPass;
 
@@ -51,7 +51,7 @@ public class EmailConfig {
     private String regionId;
 
     /**
-     * 阿里云 endpoint
+     * Alibaba Cloud endpoint
      */
     private String endpoint;
 

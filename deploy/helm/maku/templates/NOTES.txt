@@ -1,0 +1,19 @@
+maku {{ .Chart.AppVersion }} is deployed as release "{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}".
+
+Watch it start (the backend needs ~1 min on first install while Liquibase creates the schema):
+  kubectl -n {{ .Release.Namespace }} get pods -w
+
+{{- if .Values.ingress.enabled }}
+
+Open:
+  UI   {{ .Values.frontend.publicUrl }}
+  API  {{ .Values.backend.publicUrl }}   (health: {{ .Values.backend.publicUrl }}/actuator/health)
+{{- else }}
+
+No ingress. Port-forward instead:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "maku.fullname" . }}-backend 8080:{{ .Values.backend.service.port }}
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "maku.fullname" . }}-frontend 3000:{{ .Values.frontend.service.port }}
+{{- end }}
+
+Log in with admin / admin{{ if eq .Values.backend.springProfile "dev" }} (dev profile: also manager, staff, auditor / 123456){{ end }}.
+Smoke test:  helm test {{ .Release.Name }} -n {{ .Release.Namespace }}

@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 设备模拟器配置，用于启动模拟设备，方便调试，默认启动系统所有的TCP设备
+ * Device simulator settings, used to start simulated devices for easier debugging; all TCP devices in the system are started by default
  *
  * @author LSF maku_lsf@163.com
  */
@@ -46,8 +46,8 @@ public class DeviceEmulatorConfig {
         Bootstrap nettyClient = new Bootstrap();
         nettyClient.group(new NioEventLoopGroup())
                 .channel(NioSocketChannel.class)
-                .option(ChannelOption.SO_KEEPALIVE, true)  // 设置为长连接
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60*1000);  // 设置连接超时时间
+                .option(ChannelOption.SO_KEEPALIVE, true)  // Set as a persistent connection
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60*1000);  // Set the connection timeout
         return nettyClient;
     }
 
@@ -60,18 +60,18 @@ public class DeviceEmulatorConfig {
                     ch.pipeline().addLast(new StringDecoder(), new StringEncoder(), new SimpleChannelInboundHandler<String>() {
                         @Override
                         public void channelActive(ChannelHandlerContext ctx) {
-                            //模拟设备认证
+                            //Simulate device authentication
                             Map authenticateMap = new HashMap();
                             authenticateMap.put("authenticate", device.getId().toString());
                             String authenticateMapJson = JsonUtils.toJsonString(authenticateMap);
-                            log.info("------------------------> 发送认证信息到服务端: {}", authenticateMapJson);
+                            log.info("------------------------> Send authentication info to the server: {}", authenticateMapJson);
                             ctx.writeAndFlush(authenticateMapJson);
                         }
 
                         @Override
                         protected void channelRead0(ChannelHandlerContext ctx, String msg) {
-                            log.info("设备 {} 接收到服务端消息: {}", device.getId(), msg);
-                            //模拟属性上报
+                            log.info("Device {} Received a message from the server: {}", device.getId(), msg);
+                            //Simulate property report
                             if(msg.contains("authenticate passed")){
                                 String commandTopic = DeviceTopicEnum.PROPERTY.buildTopic(DeviceClientDTO.from(device));
 
@@ -85,7 +85,7 @@ public class DeviceEmulatorConfig {
                                 tcpMsgDTO.setMsg(devicePropertyDTO);
 
                                 String runningStatusjson = JsonUtils.toJsonString(tcpMsgDTO);
-                                log.info("------------------------> 设备发送上线文本：{}",runningStatusjson);
+                                log.info("------------------------> Device sends online text:{}",runningStatusjson);
                                 ctx.writeAndFlush(runningStatusjson);
                             }
                         }

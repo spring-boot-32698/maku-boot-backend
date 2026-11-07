@@ -6,19 +6,19 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 手机号登录
+ * Mobile number login
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "手机号登录")
+@Schema(description = "Mobile number login")
 public class SysMobileLoginVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "手机号")
+    @Schema(description = "Mobile number")
     private String mobile;
 
-    @Schema(description = "验证码")
+    @Schema(description = "Captcha")
     private String code;
 }

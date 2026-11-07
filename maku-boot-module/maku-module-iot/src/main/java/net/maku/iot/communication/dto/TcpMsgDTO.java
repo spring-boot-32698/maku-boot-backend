@@ -4,12 +4,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * tcp通讯数据包
+ * tcpCommunication data packet
  *
  * @author LSF maku_lsf@163.com
  */
 @Data
-@Schema(description = "tcp通讯数据包装类")
+@Schema(description = "tcpCommunication data packet wrapper class")
 public class TcpMsgDTO {
     private String topic;
     private Object msg;

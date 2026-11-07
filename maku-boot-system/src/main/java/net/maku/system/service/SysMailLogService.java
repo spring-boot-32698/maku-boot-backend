@@ -9,9 +9,9 @@ import net.maku.system.vo.SysMailLogVO;
 import java.util.List;
 
 /**
- * 邮件日志
+ * Mail log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 public interface SysMailLogService extends BaseService<SysMailLogEntity> {
 

@@ -5,9 +5,9 @@ import net.maku.system.entity.SysLogLoginEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 登录日志
+ * Login log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Mapper

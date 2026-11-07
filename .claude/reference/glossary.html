@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maku Glossary</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main>
+  <div class="crumbs"><a href="../lessons/index.html">Course</a><span>›</span><span>Reference</span><span>·</span><a href="cheatsheet.html">Cheat sheet</a></div>
+  <h1>Glossary</h1>
+  <p class="subtitle">The project's vocabulary. Lessons and docs use these terms exactly as defined here.</p>
+
+  <h2>Identity &amp; sessions</h2>
+  <dl class="glossary">
+    <dt id="access-token">Access token</dt>
+    <dd>Random 32-char UUID issued at login; a key into Redis (<code>sys:token:&lt;token&gt;</code>) holding the user's <a href="#userdetail">UserDetail</a>. Lives 8 h. Sent as raw <code>Authorization</code> header or <code>?access_token=</code>. Not a JWT.<span class="where">TokenUtils · TokenStoreCache · sys_user_token</span></dd>
+    <dt id="refresh-token">Refresh token</dt>
+    <dd>Second UUID, valid 14 days, stored only in <code>sys_user_token</code>. Exchanged at <code>POST /sys/auth/token</code> for a new access token; also reloads permissions.<span class="where">SysUserTokenServiceImpl.refreshToken</span></dd>
+    <dt id="userdetail">UserDetail</dt>
+    <dd>The cached logged-in user: profile + <code>authoritySet</code> (permission codes and <code>ROLE_*</code>) + <code>dataScopeList</code>. Obtain with <code>SecurityUser.getUser()</code>.<span class="where">maku-framework/…/security/user/UserDetail.java</span></dd>
+    <dt>Super admin</dt>
+    <dd><code>sys_user.super_admin = 1</code>. Gets every permission code found in any <code>@PreAuthorize</code>, sees all menus and all rows. Seeded user <code>admin</code>/<code>admin</code>.</dd>
+    <dt>Authentication provider</dt>
+    <dd>One login method plugged into the <code>ProviderManager</code>: password (Dao), mobile SMS code, third-party (JustAuth).<span class="where">maku-boot-system/…/security/config/SecurityConfig.java</span></dd>
+    <dt>auth.yml / ignore_urls</dt>
+    <dd>Per-module list of URLs that skip authentication. All <code>classpath*:auth.yml</code> files are merged.<span class="where">PermitResource</span></dd>
+    <dt>SM2 / SM3</dt>
+    <dd>Chinese national crypto standards. SM2 (public-key) encrypts the password in the browser for transport; SM3 (hash) stores it in <code>sys_user.password</code>, unsalted.<span class="where">smCrypto.ts · Sm2Util · Sm3PasswordEncoder</span></dd>
+    <dt>Member</dt>
+    <dd>An end-user account in <code>member_user</code> (maku-module-member) — separate from system users (<code>sys_user</code>) who operate the admin UI.</dd>
+  </dl>
+
+  <h2>Authorization</h2>
+  <dl class="glossary">
+    <dt id="permission-code">Permission code (authority)</dt>
+    <dd>String like <code>sys:post:save</code> (<em>module:resource:action</em>). Must match across <code>@PreAuthorize</code>, <code>sys_menu.authority</code> and <code>v-auth</code>.</dd>
+    <dt>Menu</dt>
+    <dd>Row in <code>sys_menu</code>. <b>type 0</b> = page (its <code>url</code> maps to <code>src/views/&lt;url&gt;.vue</code>); <b>type 1</b> = button (its <code>authority</code> holds comma-separated codes); <b>type 2</b> = API. <code>open_style</code> 0 internal / 1 new window.</dd>
+    <dt>Role / role code</dt>
+    <dd><code>sys_role</code>; grants menus via <code>sys_role_menu</code> and has a <a href="#data-scope">data scope</a>. Its <code>role_code</code> becomes authority <code>ROLE_&lt;code&gt;</code>.</dd>
+    <dt id="data-scope">Data scope</dt>
+    <dd>Row-level visibility set per role: 0 ALL, 1 ORG_AND_CHILD, 2 ORG_ONLY, 3 SELF, 4 CUSTOM. Multiple roles → <code>min()</code> (broadest) wins. Applied only where a service opts in.<span class="where">DataScopeEnum · BaseServiceImpl.getDataScope · DataScopeInnerInterceptor</span></dd>
+    <dt>Org / Post</dt>
+    <dd><code>sys_org</code>: organisation tree (by <code>pid</code>), basis for data scope. <code>sys_post</code>: job title, many-to-many with users.</dd>
+    <dt>v-auth</dt>
+    <dd>Vue directive that removes an element when the user lacks the code. Cosmetic only.<span class="where">src/utils/directive/auth.ts</span></dd>
+  </dl>
+
+  <h2>Persistence</h2>
+  <dl class="glossary">
+    <dt>BaseEntity / BaseDao / BaseServiceImpl</dt>
+    <dd>Superclasses every feature extends: standard columns; MyBatis-Plus <code>BaseMapper</code>; <code>ServiceImpl</code> + <code>getPage</code>, <code>dataScopeWrapper</code>, <code>getDataScope</code>.<span class="where">maku-framework/…/mybatis</span></dd>
+    <dt>Logic delete</dt>
+    <dd><code>deleted</code> column; deletes become <code>UPDATE … deleted=1</code>, MP reads filter <code>deleted=0</code>. Hand-written XML must filter it manually.</dd>
+    <dt>Optimistic lock</dt>
+    <dd><code>version</code> column; <code>updateById</code> only succeeds if the version is unchanged.</dd>
+    <dt>Auto-fill</dt>
+    <dd><code>FieldMetaObjectHandler</code> sets <code>creator, create_time, updater, update_time, org_id, version, deleted</code> from the current user and clock.</dd>
+    <dt>Entity / VO / Query</dt>
+    <dd>Entity = table row. VO = API request/response body. Query = list filters + <code>page, limit, order, asc</code> (extends <code>Query</code>). Converted with Hutool <code>BeanUtil</code>.</dd>
+  </dl>
+
+  <h2>API contract</h2>
+  <dl class="glossary">
+    <dt id="result">Result</dt>
+    <dd>Response envelope <code>{code, msg, data}</code>. <code>code 0</code> = success; 400 refresh invalid; 401 not logged in; 403 forbidden; 500 error. HTTP status is 200 regardless.</dd>
+    <dt>PageResult</dt>
+    <dd><code>{list, total}</code> — what paged endpoints put in <code>data</code>; what <code>useCrud</code> expects.</dd>
+    <dt>ServerException</dt>
+    <dd>Throw for business errors; becomes <code>Result.error(code, msg)</code> and a red toast in the UI.</dd>
+  </dl>
+
+  <h2>Platform services</h2>
+  <dl class="glossary">
+    <dt>Dictionary (dict type / dict data)</dt>
+    <dd>Named list of value→label pairs (<code>sys_dict_type</code>, <code>sys_dict_data</code>), or the result of a SQL query (source <code>SQL</code>). Loaded once by the UI.</dd>
+    <dt>@Trans</dt>
+    <dd>VO field annotation that fills a label field on output: <code>DICTIONARY</code> (value→label) or <code>SIMPLE</code> (id→another entity's field).<span class="where">maku-framework/…/common/trans</span></dd>
+    <dt>Params</dt>
+    <dd>Runtime key/value settings in <code>sys_params</code>, Redis-cached, read via <code>SysParamsService</code>.</dd>
+    <dt>@OperateLog</dt>
+    <dd>Controller annotation recording an audit entry to <code>sys_log_operate</code> (via Redis queue <code>sys:log</code>).</dd>
+    <dt>Schedule job</dt>
+    <dd><code>schedule_job</code> row naming a Spring bean + method + cron; executed by Quartz, logged to <code>schedule_job_log</code>.</dd>
+    <dt>StorageService / SmsApi / StorageApi</dt>
+    <dd>Vendor-neutral file storage and SMS. <code>*Api</code> interfaces live in <code>maku-boot-api</code> for use from other modules.</dd>
+  </dl>
+
+  <h2>Frontend</h2>
+  <dl class="glossary">
+    <dt>generateRoutes</dt>
+    <dd>Turns the menu tree from <code>GET /sys/menu/nav</code> into Vue Router routes at runtime.<span class="where">src/router/index.ts</span></dd>
+    <dt>useCrud</dt>
+    <dd>Composable for list pages: paging, sorting, selection, delete, export, reset.<span class="where">src/hooks/index.ts</span></dd>
+    <dt>Ma* components</dt>
+    <dd>Global components: <code>ma-dict-*</code>, <code>ma-upload-*</code>, <code>ma-org-*</code>, <code>ma-user-*</code>, <code>ma-editor</code>…<span class="where">src/components</span></dd>
+  </dl>
+</main>
+</body>
+</html>

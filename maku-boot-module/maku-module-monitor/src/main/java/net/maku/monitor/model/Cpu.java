@@ -13,47 +13,47 @@ import lombok.Data;
 public class Cpu {
 
     /**
-     * 设置等待时间，单位毫秒
+     * Set the wait time, in milliseconds
      */
     private static final Long JOSHI_WAIT_SECOND = 360L;
 
     /**
-     * CPU型号
+     * CPUModel
      */
     private String cpuModel;
 
     /**
-     * 核心数
+     * Number of cores
      */
     private int cpuNum;
 
     /**
-     * CPU总的使用率
+     * CPUTotal usage rate
      */
     private double total;
 
     /**
-     * CPU系统使用率
+     * CPUSystem usage rate
      */
     private double sys;
 
     /**
-     * CPU用户使用率
+     * CPUUser usage rate
      */
     private double used;
 
     /**
-     * CPU当前等待率
+     * CPUCurrent wait rate
      */
     private double wait;
 
     /**
-     * CPU当前空闲率
+     * CPUCurrent idle rate
      */
     private double free;
 
     public Cpu() {
-        // 获取CPU相关信息,间隔1秒
+        // Get CPU related info,1 second interval
         CpuInfo cpuInfo = OshiUtil.getCpuInfo(JOSHI_WAIT_SECOND);
         this.setCpuModel(cpuInfo.getCpuModel().split("\n")[0]);
         this.setCpuNum(cpuInfo.getCpuNum());

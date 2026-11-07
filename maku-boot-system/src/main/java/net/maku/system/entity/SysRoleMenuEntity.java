@@ -6,9 +6,9 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.mybatis.entity.BaseEntity;
 
 /**
- * 角色菜单关系
+ * Role-menu relationship
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -16,11 +16,11 @@ import net.maku.framework.mybatis.entity.BaseEntity;
 @TableName("sys_role_menu")
 public class SysRoleMenuEntity extends BaseEntity {
 	/**
-	 * 角色ID
+	 * Role ID
 	 */
 	private Long roleId;
 	/**
-	 * 菜单ID
+	 * Menu ID
 	 */
 	private Long menuId;
 

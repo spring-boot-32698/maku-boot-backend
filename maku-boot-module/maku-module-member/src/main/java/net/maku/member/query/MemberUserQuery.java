@@ -6,24 +6,24 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
- * 会员管理查询
+ * Member management query
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "会员管理查询")
+@Schema(description = "Member management query")
 public class MemberUserQuery extends Query {
-    @Schema(description = "昵称")
+    @Schema(description = "Nickname")
     private String nickName;
 
-    @Schema(description = "手机号")
+    @Schema(description = "Mobile number")
     private String mobile;
 
-    @Schema(description = "性别")
+    @Schema(description = "Gender")
     private Integer gender;
 
-    @Schema(description = "状态")
+    @Schema(description = "Status")
     private Integer status;
 
 }

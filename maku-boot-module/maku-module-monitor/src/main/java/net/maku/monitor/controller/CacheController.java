@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 /**
- * 缓存监控
+ * Cache monitoring
  *
  * @author Pure tea
  */
@@ -24,19 +24,19 @@ public class CacheController {
     private RedisTemplate<String, Object> redisTemplate;
 
     /**
-     * Redis详情
+     * RedisDetails
      */
     @GetMapping("info")
     @PreAuthorize("hasAuthority('monitor:cache:all')")
     public Result<Map<String, Object>> getInfo() {
         Map<String, Object> result = new HashMap<>();
-        // Step 1: 获取Redis详情
+        // Step 1: Get Redis details
         Properties info = (Properties) redisTemplate.execute((RedisCallback<Object>) RedisServerCommands::info);
         result.put("info", info);
-        // Step 2: 获取Key的数量
+        // Step 2: Get the number of Keys
         Object dbSize = redisTemplate.execute((RedisCallback<Object>) RedisServerCommands::dbSize);
         result.put("keyCount", dbSize);
-        // Step 3: 获取请求次数
+        // Step 3: Get request count
         List<Map<String, Object>> pieList = new ArrayList<>();
         Properties commandStats = (Properties) redisTemplate.execute((RedisCallback<Object>) connection -> connection.info("commandStats"));
         if (commandStats != null && commandStats.size() != 0) {
@@ -53,7 +53,7 @@ public class CacheController {
     }
 
     /**
-     * 获取所有的Key
+     * Get all Keys
      */
     @GetMapping("getCacheKeys")
     @PreAuthorize("hasAuthority('monitor:cache:all')")
@@ -63,7 +63,7 @@ public class CacheController {
     }
 
     /**
-     * 获取结构化键下的Key值
+     * Get the Key values under the structured key
      *
      * @param cacheKey
      */
@@ -75,7 +75,7 @@ public class CacheController {
     }
 
     /**
-     * 获取指定键的值
+     * Get the value of the specified key
      *
      * @param cacheKey
      */
@@ -88,9 +88,9 @@ public class CacheController {
     }
 
     /**
-     * 删除指定键的缓存
+     * Delete the cache of the specified key
      *
-     * @param cacheKey > Key值
+     * @param cacheKey > KeyValue
      */
     @DeleteMapping("delCacheKey/{cacheKey}")
     @PreAuthorize("hasAuthority('monitor:cache:all')")
@@ -99,14 +99,14 @@ public class CacheController {
         if (flag) {
             return Result.ok();
         } else {
-            return Result.error(200, "处理失败!");
+            return Result.error(200, "Handling failed!");
         }
     }
 
     /**
-     * 删除结构化键下的缓存
+     * Delete the cache under the structured key
      *
-     * @param cacheKey > Key值
+     * @param cacheKey > KeyValue
      */
     @DeleteMapping("delCacheKeys/{cacheKey}")
     @PreAuthorize("hasAuthority('monitor:cache:all')")
@@ -117,7 +117,7 @@ public class CacheController {
     }
 
     /**
-     * 删除全部缓存
+     * Delete all caches
      */
     @DeleteMapping("delCacheAll")
     @PreAuthorize("hasAuthority('monitor:cache:all')")

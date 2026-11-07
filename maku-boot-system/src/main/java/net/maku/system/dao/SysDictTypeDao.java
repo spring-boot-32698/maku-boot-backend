@@ -5,9 +5,9 @@ import net.maku.system.entity.SysDictTypeEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 字典类型
+ * Dictionary type
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Mapper

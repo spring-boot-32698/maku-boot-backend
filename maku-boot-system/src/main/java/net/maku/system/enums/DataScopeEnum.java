@@ -4,32 +4,32 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 数据范围枚举
+ * Data scope enum
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum DataScopeEnum {
     /**
-     * 全部数据
+     * All data
      */
     ALL(0),
     /**
-     * 本机构及子机构数据
+     * This organization and sub-organizations data
      */
     ORG_AND_CHILD(1),
     /**
-     * 本机构数据
+     * This organization data
      */
     ORG_ONLY(2),
     /**
-     * 本人数据
+     * Own data
      */
     SELF(3),
     /**
-     * 自定义数据
+     * Custom data
      */
     CUSTOM(4);
 

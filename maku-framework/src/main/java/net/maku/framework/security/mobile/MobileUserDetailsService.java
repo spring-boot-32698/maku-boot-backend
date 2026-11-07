@@ -4,19 +4,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /**
- * 手机短信登录，UserDetailsService
+ * SMS login, UserDetailsService
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface MobileUserDetailsService {
 
     /**
-     * 通过手机号加载用户信息
+     * Load user info by mobile number
      *
-     * @param mobile 手机号
-     * @return 用户信息
-     * @throws UsernameNotFoundException 不存在异常
+     * @param mobile Mobile number
+     * @return User info
+     * @throws UsernameNotFoundException Non-existence exception
      */
     UserDetails loadUserByMobile(String mobile) throws UsernameNotFoundException;
 }

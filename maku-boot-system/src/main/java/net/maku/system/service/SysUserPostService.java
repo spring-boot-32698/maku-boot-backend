@@ -6,35 +6,35 @@ import net.maku.system.entity.SysUserPostEntity;
 import java.util.List;
 
 /**
- * 用户岗位关系
+ * User-post relationship
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysUserPostService extends BaseService<SysUserPostEntity> {
 
     /**
-     * 保存或修改
-     * @param userId      用户ID
-     * @param postIdList  岗位ID列表
+     * Save or update
+     * @param userId      User ID
+     * @param postIdList  Post ID list
      */
     void saveOrUpdate(Long userId, List<Long> postIdList);
 
     /**
-     * 根据岗位id列表，删除用户岗位关系
-     * @param postIdList 岗位id列表
+     * Delete user-post relationships by post id list
+     * @param postIdList Post id list
      */
     void deleteByPostIdList(List<Long> postIdList);
 
     /**
-     * 根据用户id列表，删除用户岗位关系
-     * @param userIdList 用户id列表
+     * Delete user-post relationships by user id list
+     * @param userIdList User id list
      */
     void deleteByUserIdList(List<Long> userIdList);
 
     /**
-     * 岗位ID列表
-     * @param userId  用户ID
+     * Post ID list
+     * @param userId  User ID
      */
     List<Long> getPostIdList(Long userId);
 }

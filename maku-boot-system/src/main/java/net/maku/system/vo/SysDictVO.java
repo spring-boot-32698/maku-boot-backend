@@ -9,35 +9,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 全部字典
+ * All dictionaries
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "全部字典")
+@Schema(description = "All dictionaries")
 public class SysDictVO {
-    @Schema(description = "字典类型")
+    @Schema(description = "Dictionary type")
     private String dictType;
 
-    @Schema(description = "字典数据列表")
+    @Schema(description = "Dictionary data list")
     private List<DictData> dataList = new ArrayList<>();
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    @Schema(description = "字典数据")
+    @Schema(description = "Dictionary data")
     public static class DictData {
-        @Schema(description = "字典标签")
+        @Schema(description = "Dictionary label")
         private String dictLabel;
 
-        @Schema(description = "字典值")
+        @Schema(description = "Dictionary value")
         private String dictValue;
 
-        @Schema(description = "标签样式")
+        @Schema(description = "Label style")
         private String labelClass;
 
-        @Schema(description = "上级节点")
+        @Schema(description = "Parent node")
         private String pid;
     }
 }

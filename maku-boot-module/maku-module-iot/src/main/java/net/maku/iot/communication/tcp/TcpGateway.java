@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * TCP 网关
+ * TCP Gateway
  *
  * @author LSF maku_lsf@163.com
  */
@@ -29,10 +29,10 @@ public class TcpGateway {
     }
 
     /**
-     * 发送命令到设备
-     * @param deviceId 设备ID
-     * @param commandTopic 命令主题
-     * @param payload 命令内容
+     * Send command to device
+     * @param deviceId Device ID
+     * @param commandTopic Command topic
+     * @param payload Command content
      */
     public void sendCommandToDevice(Long deviceId, String commandTopic, String payload) {
         Channel channel = deviceChannels.get(deviceId.toString());
@@ -45,9 +45,9 @@ public class TcpGateway {
 
             String commandJson = JsonUtils.toJsonString(tcpMsgDTO);
 //            channel.writeAndFlush(commandJson);
-            log.info("发送命令到设备 {}: {}", deviceId, payload);
+            log.info("Send command to device {}: {}", deviceId, payload);
         } else {
-            throw new ServerException("设备"+deviceId+"不在线或通道无效");
+            throw new ServerException("Device"+deviceId+"Not online or channel invalid");
         }
     }
 
@@ -59,14 +59,14 @@ public class TcpGateway {
                 tcpMsgDTO.setTopic(commandTopic);
                 tcpMsgDTO.setMsg(JsonUtils.parseObject(payload, reportDtoclazz));
                 String devicePropertyJson = JsonUtils.toJsonString(tcpMsgDTO);
-                // 模拟上报，触发 channelRead 处理
+                // Simulate a report and trigger channelRead handling
                 channel.pipeline().fireChannelRead(devicePropertyJson);
-                log.info("模拟设备 {} 上报数据: {}", deviceId, devicePropertyJson);
+                log.info("Simulated device {} Report data: {}", deviceId, devicePropertyJson);
             } catch (Exception e) {
-                log.error("模拟设备上报数据时出现错误", e);
+                log.error("Error occurred while the simulated device reported data", e);
             }
         } else {
-            throw new ServerException("设备 " + deviceId + " 不在线或通道无效");
+            throw new ServerException("Device " + deviceId + " Not online or channel invalid");
         }
     }
 

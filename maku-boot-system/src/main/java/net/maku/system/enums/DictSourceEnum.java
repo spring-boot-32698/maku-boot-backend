@@ -4,20 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 字典数据来源
+ * Dictionary data source
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Getter
 @AllArgsConstructor
 public enum DictSourceEnum {
     /**
-     * 字典数据
+     * Dictionary data
      */
     DICT(0),
     /**
-     * 动态SQL
+     * Dynamic SQL
      */
     SQL(1);
 

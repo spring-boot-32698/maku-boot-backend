@@ -10,9 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 短信服务Api
+ * SMS service Api
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Component
@@ -33,11 +33,11 @@ public class SmsApiImpl implements SmsApi {
 
     @Override
     public boolean sendCode(String mobile, String key, String value) {
-        // 短信参数
+        // SMS parameters
         Map<String, String> params = new HashMap<>();
         params.put(key, value);
 
-        // 发送短信
+        // Send SMS
         boolean flag = smsService.send(mobile, params);
         if (flag) {
             smsSendCache.saveCode(mobile, value);
@@ -47,11 +47,11 @@ public class SmsApiImpl implements SmsApi {
 
     @Override
     public boolean sendCode(String groupName, String mobile, String key, String value) {
-        // 短信参数
+        // SMS parameters
         Map<String, String> params = new HashMap<>();
         params.put(key, value);
 
-        // 发送短信
+        // Send SMS
         boolean flag = smsService.send(groupName, mobile, params);
         if (flag) {
             smsSendCache.saveCode(mobile, value);
@@ -63,10 +63,10 @@ public class SmsApiImpl implements SmsApi {
     public boolean verifyCode(String mobile, String code) {
         String value = smsSendCache.getCode(mobile);
         if (value != null) {
-            // 删除短信验证码
+            // Delete SMS verification code
             smsSendCache.deleteCode(mobile);
 
-            // 效验
+            // Validate
             return value.equalsIgnoreCase(code);
         }
 

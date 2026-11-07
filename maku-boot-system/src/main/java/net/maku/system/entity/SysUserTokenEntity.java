@@ -9,9 +9,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 用户Token
+ * User Token
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 
@@ -23,7 +23,7 @@ public class SysUserTokenEntity {
     private Long id;
 
     /**
-     * 用户ID
+     * User ID
      */
     private Long userId;
 
@@ -33,7 +33,7 @@ public class SysUserTokenEntity {
     private String accessToken;
 
     /**
-     * accessToken 过期时间
+     * accessToken Expiration time
      */
     private LocalDateTime accessTokenExpire;
 
@@ -43,17 +43,17 @@ public class SysUserTokenEntity {
     private String refreshToken;
 
     /**
-     * refreshToken 过期时间
+     * refreshToken Expiration time
      */
     private LocalDateTime refreshTokenExpire;
 
     /**
-     * 租户ID
+     * Tenant ID
      */
     private Long tenantId;
 
     /**
-     * 创建时间
+     * Creation time
      */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

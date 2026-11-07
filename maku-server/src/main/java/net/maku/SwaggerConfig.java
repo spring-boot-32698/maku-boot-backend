@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Swagger配置
+ * SwaggerSettings
  *
- * @author 阿沐  babamu@126.com
+ * @author Amu  babamu@126.com
  */
 @Configuration
 public class SwaggerConfig {
@@ -89,7 +89,7 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI openApi() {
         Contact contact = new Contact();
-        contact.setName("阿沐 babamu@126.com");
+        contact.setName("Amu babamu@126.com");
 
         return new OpenAPI().info(new Info()
                 .title("MAKU API")

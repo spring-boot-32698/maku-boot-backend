@@ -6,22 +6,22 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
- * 登录日志查询
+ * Login log query
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "登录日志查询")
+@Schema(description = "Login log query")
 public class SysLogLoginQuery extends Query {
-    @Schema(description = "用户名")
+    @Schema(description = "Username")
     private String username;
 
-    @Schema(description = "登录地点")
+    @Schema(description = "Login location")
     private String address;
 
-    @Schema(description = "登录状态  0：失败   1：成功")
+    @Schema(description = "Login status  0: failed   1: succeeded")
     private Integer status;
 
 }

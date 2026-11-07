@@ -4,55 +4,55 @@ package net.maku.framework.operatelog.dto;
 import lombok.Data;
 
 /**
- * 操作日志
+ * Operation log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
 public class OperateLogDTO {
     /**
-     * 用户ID
+     * User ID
      */
     private Long userId;
 
     /**
-     * 操作人
+     * Operator
      */
     private String realName;
 
     /**
-     * 模块名
+     * Module name
      */
     private String module;
 
     /**
-     * 操作名
+     * Operation name
      */
     private String name;
 
     /**
-     * 请求URI
+     * Request URI
      */
     private String reqUri;
 
     /**
-     * 请求方法
+     * Request method
      */
     private String reqMethod;
 
     /**
-     * 请求参数
+     * Request parameters
      */
     private String reqParams;
 
     /**
-     * 操作IP
+     * Operation IP
      */
     private String ip;
 
     /**
-     * 登录地点
+     * Login location
      */
     private String address;
 
@@ -62,27 +62,27 @@ public class OperateLogDTO {
     private String userAgent;
 
     /**
-     * 操作类型
+     * Operation type
      */
     private Integer operateType;
 
     /**
-     * 执行时长
+     * Execution duration
      */
     private Integer duration;
 
     /**
-     * 操作状态
+     * Operation status
      */
     private Integer status;
 
     /**
-     * 返回消息
+     * Return message
      */
     private String resultMsg;
 
     /**
-     * 租户ID
+     * Tenant ID
      */
     private Long tenantId;
 }

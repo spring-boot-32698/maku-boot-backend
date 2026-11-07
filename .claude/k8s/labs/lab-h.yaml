@@ -1,0 +1,34 @@
+# Lab H
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lab-h-data
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: fast-ssd
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-h
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: lab-h }
+  template:
+    metadata:
+      labels: { app: lab-h }
+    spec:
+      containers:
+        - name: app
+          image: nginx:1.27-alpine
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: lab-h-data

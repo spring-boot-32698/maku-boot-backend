@@ -1,0 +1,20 @@
+# Lab A
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-a
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: lab-a }
+  template:
+    metadata:
+      labels: { app: lab-a }
+    spec:
+      containers:
+        - name: app
+          image: nginx:1.27-alpine
+          resources:
+            requests:
+              cpu: "64"
+              memory: 64Mi

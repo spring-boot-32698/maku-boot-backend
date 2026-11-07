@@ -6,20 +6,20 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 第三方登录 回调参数
+ * Third-party login callback parameters
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "第三方登录 回调参数")
+@Schema(description = "Third-party login callback parameters")
 public class SysThirdCallbackVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "开放平台类型")
+    @Schema(description = "Open platform type")
     private String openType;
 
-    @Schema(description = "开放平台Code")
+    @Schema(description = "Open platform Code")
     private String code;
 
     @Schema(description = "state")

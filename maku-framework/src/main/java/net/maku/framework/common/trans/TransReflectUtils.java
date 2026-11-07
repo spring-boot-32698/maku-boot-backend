@@ -6,18 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 翻译反射工具类
+ * Translation reflection utility class
  *
  * @author maku
  */
 public class TransReflectUtils {
 
     /**
-     * 获取带有指定注解的字段列表
+     * Get the list of fields with the specified annotation
      *
-     * @param clazz           类
-     * @param annotationClass 注解类型
-     * @return 字段列表
+     * @param clazz           Class
+     * @param annotationClass Annotation type
+     * @return Field list
      */
     public static List<Field> getAnnotationField(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         List<Field> fields = new ArrayList<>();
@@ -34,11 +34,11 @@ public class TransReflectUtils {
     }
 
     /**
-     * 获取声明的字段（含父类）
+     * Get declared fields (including those of parent classes)
      *
-     * @param clazz     类
-     * @param fieldName 字段名
-     * @return 字段
+     * @param clazz     Class
+     * @param fieldName Field name
+     * @return Field
      */
     public static Field getDeclaredField(Class<?> clazz, String fieldName) {
         Class<?> currentClass = clazz;

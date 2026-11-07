@@ -7,18 +7,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 树形结构工具类，如：菜单、机构等
+ * Tree structure utility class, e.g.: menus, organizations
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class TreeUtils {
 
     /**
-     * 根据pid，构建树节点
+     * Build tree nodes by pid
      */
     public static <T extends TreeNode<T>> List<T> build(List<T> treeNodes, Long pid) {
-        // pid不能为空
+        // pidCannot be empty
         AssertUtils.isNull(pid, "pid");
 
         List<T> treeList = new ArrayList<>();
@@ -32,7 +32,7 @@ public class TreeUtils {
     }
 
     /**
-     * 查找子节点
+     * Find child nodes
      */
     private static <T extends TreeNode<T>> T findChildren(List<T> treeNodes, T rootNode) {
         for (T treeNode : treeNodes) {
@@ -44,12 +44,12 @@ public class TreeUtils {
     }
 
     /**
-     * 构建树节点
+     * Build tree nodes
      */
     public static <T extends TreeNode<T>> List<T> build(List<T> treeNodes) {
         List<T> result = new ArrayList<>();
 
-        // list转map
+        // listTo map
         Map<Long, T> nodeMap = new LinkedHashMap<>(treeNodes.size());
         for (T treeNode : treeNodes) {
             nodeMap.put(treeNode.getId(), treeNode);

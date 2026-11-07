@@ -5,9 +5,9 @@ import net.maku.system.entity.SysMailLogEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 邮件日志
+ * Mail log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Mapper
 public interface SysMailLogDao extends BaseDao<SysMailLogEntity> {

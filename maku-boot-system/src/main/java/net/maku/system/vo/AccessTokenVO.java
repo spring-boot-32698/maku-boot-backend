@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 /**
  * AccessToken
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -26,7 +26,7 @@ public class AccessTokenVO implements Serializable {
     @JsonProperty(value = "access_token")
     private String accessToken;
 
-    @Schema(description = "access_token 过期时间")
+    @Schema(description = "access_token Expiration time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime accessTokenExpire;
 

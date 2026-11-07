@@ -9,21 +9,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 获取真实地址
+ * Get real address
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Slf4j
 public class AddressUtils {
-    // 实时查询
+    // Real-time query
     public static final String ADDRESS_URL = "https://whois.pconline.com.cn/ipJson.jsp";
-    public static final String UNKNOWN = "未知";
+    public static final String UNKNOWN = "Unknown";
 
     public static String getAddressByIP(String ip) {
-        // 内网
+        // Intranet
         if (IpUtils.internalIp(ip)) {
-            return "内网IP";
+            return "Intranet IP";
         }
 
         try {
@@ -32,14 +32,14 @@ public class AddressUtils {
             paramMap.put("json", true);
             String response = HttpUtil.get(ADDRESS_URL, paramMap);
             if (StringUtils.isBlank(response)) {
-                log.error("根据IP获取地址异常 {}", ip);
+                log.error("Failed to get the address by IP {}", ip);
                 return UNKNOWN;
             }
 
             Address address = JsonUtils.parseObject(response, Address.class);
             return String.format("%s %s", address.getPro(), address.getCity());
         } catch (Exception e) {
-            log.error("根据IP获取地址异常 {}", ip);
+            log.error("Failed to get the address by IP {}", ip);
         }
 
         return UNKNOWN;
@@ -48,11 +48,11 @@ public class AddressUtils {
     @Data
     static class Address {
         /**
-         * 省
+         * Province
          */
         private String pro;
         /**
-         * 市
+         * City
          */
         private String city;
     }

@@ -13,9 +13,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * Xss 过滤器
+ * Xss Filter
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @AllArgsConstructor
@@ -31,13 +31,13 @@ public class XssFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // 如果是json数据，则不处理
+        // If it is json data, do not process it
         String contentType = request.getContentType();
         if (StrUtil.isBlank(contentType) || StrUtil.startWithIgnoreCase(contentType, MediaType.APPLICATION_JSON_VALUE)) {
             return true;
         }
 
-        // 放行不过滤的URL
+        // URLs allowed through without filtering
         return properties.getExcludeUrls().stream().anyMatch(excludeUrl -> pathMatcher.match(excludeUrl, request.getServletPath()));
     }
 

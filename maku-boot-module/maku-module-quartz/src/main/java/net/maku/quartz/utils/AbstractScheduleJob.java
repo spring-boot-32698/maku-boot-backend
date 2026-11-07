@@ -30,35 +30,35 @@ public abstract class AbstractScheduleJob implements Job {
             doExecute(scheduleJob);
             saveLog(scheduleJob, null);
         } catch (Exception e) {
-            log.error("任务执行失败，任务ID：{}", scheduleJob.getId(), e);
+            log.error("Task execution failed, task ID:{}", scheduleJob.getId(), e);
             saveLog(scheduleJob, e);
         }
     }
 
     /**
-     * 执行spring bean方法
+     * Execute spring bean method
      */
     protected void doExecute(ScheduleJobEntity scheduleJob) throws Exception {
-        log.info("准备执行任务，任务ID：{}", scheduleJob.getId());
+        log.info("Preparing to execute task, task ID:{}", scheduleJob.getId());
 
         Object bean = SpringUtil.getBean(scheduleJob.getBeanName());
         Method method = bean.getClass().getDeclaredMethod(scheduleJob.getMethod(), String.class);
         method.invoke(bean, scheduleJob.getParams());
 
-        log.info("任务执行完毕，任务ID：{}", scheduleJob.getId());
+        log.info("Task execution completed, task ID:{}", scheduleJob.getId());
     }
 
     /**
-     * 保存 log
+     * Save log
      */
     protected void saveLog(ScheduleJobEntity scheduleJob, Exception e) {
         Date startTime = threadLocal.get();
         threadLocal.remove();
 
-        // 执行总时长
+        // Total execution time
         long times = System.currentTimeMillis() - startTime.getTime();
 
-        // 保存执行记录
+        // Save execution record
         ScheduleJobLogEntity log = new ScheduleJobLogEntity();
         log.setJobId(scheduleJob.getId());
         log.setJobName(scheduleJob.getJobName());
@@ -77,7 +77,7 @@ public abstract class AbstractScheduleJob implements Job {
             log.setStatus(ScheduleStatusEnum.NORMAL.getValue());
         }
 
-        // 保存日志
+        // Save log
         SpringUtil.getBean(ScheduleJobLogService.class).save(log);
     }
 

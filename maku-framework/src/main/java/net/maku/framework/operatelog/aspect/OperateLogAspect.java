@@ -35,9 +35,9 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 /**
- * 操作日志，切面处理类
+ * Operation log, aspect handler class
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Aspect
@@ -48,18 +48,18 @@ public class OperateLogAspect {
 
     @Around("@annotation(operateLog)")
     public Object around(ProceedingJoinPoint joinPoint, OperateLog operateLog) throws Throwable {
-        // 记录开始时间
+        // Record start time
         LocalDateTime startTime = LocalDateTime.now();
         try {
-            //执行方法
+            //Execution method
             Object result = joinPoint.proceed();
 
-            //保存日志
+            //Save log
             saveLog(joinPoint, operateLog, startTime, Constant.SUCCESS);
 
             return result;
         } catch (Exception e) {
-            //保存日志
+            //Save log
             saveLog(joinPoint, operateLog, startTime, Constant.FAIL);
             throw e;
         }
@@ -69,24 +69,24 @@ public class OperateLogAspect {
     private void saveLog(ProceedingJoinPoint joinPoint, OperateLog operateLog, LocalDateTime startTime, Integer status) {
         OperateLogDTO log = new OperateLogDTO();
 
-        // 执行时长
+        // Execution duration
         long duration = LocalDateTimeUtil.between(startTime, LocalDateTime.now()).toMillis();
         log.setDuration((int) duration);
-        // 用户信息
+        // User info
         UserDetail user = SecurityUser.getUser();
         if (user != null) {
             log.setUserId(user.getId());
             log.setRealName(user.getRealName());
             log.setTenantId(user.getTenantId());
         }
-        // 操作类型
+        // Operation type
         log.setOperateType(operateLog.type()[0].getValue());
-        // 设置module值
+        // Set the module value
         log.setModule(operateLog.module());
-        // 设置name值
+        // Set the name value
         log.setName(operateLog.name());
 
-        // 如果没有指定module值，则从tag读取
+        // If no module value is specified, read it from tag
         if (StrUtil.isBlank(log.getModule())) {
             Tag tag = getClassAnnotation(joinPoint, Tag.class);
             if (tag != null) {
@@ -94,7 +94,7 @@ public class OperateLogAspect {
             }
         }
 
-        // 如果没有指定name值，则从operation读取
+        // If no name value is specified, read it from operation
         if (StrUtil.isBlank(log.getName())) {
             Operation operation = getMethodAnnotation(joinPoint, Operation.class);
             if (operation != null) {
@@ -102,7 +102,7 @@ public class OperateLogAspect {
             }
         }
 
-        // 请求相关
+        // Request related
         HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
         if (request != null) {
             log.setIp(IpUtils.getIpAddr(request));
@@ -116,7 +116,7 @@ public class OperateLogAspect {
         log.setStatus(status);
 
 
-        // 保存操作日志
+        // Save operation log
         operateLogService.saveLog(log);
     }
 
@@ -125,7 +125,7 @@ public class OperateLogAspect {
         String[] argNames = methodSignature.getParameterNames();
         Object[] argValues = joinPoint.getArgs();
 
-        // 拼接参数
+        // Concatenate parameters
         Map<String, Object> args = MapUtil.newHashMap(argValues.length);
         for (int i = 0; i < argNames.length; i++) {
             String argName = argNames[i];
@@ -139,19 +139,19 @@ public class OperateLogAspect {
     private static boolean ignoreArgs(Object object) {
         Class<?> clazz = object.getClass();
 
-        // 处理数组
+        // Handle arrays
         if (clazz.isArray()) {
             return IntStream.range(0, Array.getLength(object))
                     .anyMatch(index -> ignoreArgs(Array.get(object, index)));
         }
 
-        // 处理集合
+        // Handle collections
         if (Collection.class.isAssignableFrom(clazz)) {
             return ((Collection<?>) object).stream()
                     .anyMatch((Predicate<Object>) OperateLogAspect::ignoreArgs);
         }
 
-        // 处理Map
+        // Handle Map
         if (Map.class.isAssignableFrom(clazz)) {
             return ignoreArgs(((Map<?, ?>) object).values());
         }

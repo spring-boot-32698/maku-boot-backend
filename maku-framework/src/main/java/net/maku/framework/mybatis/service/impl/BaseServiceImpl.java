@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import net.maku.framework.common.constant.Constant;
+import net.maku.framework.common.exception.ServerException;
 import net.maku.framework.common.query.Query;
 import net.maku.framework.mybatis.interceptor.DataScope;
 import net.maku.framework.mybatis.service.BaseService;
@@ -16,30 +17,33 @@ import net.maku.framework.security.user.SecurityUser;
 import net.maku.framework.security.user.UserDetail;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 /**
- * 基础服务类，所有Service都要继承
+ * Base service class, all Services must extend it
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M, T> implements BaseService<T> {
+    private static final Pattern ORDER_COLUMN = Pattern.compile("^[A-Za-z][A-Za-z0-9_]{0,63}$");
 
     /**
-     * 获取分页对象
+     * Get the pagination object
      *
-     * @param query 分页参数
+     * @param query Pagination parameters
      */
     protected IPage<T> getPage(Query query) {
         Page<T> page = new Page<>(query.getPage(), query.getLimit());
 
-        // 排序
+        // Sort
         if (StringUtils.isNotBlank(query.getOrder())) {
+            String column = toOrderColumn(query.getOrder());
             if (query.isAsc()) {
-                return page.addOrder(OrderItem.asc(query.getOrder()));
+                return page.addOrder(OrderItem.asc(column));
             } else {
-                return page.addOrder(OrderItem.desc(query.getOrder()));
+                return page.addOrder(OrderItem.desc(column));
             }
         }
 
@@ -47,7 +51,19 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M, 
     }
 
     /**
-     * MyBatis-Plus 数据权限
+     * Sort column from the request, accepted only as a plain identifier (it is concatenated into ORDER BY).
+     * Field names are converted to column names, e.g. createTime -> create_time.
+     */
+    private String toOrderColumn(String order) {
+        if (!ORDER_COLUMN.matcher(order).matches()) {
+            throw new ServerException("Invalid sort field");
+        }
+
+        return StrUtil.toUnderlineCase(order);
+    }
+
+    /**
+     * MyBatis-Plus Data permission
      */
     protected void dataScopeWrapper(LambdaQueryWrapper<T> queryWrapper) {
         DataScope dataScope = getDataScope(null, null);
@@ -57,25 +73,25 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M, 
     }
 
     /**
-     * 原生SQL 数据权限
+     * Native SQL data permission
      *
-     * @param tableAlias 表别名，多表关联时，需要填写表别名
-     * @param orgIdAlias 机构ID别名，null：表示org_id
-     * @return 返回数据权限
+     * @param tableAlias Table alias; required when joining multiple tables
+     * @param orgIdAlias Organization ID alias, null: means org_id
+     * @return Return data permission
      */
     protected DataScope getDataScope(String tableAlias, String orgIdAlias) {
         UserDetail user = SecurityUser.getUser();
-        // 如果是超级管理员，则不进行数据过滤
+        // If it is a super administrator, do not filter data
         if (user.getSuperAdmin().equals(Constant.SUPER_ADMIN)) {
             return null;
         }
 
-        // 如果为null，则设置成空字符串
+        // If null, set to an empty string
         if (tableAlias == null) {
             tableAlias = "";
         }
 
-        // 获取表的别名
+        // Get table alias
         if (StringUtils.isNotBlank(tableAlias)) {
             tableAlias += ".";
         }
@@ -83,13 +99,13 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M, 
         StringBuilder sqlFilter = new StringBuilder();
         sqlFilter.append(" (");
 
-        // 数据权限范围
+        // Data permission scope
         List<Long> dataScopeList = user.getDataScopeList();
-        // 全部数据权限
+        // All data permissions
         if (dataScopeList == null) {
             return null;
         }
-        // 数据过滤
+        // Data filtering
         if (dataScopeList.size() > 0) {
             if (StringUtils.isBlank(orgIdAlias)) {
                 orgIdAlias = "org_id";
@@ -101,7 +117,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M, 
             sqlFilter.append(" or ");
         }
 
-        // 查询本人数据
+        // Query own data
         sqlFilter.append(tableAlias).append("creator").append("=").append(user.getId());
 
         sqlFilter.append(")");

@@ -10,7 +10,7 @@ import net.maku.iot.enums.DeviceTypeEnum;
 import java.util.List;
 
 /**
- * 设备客户端信息
+ * Device client info
  *
  * @author LSF maku_lsf@163.com
  */
@@ -18,32 +18,32 @@ import java.util.List;
 @Builder
 public class DeviceClientDTO {
     /**
-     * 格式 ： deviceType_tenantId_deviceId_uid
+     * Format: deviceType_tenantId_deviceId_uid
      */
     private static final String CLIENT_ID_TEMPLATE = "{}_{}_{}_{}";
-    private static final String INVALID_CLIENT_ID = "无效的设备clientId:{}";
+    private static final String INVALID_CLIENT_ID = "Invalid device clientId:{}";
     /**
-     * 租户id
+     * Tenant id
      */
     private Long tenantId;
 
     /**
-     * 设备id
+     * Device id
      */
     private Long deviceId;
 
     /**
-     * 设备类型
+     * Device type
      */
     private String deviceType;
 
     /**
-     * 设备唯一标识
+     * Device unique identifier
      */
     private String uid;
 
     /**
-     * 生成clientId
+     * Generate clientId
      *
      * @return
      */
@@ -55,7 +55,7 @@ public class DeviceClientDTO {
     }
 
     /**
-     * 从clientId解析设备client信息
+     * Parse device client info from clientId
      *
      * @param clientId
      * @return
@@ -72,7 +72,7 @@ public class DeviceClientDTO {
     }
 
     /**
-     * 从Device创建deviceClient
+     * Create deviceClient from Device
      *
      * @param device
      * @return

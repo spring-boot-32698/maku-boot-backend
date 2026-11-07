@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * MQTT消息处理器工厂，自动获取所有实现的处理器实例
+ * MQTTMessage handler factory that automatically gets all implemented handler instances
  *
  * @author LSF maku_lsf@163.com
  */
@@ -21,7 +21,7 @@ public class MqttMessageHandlerFactory {
     private final ApplicationContext applicationContext;
 
     /**
-     * 所有消息处理器
+     * All message handlers
      */
     private List<MqttMessageHandler> messageHandlers;
 
@@ -34,10 +34,10 @@ public class MqttMessageHandlerFactory {
     }
 
     /**
-     * 获取与主题对应的处理器
+     * Get the handler corresponding to the topic
      *
-     * @param topic 主题
-     * @return 处理器列表
+     * @param topic Topic
+     * @return Handler list
      */
     public List<MqttMessageHandler> getHandlersForTopic(String topic) {
         return Collections.unmodifiableList(loadHandlers().stream()

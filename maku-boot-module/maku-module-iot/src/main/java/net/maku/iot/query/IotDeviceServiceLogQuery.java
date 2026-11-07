@@ -6,17 +6,17 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
- * 设备服务日志查询
+ * Device service log query
  *
  * @author LSF maku_lsf@163.com
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "设备服务日志查询")
+@Schema(description = "Device service log query")
 public class IotDeviceServiceLogQuery extends Query {
-    @Schema(description = "指令")
+    @Schema(description = "Command")
     private String deviceCommandEnum;
 
-    @Schema(description = "设备id")
+    @Schema(description = "Device id")
     private Long deviceId;
 }

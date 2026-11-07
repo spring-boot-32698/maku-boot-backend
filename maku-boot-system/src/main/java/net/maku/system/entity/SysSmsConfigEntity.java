@@ -6,9 +6,9 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.mybatis.entity.BaseEntity;
 
 /**
- * 短信平台
+ * SMS platform
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -16,37 +16,37 @@ import net.maku.framework.mybatis.entity.BaseEntity;
 @TableName("sys_sms_config")
 public class SysSmsConfigEntity extends BaseEntity {
     /**
-     * 平台类型  0：阿里云   1：腾讯云   2：七牛云    3：华为云
+     * Platform type  0: Alibaba Cloud   1: Tencent Cloud   2: Qiniu Cloud    3: Huawei Cloud
      */
     private Integer platform;
 
     /**
-     * 分组名称，发送短信时，可指定分组
+     * Group name; a group can be specified when sending SMS
      */
     private String groupName;
 
     /**
-     * 短信签名
+     * SMS signature
      */
     private String signName;
 
     /**
-     * 短信模板
+     * SMS template
      */
     private String templateId;
 
     /**
-     * 短信应用的ID，如：腾讯云等
+     * ID of the SMS application, e.g.: Tencent Cloud
      */
     private String appId;
 
     /**
-     * 腾讯云国际短信、华为云等需要
+     * Required for Tencent Cloud international SMS, Huawei Cloud, etc.
      */
     private String senderId;
 
     /**
-     * 接入地址，如：华为云
+     * Access address, e.g.: Huawei Cloud
      */
     private String url;
 
@@ -61,7 +61,7 @@ public class SysSmsConfigEntity extends BaseEntity {
     private String secretKey;
 
     /**
-     * 状态  0：禁用   1：启用
+     * Status  0: disabled   1: enabled
      */
     private Integer status;
 

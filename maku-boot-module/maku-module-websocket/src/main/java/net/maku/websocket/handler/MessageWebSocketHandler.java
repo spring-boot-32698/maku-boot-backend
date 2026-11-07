@@ -10,9 +10,9 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 /**
- * WebSocket 消息处理器
+ * WebSocket Message handler
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Slf4j
@@ -23,13 +23,13 @@ public class MessageWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        // 新增session
+        // Add session
         webSocketSessionManager.addSession(session);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        // 移除session
+        // Remove session
         webSocketSessionManager.removeSession(session);
     }
 
@@ -39,6 +39,6 @@ public class MessageWebSocketHandler extends TextWebSocketHandler {
 
         log.info("Received message: {}", payload);
 
-        // 处理接收到的消息
+        // Handle received messages
     }
 }

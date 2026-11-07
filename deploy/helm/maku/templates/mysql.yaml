@@ -1,0 +1,104 @@
+{{- if .Values.mysql.enabled }}
+# MySQL as a StatefulSet: stable name (…-mysql-0) and its own PersistentVolumeClaim per replica.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "maku.fullname" . }}-mysql
+  labels:
+    {{- include "maku.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mysql
+spec:
+  serviceName: {{ include "maku.fullname" . }}-mysql-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "maku.selectorLabels" (dict "ctx" . "component" "mysql") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "maku.selectorLabels" (dict "ctx" . "component" "mysql") | nindent 8 }}
+    spec:
+      containers:
+        - name: mysql
+          image: {{ include "maku.image" (dict "ctx" . "image" .Values.mysql.image) }}
+          imagePullPolicy: {{ .Values.mysql.image.pullPolicy }}
+          args: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_general_ci"]
+          ports:
+            - name: mysql
+              containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              value: {{ .Values.database.name | quote }}
+            - name: MYSQL_USER
+              value: {{ .Values.database.username | quote }}
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "maku.dbSecretName" . }}
+                  key: mysql-password
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "maku.dbSecretName" . }}
+                  key: mysql-root-password
+            - name: TZ
+              value: {{ .Values.backend.timezone | quote }}
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$MYSQL_ROOT_PASSWORD\" --silent"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$MYSQL_ROOT_PASSWORD\" --silent"]
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.mysql.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        {{- with .Values.mysql.persistence.storageClass }}
+        storageClassName: {{ . }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.mysql.persistence.size }}
+---
+# Headless Service: gives the StatefulSet pod a stable DNS name (…-mysql-0.…-mysql-headless)
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "maku.fullname" . }}-mysql-headless
+  labels:
+    {{- include "maku.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mysql
+spec:
+  clusterIP: None
+  selector:
+    {{- include "maku.selectorLabels" (dict "ctx" . "component" "mysql") | nindent 4 }}
+  ports:
+    - name: mysql
+      port: 3306
+---
+# Regular Service the backend connects to
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "maku.fullname" . }}-mysql
+  labels:
+    {{- include "maku.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mysql
+spec:
+  selector:
+    {{- include "maku.selectorLabels" (dict "ctx" . "component" "mysql") | nindent 4 }}
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: mysql
+{{- end }}

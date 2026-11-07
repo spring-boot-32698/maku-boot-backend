@@ -9,73 +9,73 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 设备表
+ * Device table
  *
  * @author LSF maku_lsf@163.com
  */
 @Data
-@Schema(description = "设备表")
+@Schema(description = "Device table")
 public class IotDeviceVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "ID")
     private Long id;
 
-    @Schema(description = "编码")
+    @Schema(description = "Code")
     private String code;
 
-    @Schema(description = "名称")
+    @Schema(description = "Name")
     private String name;
 
-    @Schema(description = "设备类型，1.手持设备，2.柜体，3传感设备")
+    @Schema(description = "Device type, 1. handheld device, 2. cabinet, 3. sensor device")
     private Integer type;
 
-    @Schema(description = "协议类型")
+    @Schema(description = "Protocol type")
     private String protocolType;
 
-    @Schema(description = "唯一标识码")
+    @Schema(description = "Unique identifier")
     private String uid;
 
-    @Schema(description = "设备密钥")
+    @Schema(description = "Device key")
     private String secret;
 
-    @Schema(description = "App版本号")
+    @Schema(description = "AppVersion number")
     private String appVersion;
 
-    @Schema(description = "电池电量百分比")
+    @Schema(description = "Battery level percentage")
     private String batteryPercent;
 
-    @Schema(description = "温度")
+    @Schema(description = "Temperature")
     private String temperature;
 
-    @Schema(description = "状态，0禁用，1正常")
+    @Schema(description = "Status, 0 disabled, 1 normal")
     private Integer status;
 
-    @Schema(description = "运行状态")
+    @Schema(description = "Running status")
     private Integer runningStatus;
 
-    @Schema(description = "上线时间")
+    @Schema(description = "Online time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime upTime;
 
-    @Schema(description = "下线时间")
+    @Schema(description = "Offline time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime downTime;
 
-    @Schema(description = "租户ID")
+    @Schema(description = "Tenant ID")
     private Long tenantId;
 
-    @Schema(description = "创建者")
+    @Schema(description = "Creator")
     private Long creator;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Creation time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime createTime;
 
-    @Schema(description = "更新者")
+    @Schema(description = "Updater")
     private Long updater;
 
-    @Schema(description = "更新时间")
+    @Schema(description = "Update time")
     @JsonFormat(pattern = DateUtils.DATE_TIME_PATTERN)
     private LocalDateTime updateTime;
     

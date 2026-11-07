@@ -18,19 +18,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 邮件日志
+ * Mail log
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @RestController
 @RequestMapping("sys/mail/log")
-@Tag(name = "邮件日志")
+@Tag(name = "Mail log")
 @AllArgsConstructor
 public class SysMailLogController {
     private final SysMailLogService sysMailLogService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('sys:mail:log')")
     public Result<PageResult<SysMailLogVO>> page(@ParameterObject @Valid SysMailLogQuery query) {
         PageResult<SysMailLogVO> page = sysMailLogService.page(query);
@@ -39,7 +39,7 @@ public class SysMailLogController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('sys:mail:log')")
     public Result<SysMailLogVO> get(@PathVariable("id") Long id) {
         SysMailLogEntity entity = sysMailLogService.getById(id);
@@ -48,7 +48,7 @@ public class SysMailLogController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @PreAuthorize("hasAuthority('sys:mail:log')")
     public Result<String> delete(@RequestBody List<Long> idList) {
         sysMailLogService.delete(idList);

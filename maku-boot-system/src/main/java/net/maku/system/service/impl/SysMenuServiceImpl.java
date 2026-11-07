@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 菜单管理
+ * Menu management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -39,7 +39,7 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuDao, SysMenuEntit
     public void save(SysMenuVO vo) {
         SysMenuEntity entity = BeanUtil.copyProperties(vo, SysMenuEntity.class);
 
-        // 保存菜单
+        // Save menu
         baseMapper.insert(entity);
     }
 
@@ -48,22 +48,22 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuDao, SysMenuEntit
     public void update(SysMenuVO vo) {
         SysMenuEntity entity = BeanUtil.copyProperties(vo, SysMenuEntity.class);
 
-        // 上级菜单不能为自己
+        // Parent menu cannot be itself
         if (entity.getId().equals(entity.getPid())) {
-            throw new ServerException("上级菜单不能为自己");
+            throw new ServerException("Parent menu cannot be itself");
         }
 
-        // 更新菜单
+        // Update menu
         updateById(entity);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
-        // 删除菜单
+        // Delete menu
         removeById(id);
 
-        // 删除角色菜单关系
+        // Delete role-menu relationship
         sysRoleMenuService.deleteByMenuId(id);
     }
 
@@ -78,7 +78,7 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuDao, SysMenuEntit
     public List<SysMenuVO> getUserMenuList(UserDetail user, Integer type) {
         List<SysMenuEntity> menuList;
 
-        // 系统管理员，拥有最高权限
+        // System administrator, has the highest permissions
         if (user.getSuperAdmin().equals(SuperAdminEnum.YES.getValue())) {
             menuList = baseMapper.getMenuList(type);
         } else {
@@ -95,7 +95,7 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuDao, SysMenuEntit
 
     @Override
     public Set<String> getUserAuthority(UserDetail user) {
-        // 系统管理员，拥有最高权限
+        // System administrator, has the highest permissions
         List<String> authorityList;
         if (user.getSuperAdmin().equals(SuperAdminEnum.YES.getValue())) {
             // authorityList = baseMapper.getAuthorityList();
@@ -104,7 +104,7 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuDao, SysMenuEntit
             authorityList = baseMapper.getUserAuthorityList(user.getId());
         }
 
-        // 用户权限列表
+        // User permission list
         Set<String> permsSet = new HashSet<>();
         for (String authority : authorityList) {
             if (StrUtil.isBlank(authority)) {

@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
- * 测试定时任务
+ * Test scheduled task
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Slf4j
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class TestTask {
 
     public void run(String params) throws InterruptedException {
-        log.info("我是testTask.run()，参数：{}，正在被执行。", params);
+        log.info("I am testTask.run(), parameters:{} is being executed.", params);
         Thread.sleep(1000);
     }
 }

@@ -18,19 +18,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 设备事件日志
+ * Device event log
  *
  * @author LSF maku_lsf@163.com
  */
 @RestController
 @RequestMapping("iot/device_event_log")
-@Tag(name = "设备事件日志")
+@Tag(name = "Device event log")
 @AllArgsConstructor
 public class IotDeviceEventLogController {
     private final IotDeviceEventLogService iotDeviceEventLogService;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     @PreAuthorize("hasAuthority('iot:device_event_log:page')")
     public Result<PageResult<IotDeviceEventLogVO>> page(@ParameterObject @Valid IotDeviceEventLogQuery query) {
         PageResult<IotDeviceEventLogVO> page = iotDeviceEventLogService.page(query);
@@ -39,7 +39,7 @@ public class IotDeviceEventLogController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('iot:device_event_log:info')")
     public Result<IotDeviceEventLogVO> get(@PathVariable("id") Long id) {
         IotDeviceEventLogEntity entity = iotDeviceEventLogService.getById(id);
@@ -48,7 +48,7 @@ public class IotDeviceEventLogController {
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @PreAuthorize("hasAuthority('iot:device_event_log:save')")
     public Result<String> save(@RequestBody IotDeviceEventLogVO vo) {
         iotDeviceEventLogService.save(vo);
@@ -57,7 +57,7 @@ public class IotDeviceEventLogController {
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @PreAuthorize("hasAuthority('iot:device_event_log:update')")
     public Result<String> update(@RequestBody @Valid IotDeviceEventLogVO vo) {
         iotDeviceEventLogService.update(vo);
@@ -66,7 +66,7 @@ public class IotDeviceEventLogController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @PreAuthorize("hasAuthority('iot:device_event_log:delete')")
     public Result<String> delete(@RequestBody List<Long> idList) {
         iotDeviceEventLogService.delete(idList);

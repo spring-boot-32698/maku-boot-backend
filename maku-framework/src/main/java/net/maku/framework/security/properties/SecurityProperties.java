@@ -5,9 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * 安全配置项
+ * Security settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -15,11 +15,11 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "maku.security")
 public class SecurityProperties {
     /**
-     * accessToken 过期时间(单位：秒)，默认2小时
+     * accessToken Expiration time(Unit: seconds), default 2 hours
      */
     private int accessTokenExpire = 60 * 60 * 2;
     /**
-     * refreshToken 过期时间(单位：秒)，默认14天
+     * refreshToken Expiration time(Unit: seconds), default 14 days
      */
     private int refreshTokenExpire = 60 * 60 * 24 * 14;
 }

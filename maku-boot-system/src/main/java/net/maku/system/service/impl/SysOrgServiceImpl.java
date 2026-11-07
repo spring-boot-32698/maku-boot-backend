@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 机构管理
+ * Organization management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -38,10 +38,10 @@ public class SysOrgServiceImpl extends BaseServiceImpl<SysOrgDao, SysOrgEntity> 
     public List<SysOrgVO> getList() {
         Map<String, Object> params = new HashMap<>();
 
-        // 数据权限
+        // Data permission
         params.put(Constant.DATA_SCOPE, getDataScope("t1", "id"));
 
-        // 机构列表
+        // Organization list
         List<SysOrgEntity> entityList = baseMapper.getList(params);
 
         return TreeUtils.build(BeanUtil.copyToList(entityList, SysOrgVO.class));
@@ -73,15 +73,15 @@ public class SysOrgServiceImpl extends BaseServiceImpl<SysOrgDao, SysOrgEntity> 
     public void update(SysOrgVO vo) {
         SysOrgEntity entity = BeanUtil.copyProperties(vo, SysOrgEntity.class);
 
-        // 上级机构不能为自身
+        // Parent organization cannot be itself
         if (entity.getId().equals(entity.getPid())) {
-            throw new ServerException("上级机构不能为自身");
+            throw new ServerException("Parent organization cannot be itself");
         }
 
-        // 上级机构不能为下级
+        // Parent organization cannot be a subordinate
         List<Long> subOrgList = getSubOrgIdList(entity.getId());
         if (subOrgList.contains(entity.getPid())) {
-            throw new ServerException("上级机构不能为下级");
+            throw new ServerException("Parent organization cannot be a subordinate");
         }
 
         updateById(entity);
@@ -90,32 +90,32 @@ public class SysOrgServiceImpl extends BaseServiceImpl<SysOrgDao, SysOrgEntity> 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
-        // 判断是否有子机构
+        // Check whether there are child organizations
         long orgCount = count(new QueryWrapper<SysOrgEntity>().eq("pid", id));
         if (orgCount > 0) {
-            throw new ServerException("请先删除子机构");
+            throw new ServerException("Please delete the child organizations first");
         }
 
-        // 判断机构下面是否有用户
+        // Check whether the organization has users
         long userCount = sysUserDao.selectCount(new QueryWrapper<SysUserEntity>().eq("org_id", id));
         if (userCount > 0) {
-            throw new ServerException("机构下面有用户，不能删除");
+            throw new ServerException("The organization has users and cannot be deleted");
         }
 
-        // 删除
+        // Delete
         removeById(id);
     }
 
     @Override
     public List<Long> getSubOrgIdList(Long id) {
-        // 所有机构的id、pid列表
+        // List of id and pid of all organizations
         List<SysOrgEntity> orgList = baseMapper.getIdAndPidList();
 
-        // 递归查询所有子机构ID列表
+        // Recursively query the list of all child organization IDs
         List<Long> subIdList = new ArrayList<>();
         getTree(id, orgList, subIdList);
 
-        // 本机构也添加进去
+        // Also add this organization
         subIdList.add(id);
 
         return subIdList;

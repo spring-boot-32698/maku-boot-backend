@@ -6,9 +6,9 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.mybatis.entity.BaseEntity;
 
 /**
- * 用户角色关系
+ * User-role relationship
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -18,11 +18,11 @@ public class SysUserRoleEntity extends BaseEntity {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 角色ID
+	 * Role ID
 	 */
 	private Long roleId;
 	/**
-	 * 用户ID
+	 * User ID
 	 */
 	private Long userId;
 

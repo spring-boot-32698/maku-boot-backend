@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * FastExcel 测试
+ * FastExcel Test
  *
  * @author eden
  */
@@ -55,16 +55,16 @@ public class FastExcelTest {
     @Data
     public static class ExcelClass {
 
-        @ExcelProperty("整数")
+        @ExcelProperty("Integer")
         private Integer number;
 
-        @ExcelProperty("字符串")
+        @ExcelProperty("String")
         private String string;
 
-        @ExcelProperty("小数")
+        @ExcelProperty("Decimal")
         private Double decimals;
 
-        @ExcelProperty(value = "日期", converter = LocalDateTimeConverter.class)
+        @ExcelProperty(value = "Date", converter = LocalDateTimeConverter.class)
         private LocalDateTime date;
     }
 

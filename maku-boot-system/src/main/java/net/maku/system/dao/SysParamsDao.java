@@ -6,9 +6,9 @@ import net.maku.system.entity.SysParamsEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 参数管理
+ * Parameter management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Mapper

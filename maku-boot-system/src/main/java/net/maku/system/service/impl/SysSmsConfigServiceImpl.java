@@ -22,9 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 短信配置
+ * SMS settings
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Service
@@ -57,10 +57,10 @@ public class SysSmsConfigServiceImpl extends BaseServiceImpl<SysSmsConfigDao, Sy
 
     @Override
     public List<SmsConfig> listByEnable() {
-        // 从缓存读取
+        // Read from cache
         List<SmsConfig> cacheList = smsConfigCache.list();
 
-        // 如果缓存没有，则从DB读取，然后保存到缓存里
+        // If not in cache, read from DB, then save it to cache
         if (cacheList == null) {
             List<SysSmsConfigEntity> list = this.list(new LambdaQueryWrapper<SysSmsConfigEntity>().in(SysSmsConfigEntity::getStatus, Constant.ENABLE));
 

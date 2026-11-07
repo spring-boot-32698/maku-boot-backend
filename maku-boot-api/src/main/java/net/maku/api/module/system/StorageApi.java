@@ -3,51 +3,51 @@ package net.maku.api.module.system;
 import java.io.InputStream;
 
 /**
- * 存储服务API
+ * Storage service API
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface StorageApi {
 
     /**
-     * 根据文件名，生成带时间戳的新文件名
+     * Generate a new timestamped file name from the file name
      *
-     * @param fileName 文件名
-     * @return 返回带时间戳的文件名
+     * @param fileName File name
+     * @return Return the file name with a timestamp
      */
     String getNewFileName(String fileName);
 
     /**
-     * 生成路径，不包含文件名
+     * Generate the path, excluding the file name
      *
-     * @return 返回生成的路径
+     * @return Return the generated path
      */
     String getPath();
 
     /**
-     * 根据文件名，生成路径
+     * Generate a path from the file name
      *
-     * @param fileName 文件名
-     * @return 生成文件路径
+     * @param fileName File name
+     * @return Generate file path
      */
     String getPath(String fileName);
 
     /**
-     * 文件上传
+     * File upload
      *
-     * @param data 文件字节数组
-     * @param path 文件路径，包含文件名
-     * @return 返回http地址
+     * @param data File byte array
+     * @param path File path, including file name
+     * @return Return http address
      */
     String upload(byte[] data, String path);
 
     /**
-     * 文件上传
+     * File upload
      *
-     * @param inputStream 字节流
-     * @param path        文件路径，包含文件名
-     * @return 返回http地址
+     * @param inputStream Byte stream
+     * @param path        File path, including file name
+     * @return Return http address
      */
     String upload(InputStream inputStream, String path);
 }

@@ -8,9 +8,9 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 /**
- * 华为云存储
+ * Huawei Cloud storage
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public class HuaweiStorageService extends StorageService {
@@ -32,7 +32,7 @@ public class HuaweiStorageService extends StorageService {
             client.putObject(properties.getHuawei().getBucketName(), path, inputStream);
             client.close();
         } catch (Exception e) {
-            throw new ServerException("上传文件失败：", e);
+            throw new ServerException("File upload failed:", e);
         }
 
         return properties.getConfig().getDomain() + "/" + path;

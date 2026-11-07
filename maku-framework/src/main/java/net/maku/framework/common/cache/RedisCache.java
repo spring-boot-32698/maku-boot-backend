@@ -1,12 +1,16 @@
 package net.maku.framework.common.cache;
 
 import jakarta.annotation.Resource;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -14,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Redis Cache
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Component
@@ -23,19 +27,19 @@ public class RedisCache {
     private RedisTemplate<String, Object> redisTemplate;
 
     /**
-     * 默认过期时长为24小时，单位：秒
+     * Default expiration is 24 hours, unit: seconds
      */
     public final static long DEFAULT_EXPIRE = 60 * 60 * 24L;
     /**
-     * 过期时长为1小时，单位：秒
+     * Expiration is 1 hour, unit: seconds
      */
     public final static long HOUR_ONE_EXPIRE = 60 * 60 * 1L;
     /**
-     * 过期时长为6小时，单位：秒
+     * Expiration is 6 hours, unit: seconds
      */
     public final static long HOUR_SIX_EXPIRE = 60 * 60 * 6L;
     /**
-     * 不设置过期时长
+     * Do not set an expiration duration
      */
     public final static long NOT_EXPIRE = -1L;
 
@@ -64,6 +68,31 @@ public class RedisCache {
 
     public Long increment(String key) {
         return redisTemplate.opsForValue().increment(key);
+    }
+
+    /**
+     * Set only if the key does not exist yet
+     *
+     * @return true if the value was set
+     */
+    public boolean setIfAbsent(String key, Object value, long expire) {
+        return Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(key, value, expire, TimeUnit.SECONDS));
+    }
+
+    /**
+     * Find keys with SCAN (non-blocking, unlike KEYS)
+     */
+    public List<String> scan(String pattern) {
+        List<String> keys = new ArrayList<>();
+        ScanOptions options = ScanOptions.scanOptions().match(pattern).count(1000).build();
+        try (Cursor<String> cursor = redisTemplate.scan(options)) {
+            cursor.forEachRemaining(keys::add);
+        }
+        return keys;
+    }
+
+    public List<Object> multiGet(Collection<String> keys) {
+        return redisTemplate.opsForValue().multiGet(keys);
     }
 
     public Boolean hasKey(String key) {

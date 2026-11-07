@@ -29,15 +29,15 @@ import java.util.List;
 
 
 /**
- * 用户管理
+ * User management
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @RestController
 @RequestMapping("sys/user")
 @AllArgsConstructor
-@Tag(name = "用户管理")
+@Tag(name = "User management")
 public class SysUserController {
     private final SysUserService sysUserService;
     private final SysUserRoleService sysUserRoleService;
@@ -46,7 +46,7 @@ public class SysUserController {
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("page")
-    @Operation(summary = "分页")
+    @Operation(summary = "Pagination")
     public Result<PageResult<SysUserVO>> page(@ParameterObject @Valid SysUserQuery query) {
         PageResult<SysUserVO> page = sysUserService.page(query);
 
@@ -54,18 +54,18 @@ public class SysUserController {
     }
 
     @GetMapping("{id}")
-    @Operation(summary = "信息")
+    @Operation(summary = "Information")
     @PreAuthorize("hasAuthority('sys:user:info')")
     public Result<SysUserVO> get(@PathVariable("id") Long id) {
         SysUserEntity entity = sysUserService.getById(id);
 
         SysUserVO vo = BeanUtil.copyProperties(entity, SysUserVO.class);
 
-        // 用户角色列表
+        // User role list
         List<Long> roleIdList = sysUserRoleService.getRoleIdList(id);
         vo.setRoleIdList(roleIdList);
 
-        // 用户岗位列表
+        // User post list
         List<Long> postIdList = sysUserPostService.getPostIdList(id);
         vo.setPostIdList(postIdList);
 
@@ -73,15 +73,15 @@ public class SysUserController {
     }
 
     @GetMapping("info")
-    @Operation(summary = "登录用户")
+    @Operation(summary = "Logged-in user")
     public Result<SysUserVO> info() {
         SysUserVO user = BeanUtil.copyProperties(SecurityUser.getUser(), SysUserVO.class);
 
-        // 用户岗位列表
+        // User post list
         List<Long> postIdList = sysUserPostService.getPostIdList(user.getId());
         user.setPostIdList(postIdList);
 
-        // 用户岗位名称列表
+        // User post name list
         List<String> postNameList = sysPostService.getNameList(postIdList);
         user.setPostNameList(postNameList);
 
@@ -89,7 +89,7 @@ public class SysUserController {
     }
 
     @PutMapping("info")
-    @Operation(summary = "修改登录用户信息")
+    @Operation(summary = "Update logged-in user info")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     public Result<String> loginInfo(@RequestBody @Valid SysUserBaseVO vo) {
         sysUserService.updateLoginInfo(vo);
@@ -98,7 +98,7 @@ public class SysUserController {
     }
 
     @PutMapping("avatar")
-    @Operation(summary = "修改登录用户头像")
+    @Operation(summary = "Update logged-in user avatar")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     public Result<String> avatar(@RequestBody SysUserAvatarVO avatar) {
         sysUserService.updateAvatar(avatar);
@@ -107,7 +107,7 @@ public class SysUserController {
     }
 
     @PutMapping("signature")
-    @Operation(summary = "修改登录用户签名")
+    @Operation(summary = "Update logged-in user signature")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     public Result<String> signature(@RequestBody SysUserSignatureVO signature) {
         sysUserService.updateSignature(signature);
@@ -116,46 +116,46 @@ public class SysUserController {
     }
 
     @PutMapping("password")
-    @Operation(summary = "修改密码")
+    @Operation(summary = "Change password")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     public Result<String> password(@RequestBody @Valid SysUserPasswordVO vo) {
-        // 原密码不正确
+        // Old password is incorrect
         UserDetail user = SecurityUser.getUser();
         if (!passwordEncoder.matches(vo.getPassword(), user.getPassword())) {
-            return Result.error("原密码不正确");
+            return Result.error("Old password is incorrect");
         }
 
-        // 修改密码
+        // Change password
         sysUserService.updatePassword(user.getId(), passwordEncoder.encode(vo.getNewPassword()));
 
         return Result.ok();
     }
 
     @PostMapping
-    @Operation(summary = "保存")
+    @Operation(summary = "Save")
     @OperateLog(type = OperateTypeEnum.INSERT)
     @PreAuthorize("hasAuthority('sys:user:save')")
     public Result<String> save(@RequestBody @Valid SysUserVO vo) {
-        // 新增密码不能为空
+        // New password cannot be empty
         if (StrUtil.isBlank(vo.getPassword())) {
-            return Result.error("密码不能为空");
+            return Result.error("Password cannot be empty");
         }
 
-        // 密码加密
+        // Password encryption
         vo.setPassword(passwordEncoder.encode(vo.getPassword()));
 
-        // 保存
+        // Save
         sysUserService.save(vo);
 
         return Result.ok();
     }
 
     @PutMapping
-    @Operation(summary = "修改")
+    @Operation(summary = "Edit")
     @OperateLog(type = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('sys:user:update')")
     public Result<String> update(@RequestBody @Valid SysUserVO vo) {
-        // 如果密码不为空，则进行加密处理
+        // If the password is not empty, encrypt it
         if (StrUtil.isBlank(vo.getPassword())) {
             vo.setPassword(null);
         } else {
@@ -168,13 +168,13 @@ public class SysUserController {
     }
 
     @DeleteMapping
-    @Operation(summary = "删除")
+    @Operation(summary = "Delete")
     @OperateLog(type = OperateTypeEnum.DELETE)
     @PreAuthorize("hasAuthority('sys:user:delete')")
     public Result<String> delete(@RequestBody List<Long> idList) {
         Long userId = SecurityUser.getUserId();
         if (idList.contains(userId)) {
-            return Result.error("不能删除当前登录用户");
+            return Result.error("Cannot delete the currently logged-in user");
         }
 
         sysUserService.delete(idList);
@@ -183,7 +183,7 @@ public class SysUserController {
     }
 
     @PostMapping("nameList")
-    @Operation(summary = "用户姓名列表")
+    @Operation(summary = "User name list")
     public Result<List<String>> nameList(@RequestBody List<Long> idList) {
         List<String> list = sysUserService.getRealNameList(idList);
 
@@ -191,7 +191,7 @@ public class SysUserController {
     }
 
     @GetMapping("orgUserList/{orgId}")
-    @Operation(summary = "机构用户列表")
+    @Operation(summary = "Organization user list")
     public Result<List<SysUserVO>> orgUserList(@PathVariable("orgId") Long orgId) {
         List<SysUserVO> list = sysUserService.getOrgUserList(orgId);
 
@@ -199,12 +199,12 @@ public class SysUserController {
     }
 
     @PostMapping("import")
-    @Operation(summary = "导入用户")
+    @Operation(summary = "Import users")
     @OperateLog(type = OperateTypeEnum.IMPORT)
     @PreAuthorize("hasAuthority('sys:user:import')")
     public Result<String> importExcel(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            return Result.error("请选择需要上传的文件");
+            return Result.error("Please select the file to upload");
         }
         sysUserService.importByExcel(file, passwordEncoder.encode("123456"));
 
@@ -212,7 +212,7 @@ public class SysUserController {
     }
 
     @GetMapping("export")
-    @Operation(summary = "导出用户")
+    @Operation(summary = "Export users")
     @OperateLog(type = OperateTypeEnum.EXPORT)
     @PreAuthorize("hasAuthority('sys:user:export')")
     public void export() {

@@ -6,15 +6,15 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.common.query.Query;
 
 /**
- * 邮件配置查询
+ * Mail settings query
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Schema(description = "邮件配置查询")
+@Schema(description = "Mail settings query")
 public class SysMailConfigQuery extends Query {
-    @Schema(description = "平台类型")
+    @Schema(description = "Platform type")
     private Integer platform;
 
 }

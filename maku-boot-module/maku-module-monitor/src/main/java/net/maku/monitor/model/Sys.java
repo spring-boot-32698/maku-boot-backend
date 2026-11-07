@@ -13,28 +13,28 @@ import lombok.Data;
 public class Sys {
 
     /**
-     * 操作系统
+     * Operating system
      */
     private String osName;
 
     /**
-     * 系统架构
+     * System architecture
      */
     private String osArch;
 
     /**
-     * 系统版本
+     * System version
      */
     private String osVersion;
 
 
     /**
-     * 服务器名称
+     * Server name
      */
     private String computerName;
 
     /**
-     * 服务器Ip
+     * Server Ip
      */
     private String computerIp;
 

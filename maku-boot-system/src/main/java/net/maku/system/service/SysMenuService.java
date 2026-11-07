@@ -10,9 +10,9 @@ import java.util.Set;
 
 
 /**
- * 菜单管理
+ * Menu management
  * 
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public interface SysMenuService extends BaseService<SysMenuEntity> {
@@ -24,28 +24,28 @@ public interface SysMenuService extends BaseService<SysMenuEntity> {
 	void delete(Long id);
 
 	/**
-	 * 菜单列表
+	 * Menu list
 	 *
-	 * @param type 菜单类型
+	 * @param type Menu type
 	 */
 	List<SysMenuVO> getMenuList(Integer type);
 
 	/**
-	 * 用户菜单列表
+	 * User menu list
 	 *
-	 * @param user  用户
-	 * @param type 菜单类型
+	 * @param user  User
+	 * @param type Menu type
 	 */
 	List<SysMenuVO> getUserMenuList(UserDetail user, Integer type);
 
 	/**
-	 * 获取子菜单的数量
-	 * @param pid  父菜单ID
+	 * Get the number of child menus
+	 * @param pid  Parent menu ID
 	 */
 	Long getSubMenuCount(Long pid);
 
 	/**
-	 * 获取用户权限列表
+	 * Get user permission list
 	 */
 	Set<String> getUserAuthority(UserDetail user);
 }

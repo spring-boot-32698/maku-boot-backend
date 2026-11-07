@@ -6,9 +6,9 @@ import lombok.EqualsAndHashCode;
 import net.maku.framework.mybatis.entity.BaseEntity;
 
 /**
- * 角色数据权限
+ * Role data permission
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
@@ -16,11 +16,11 @@ import net.maku.framework.mybatis.entity.BaseEntity;
 @TableName("sys_role_data_scope")
 public class SysRoleDataScopeEntity extends BaseEntity {
 	/**
-	 * 角色ID
+	 * Role ID
 	 */
 	private Long roleId;
 	/**
-	 * 机构ID
+	 * Organization ID
 	 */
 	private Long orgId;
 

@@ -8,29 +8,29 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 分页工具类
+ * Pagination utility class
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 @Data
-@Schema(description = "分页数据")
+@Schema(description = "Pagination data")
 public class PageResult<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "总记录数")
+    @Schema(description = "Total number of records")
     private int total;
 
-    @Schema(description = "列表数据")
+    @Schema(description = "List data")
     private List<T> list;
 
-    @Schema(description = "合计数据")
+    @Schema(description = "Total data")
     private Map<String, Object> summary;
 
     /**
-     * 分页
-     * @param list   列表数据
-     * @param total  总记录数
+     * Pagination
+     * @param list   List data
+     * @param total  Total number of records
      */
     public PageResult(List<T> list, long total) {
         this.list = list;
@@ -38,10 +38,10 @@ public class PageResult<T> implements Serializable {
     }
 
     /**
-     * 分页
-     * @param list   列表数据
-     * @param total  总记录数
-     * @param summary 合计数据
+     * Pagination
+     * @param list   List data
+     * @param total  Total number of records
+     * @param summary Total data
      */
     public PageResult(List<T> list, long total, Map<String, Object> summary) {
         this.list = list;

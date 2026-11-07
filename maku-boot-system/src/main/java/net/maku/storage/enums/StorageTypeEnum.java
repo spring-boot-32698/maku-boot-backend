@@ -1,30 +1,30 @@
 package net.maku.storage.enums;
 
 /**
- * 存储类型枚举
+ * Storage type enum
  *
- * @author 阿沐 babamu@126.com
+ * @author Amu babamu@126.com
  * <a href="https://maku.net">MAKU</a>
  */
 public enum StorageTypeEnum {
     /**
-     * 本地
+     * Local
      */
     LOCAL,
     /**
-     * 阿里云
+     * Alibaba Cloud
      */
     ALIYUN,
     /**
-     * 腾讯云
+     * Tencent Cloud
      */
     TENCENT,
     /**
-     * 七牛云
+     * Qiniu Cloud
      */
     QINIU,
     /**
-     * 华为云
+     * Huawei Cloud
      */
     HUAWEI,
     /**

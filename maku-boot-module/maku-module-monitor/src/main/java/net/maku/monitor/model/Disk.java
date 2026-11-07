@@ -11,37 +11,37 @@ import lombok.Data;
 public class Disk {
 
     /**
-     * 磁盘名称
+     * Disk name
      */
     private String diskName;
 
     /**
-     * 磁盘类型
+     * Disk type
      */
     private String diskType;
 
     /**
-     * 磁盘路径
+     * Disk path
      */
     private String dirName;
 
     /**
-     * 总大小
+     * Total size
      */
     private String total;
 
     /**
-     * 剩余大小
+     * Remaining size
      */
     private String free;
 
     /**
-     * 已经使用量
+     * Amount already used
      */
     private String used;
 
     /**
-     * 资源的使用率
+     * Resource usage rate
      */
     private double usage;
 

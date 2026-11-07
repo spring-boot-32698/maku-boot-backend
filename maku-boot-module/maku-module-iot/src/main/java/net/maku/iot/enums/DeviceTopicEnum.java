@@ -13,7 +13,7 @@ import java.util.List;
 
 
 /**
- * 设备消息主题类型枚举
+ * Device message topic type enum
  *
  * @author LSF maku_lsf@163.com
  */
@@ -21,80 +21,80 @@ import java.util.List;
 @RequiredArgsConstructor
 public enum DeviceTopicEnum {
     /**
-     * 设备指令下发主题
+     * Device command dispatch topic
      */
     COMMAND("command"),
 
     /**
-     * 设备信息上报主题(指令响应反馈)
+     * Device info report topic(Command response feedback)
      */
     COMMAND_RESPONSE("command_response"),
 
     /**
-     * 设备信息上报主题(属性相关)
+     * Device info report topic(Property related)
      */
     PROPERTY("property");
 
     /**
-     * 设备信息上报主题前缀
+     * Device info report topic prefix
      */
     public static final String TOPIC_PREFIX = "/maku/device";
 
 
     /**
-     * MQTT 主题模板，参数：前缀/clientid(deviceType_tenantId_deviceId_uid)/设备主题
+     * MQTT Topic template, parameters: prefix/clientid(deviceType_tenantId_deviceId_uid)/Device topic
      */
     private static final String TOPIC_TEMPLATE = "{}/{}/{}";
 
     /**
-     * 设备主题通配符模板，参数：前缀/+/设备主题
+     * Device topic wildcard template, parameter: prefix/+/Device topic
      */
     private static final String TOPIC_WILDCARD_TEMPLATE = "{}/+/{}";
 
     /**
-     * MQTT 主题
+     * MQTT Topic
      */
     private final String topic;
 
     /**
-     * 获取设备主题通配符
+     * Get the device topic wildcard
      *
-     * @return 主题通配符
+     * @return Topic wildcard
      */
     public String getWildcard() {
         return StrUtil.format(TOPIC_WILDCARD_TEMPLATE, TOPIC_PREFIX, getTopic());
     }
 
     /**
-     * 构建完整路径的设备主题
+     * Build the device topic with full path
      *
-     * @param deviceClient 设备客户端信息
-     * @return 完整路径的设备主题
+     * @param deviceClient Device client info
+     * @return Device topic with full path
      */
     public String buildTopic(DeviceClientDTO deviceClient) {
         return StrUtil.format(TOPIC_TEMPLATE, TOPIC_PREFIX, deviceClient.buildClientId(), getTopic());
     }
 
     /**
-     * 解析指定的主题字符串为 DeviceTopicEnum 枚举，若无效则抛出 IllegalArgumentException 异常
+     * Parse the specified topic string into a DeviceTopicEnum, throwing IllegalArgumentException if invalid
      *
-     * @param topic 主题字符串
-     * @return 对应的 DeviceTopicEnum 枚举
-     * @throws IllegalArgumentException 当主题字符串无效时抛出
+     * @param topic Topic string
+     * @return Corresponding DeviceTopicEnum enum
+     * @throws IllegalArgumentException Thrown when the topic string is invalid
      */
     public static DeviceTopicEnum parse(String topic) {
         String topicSuffix = StrUtil.startWith(topic, TOPIC_PREFIX) ? StrUtil.subAfter(topic, "/", true) : topic;
         return Arrays.stream(DeviceTopicEnum.values())
                 .filter(d -> d.name().equalsIgnoreCase(topicSuffix)).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(StrUtil.format("无效的 DeviceTopicEnum 值：{}", topic)));
+                .orElseThrow(() -> new IllegalArgumentException(StrUtil.format("Invalid DeviceTopicEnum value:{}", topic)));
     }
 
     /**
-     * 判断指定的主题是否以给定前缀开头
+     * Check whether the given topic starts with the given prefix
      *
-     * @param topic  主题字符串
-     * @param prefix 前缀字符串
-     * @return 若主题以给定前缀开头则返回 true，否则返回 false
+     * @param topic  Topic string
+     * @param prefix Prefix string
+     * @return Return true if the topic starts with the given prefix, otherwise false
      */
     public static boolean startsWith(String topic, String prefix) {
         try {
@@ -106,15 +106,15 @@ public enum DeviceTopicEnum {
     }
 
     /**
-     * 解析主题并获取其完整信息（设备信息及主题）
+     * Parse the topic and get its full info (device info and topic)
      *
-     * @param topic 主题字符串
-     * @return 包含设备信息及主题的 DeviceTopicContext 对象
+     * @param topic Topic string
+     * @return DeviceTopicContext object containing device info and topic
      */
     public static DeviceTopicContext parseContext(String topic) {
         String topicSuffix = StrUtil.subAfter(topic, TOPIC_PREFIX, false);
         List<String> parts = StrUtil.split(topicSuffix, "/", true, true);
-        Assert.isTrue(parts.size() == 2, "无效的设备主题:{}", topic);
+        Assert.isTrue(parts.size() == 2, "Invalid device topic:{}", topic);
 
         DeviceClientDTO deviceClient = DeviceClientDTO.parse(parts.get(0));
         DeviceTopicEnum deviceTopic = DeviceTopicEnum.parse(parts.get(1));
@@ -129,12 +129,12 @@ public enum DeviceTopicEnum {
     @Builder
     public static class DeviceTopicContext {
         /**
-         * 设备客户端信息
+         * Device client info
          */
         private DeviceClientDTO client;
 
         /**
-         * 设备主题
+         * Device topic
          */
         private DeviceTopicEnum topic;
     }
